@@ -239,6 +239,16 @@ function makeLogCard(log, options) {
 
   if (log.review) body.appendChild(el("p", "log-review", log.review));
 
+  // Report button, for reviews by other people (when logged in).
+  if (log.review) {
+    const report = makeReportButton("log", log.id, log.user_id);
+    if (report) {
+      const actions = el("p", "log-actions");
+      actions.appendChild(report);
+      body.appendChild(actions);
+    }
+  }
+
   card.appendChild(body);
   return card;
 }

@@ -99,8 +99,11 @@ async function loadPage() {
     // Your own profile: show the edit section.
     setUpEditing();
   } else if (myProfile) {
-    // Someone else's profile while logged in: show the follow button.
+    // Someone else's profile while logged in: show the follow button
+    // and a Report button.
     await setUpFollowButton(myProfile);
+    const report = makeReportButton("user", profile.id, profile.id);
+    if (report) document.getElementById("profile-report").appendChild(report);
   } else {
     // Logged out: invite them to log in to follow.
     document.getElementById("follow-login").hidden = false;

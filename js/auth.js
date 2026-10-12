@@ -200,6 +200,58 @@ async function logOut() {
   window.location.href = "index.html";
 }
 
+// Who is logged in, filled in by setupHeader below. Other files read
+// these after `await authReady` (for example to show Report buttons).
+let currentUserId = null;
+let currentIsAdmin = false;
+
+// Is the logged-in person an admin? (supabase/step10-reports-admin.sql)
+async function checkAdmin(userId) {
+  const { data } = await db.from("admins").select("user_id").eq("user_id", userId).maybeSingle();
+  return data !== null && data !== undefined;
+}
+
+
+// ---------- Reporting ----------
+
+// Sends a report about a review (kind "log", id = log id) or a profile
+// (kind "user", id = user id). Asks for a reason first, then changes the
+// button to "Reported". Only for logged-in people.
+async function sendReport(kind, id, button) {
+  const what = kind === "log" ? "review" : "profile";
+  const reason = window.prompt(
+    "Why are you reporting this " + what + "? (optional)\n" +
+      "For example: spam, harassment, spoilers, offensive."
+  );
+  if (reason === null) return; // they pressed Cancel
+
+  button.disabled = true;
+  const report = { reason: reason.trim().slice(0, 500) || null };
+  if (kind === "log") report.log_id = id;
+  else report.reported_user_id = id;
+
+  const { error } = await db.from("reports").insert(report);
+  // 23505 = they already reported it, which is fine.
+  if (error && error.code !== "23505") {
+    button.disabled = false;
+    window.alert("Sorry, the report didn't go through: " + error.message);
+    return;
+  }
+  button.textContent = "Reported";
+  button.title = "Thanks. We'll take a look.";
+}
+
+// A small "Report" button. Returns null when it shouldn't show: logged
+// out, or it's your own review / profile.
+function makeReportButton(kind, id, ownerId) {
+  if (!currentUserId || ownerId === currentUserId) return null;
+  const button = el("button", "link-button report-button", "Report");
+  button.type = "button";
+  button.addEventListener("click", () => sendReport(kind, id, button));
+  return button;
+}
+
+
 async function setupHeader() {
   const nav = document.getElementById("site-nav");
 
@@ -227,6 +279,9 @@ async function setupHeader() {
     return { user: user, profile: null };
   }
 
+  currentUserId = user.id;
+  currentIsAdmin = await checkAdmin(user.id);
+
   // Logged in with a profile: your picture and @username open a small
   // menu with Profile, Settings and Log out. It's a <details> element,
   // which opens and closes on click without any extra code.
@@ -247,7 +302,13 @@ async function setupHeader() {
   const logOutItem = el("button", "link-button", "Log out");
   logOutItem.type = "button";
   logOutItem.addEventListener("click", logOut);
-  items.append(profileItem, settingsItem, logOutItem);
+  items.append(profileItem, settingsItem);
+  if (currentIsAdmin) {
+    const adminItem = el("a", "", "Admin");
+    adminItem.href = "admin.html";
+    items.appendChild(adminItem);
+  }
+  items.appendChild(logOutItem);
   menu.appendChild(items);
 
   // Close the menu when clicking anywhere else on the page.

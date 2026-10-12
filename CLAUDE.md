@@ -18,7 +18,8 @@ the people they follow are reading.
 - **Sign up:** email and password, plus Google sign in.
 - **Usernames at sign up:** the chosen username is stored on the login account (`user_metadata.username`). A database trigger (`supabase/step2-profile-trigger.sql`) creates the profile row the moment the account is created; it skips bad or taken usernames instead of failing the sign up. As a backup, `ensureProfile` in `js/auth.js` creates it on first login. Any logged-in user without a profile (e.g. first Google sign in, or their username got taken meanwhile) is sent to `choose-username.html` by `js/auth.js`.
 - **Profile links:** `profile.html?u=username` for now. If no current user has that name, the profile page looks it up in `old_usernames` and sends the visitor on to the person's new name.
-- **Header menu:** when logged in, your picture and @username open a small menu (a `<details>` element): Your profile, Settings, Log out. Clicking elsewhere closes it.
+- **Header menu:** when logged in, your picture and @username open a small menu (a `<details>` element): Your profile, Settings, Admin (admins only), Log out.
+- **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
 - **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
 - **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
@@ -44,6 +45,8 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
 - **follows:** follower_id, following_id
 - **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
+- **admins:** user_id. Only the owner (`cflo13`). Users can only see their own row (to show the Admin menu link). In `supabase/step10-reports-admin.sql`, which has a placeholder id; the live project has the owner's real id.
+- **reports:** reporter_id, log_id or reported_user_id (exactly one), reason (max 500), status (`open` / `dismissed`). Anyone logged in can send; only admins can read, dismiss or delete. One report per person per review/profile. Admins may also delete any log and any avatar (`is_admin()` in the rules).
 - **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
 
 Everyone can read everything. Users can only change their own profile, logs, follows and shelves.
@@ -61,6 +64,7 @@ Pages:
 - `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
 - `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
 - `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
+- `admin.html` + `js/admin.js`: admin-only. Open reports newest first, with the reported review or profile; buttons Remove review, Remove user (`admin_delete_user`, then deletes their picture), Dismiss. Non-admins see "only for the site admin"
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
@@ -76,9 +80,11 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step3-avatars.sql`: the `avatars` storage bucket and its security rules (step 3)
 - `supabase/step7-shelves.sql`: the `shelves` table (feature 1, Want to read / Currently reading)
 - `supabase/step8-old-usernames.sql`: remembers old usernames (batch 2, account settings)
+- `supabase/step10-reports-admin.sql`: admins, reports, admin rules (batch 2, moderation)
+- `supabase/step11-admin-remove-user.sql`: `admin_delete_user(target)` for the admin page (touches `auth.users`, so the owner runs it)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
-All of these have been applied to the live project, except `step9-delete-account.sql` (see "Waiting on the owner").
+All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
 
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
@@ -146,17 +152,18 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 2 (account settings): built.** Header account menu, settings page, `step8-old-usernames.sql` applied (trigger checked on the live database inside a rolled-back test).
 - **Batch 2 item 3 (delete account): built.** Tested with stand-ins (confirmation typing, function missing, full delete cascades, goodbye message). The SQL still has to be run by the owner.
 - **Batch 2 item 4 (About, Privacy, Terms, footer): built.**
+- **Batch 2 item 5 (report + admin): built.** `step10` applied; `step11` waits on the owner. Security advisor: `is_admin()` is callable by logged-in users on purpose (the rules need it); anon access revoked.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner
 
-- Run `supabase/step9-delete-account.sql` in the Supabase SQL Editor. Claude's connector can't run SQL that touches the login table (`auth.users`): it waits for an approval that never arrives and times out. Until it's run, the Delete account button says deleting isn't switched on yet and deletes nothing.
+- Run `supabase/step9-delete-account.sql` and `supabase/step11-admin-remove-user.sql` in the Supabase SQL Editor. Claude's connector can't run SQL that touches the login table (`auth.users`): it waits for an approval that never arrives and times out. Until they're run, the Delete account button says deleting isn't switched on yet and deletes nothing, and the admin page's Remove user button says the same.
 
 ## Notes for later steps
 
 - Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
 - Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
 - Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
-- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table) always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
+- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), or that drops anything (policies, functions), always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
 - Security advisor, last check: one remaining warning, "Leaked password protection disabled" (a dashboard setting under Authentication; may need a paid plan).
 - Profile links like `yoursite.com/username` need a small redirect trick on static hosting (e.g. a `404.html` that reads the path). Until then use `profile.html?u=username`.
