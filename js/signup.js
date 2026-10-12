@@ -57,8 +57,9 @@ signupForm.addEventListener("submit", async function (event) {
     }
 
     if (!data.session) {
-      // Supabase sent a confirmation email. The profile gets created the
-      // first time they log in (see ensureProfile in auth.js).
+      // Supabase sent a confirmation email. The database already created
+      // the profile; if it couldn't, ensureProfile in auth.js deals with it
+      // when they log in.
       showSignupMessage(
         "ok",
         "Almost done! Check your email and click the confirmation link, then log in."
@@ -67,13 +68,11 @@ signupForm.addEventListener("submit", async function (event) {
       return;
     }
 
-    // Logged in straight away: create the profile and go to it.
-    const saveProblem = await createProfile(data.user.id, username);
-    if (saveProblem) {
-      window.location.href = "choose-username.html";
-      return;
-    }
-    window.location.href = profileLink(username);
+    // Logged in straight away. The database usually created the profile
+    // already (supabase/step2-profile-trigger.sql); ensureProfile finds it,
+    // or creates it if not.
+    const profile = await ensureProfile(data.user);
+    window.location.href = profile ? profileLink(profile.username) : "choose-username.html";
   } catch (error) {
     showSignupMessage("error", "Something went wrong: " + error.message);
   } finally {
