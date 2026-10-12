@@ -54,7 +54,7 @@ chooseInput.addEventListener("input", function () {
         showChooseMessage("error", saveProblem);
         return;
       }
-      window.location.href = profileLink(username);
+      window.location.href = "welcome.html"; // new here: say hello
     } catch (error) {
       showChooseMessage("error", friendlyError(error, "Something went wrong. "));
     } finally {

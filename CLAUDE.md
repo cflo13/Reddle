@@ -43,7 +43,7 @@ the people they follow are reading.
 
 Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 
-- **profiles:** id (same as the login user id), username, bio, avatar_url
+- **profiles:** id (same as the login user id), username, bio, avatar_url, onboarded (has seen the welcome page; `step13-onboarding.sql`)
 - **books:** id, external_id (unique), title, author, cover_url, description, isbn
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
 - **follows:** follower_id, following_id
@@ -70,6 +70,7 @@ Pages:
 - `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
 - `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
 - `admin.html` + `js/admin.js`: admin-only. Open reports newest first, with the reported review or profile; buttons Remove review, Remove user (`admin_delete_user`, then deletes their picture), Dismiss. Non-admins see "only for the site admin"
+- `welcome.html` + `js/welcome.js`: shown once to new users (after sign up, after choosing a username, or on first login when `onboarded` is false). Search box to log a first book, and the 6 readers with the most recent logs with Follow buttons. Visiting it sets `onboarded` to true
 - `404.html`: Page not found, with a search box and a link home
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
@@ -89,6 +90,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step10-reports-admin.sql`: admins, reports, admin rules (batch 2, moderation)
 - `supabase/step11-admin-remove-user.sql`: `admin_delete_user(target)` for the admin page (touches `auth.users`, so the owner runs it)
 - `supabase/step12-limits.sql`: limits the database enforces (review 5000 and not blank, bio not blank, avatar must be in our storage, book id format and field sizes, sensible reading dates) (batch 2)
+- `supabase/step13-onboarding.sql`: `profiles.onboarded` (existing accounts true, new ones false) (batch 2, welcome step)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -165,6 +167,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 7 (Load more): built.** Tested with 46 logs: 20 per page, no repeats, button disappears at the end.
 - **Batch 2 item 8 (404 + friendly errors): built.** Tested with a local server that copies GitHub Pages' 404 behaviour, and with Open Library and the Supabase library blocked.
 - **Batch 2 item 9 (favicon, titles, previews): built.**
+- **Batch 2 item 10 (welcome step): built.** `step13-onboarding.sql` applied (as add-with-default-true, then default false, to avoid an all-rows update).
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner
@@ -176,6 +179,6 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
 - Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
 - Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
-- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), or that drops anything (policies, functions), always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
+- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), drops anything (policies, functions), or updates every row of a table always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
 - Security advisor, last check: one remaining warning, "Leaked password protection disabled" (a dashboard setting under Authentication; may need a paid plan).
 - Profile links like `yoursite.com/username` need a small redirect trick on static hosting (e.g. a `404.html` that reads the path). Until then use `profile.html?u=username`.

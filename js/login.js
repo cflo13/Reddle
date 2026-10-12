@@ -37,10 +37,12 @@ loginForm.addEventListener("submit", async function (event) {
 
     // First login after confirming the email creates the profile here.
     const profile = await ensureProfile(data.user);
-    if (profile) {
-      window.location.href = profileLink(profile.username);
-    } else {
+    if (!profile) {
       window.location.href = "choose-username.html";
+    } else if (!profile.onboarded) {
+      window.location.href = "welcome.html"; // first time: say hello
+    } else {
+      window.location.href = profileLink(profile.username);
     }
   } catch (error) {
     showLoginMessage("error", friendlyError(error, "Something went wrong. "));

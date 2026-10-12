@@ -921,3 +921,48 @@ body > main {
   max-width: 460px;
   margin: 24px auto;
 }
+
+/* ---------- Welcome page ---------- */
+
+.welcome-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.welcome-steps .card .form {
+  margin-bottom: 0;
+}
+
+.suggested-people {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.suggested-person {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.suggested-person-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.suggested-person-name span {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.welcome-done {
+  margin-top: 28px;
+  text-align: center;
+}

@@ -71,8 +71,9 @@ signupForm.addEventListener("submit", async function (event) {
     // Logged in straight away. The database usually created the profile
     // already (supabase/step2-profile-trigger.sql); ensureProfile finds it,
     // or creates it if not.
+    // New accounts go to the welcome page first.
     const profile = await ensureProfile(data.user);
-    window.location.href = profile ? profileLink(profile.username) : "choose-username.html";
+    window.location.href = profile ? "welcome.html" : "choose-username.html";
   } catch (error) {
     showSignupMessage("error", friendlyError(error, "Something went wrong. "));
   } finally {
