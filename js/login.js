@@ -31,7 +31,7 @@ loginForm.addEventListener("submit", async function (event) {
       password: password,
     });
     if (error) {
-      showLoginMessage("error", error.message);
+      showLoginMessage("error", friendlyError(error));
       return;
     }
 
@@ -43,7 +43,7 @@ loginForm.addEventListener("submit", async function (event) {
       window.location.href = "choose-username.html";
     }
   } catch (error) {
-    showLoginMessage("error", "Something went wrong: " + error.message);
+    showLoginMessage("error", friendlyError(error, "Something went wrong. "));
   } finally {
     button.disabled = false;
   }

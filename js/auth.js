@@ -72,11 +72,30 @@ function showStatus(element, kind, text) {
 // in front, for example "Couldn't save your log. ".
 function friendlyError(error, start) {
   const text = (error && error.message) || String(error);
-  // The browser couldn't reach the server at all.
+  const code = error && error.code;
+  let plain;
+
   if (/Failed to fetch|NetworkError|Load failed|network/i.test(text)) {
-    return (start || "") + "We couldn't reach Reddle. Check your internet connection and try again.";
+    plain = "We couldn't reach Reddle. Check your internet connection and try again.";
+  } else if (/Invalid login credentials/i.test(text)) {
+    plain = "That email and password don't match. Try again, or use \u201cForgot password?\u201d.";
+  } else if (/Email not confirmed/i.test(text)) {
+    plain = "Please confirm your email first: click the link in the email we sent you.";
+  } else if (/already registered|already been registered/i.test(text)) {
+    plain = "There's already an account with that email. Try logging in instead.";
+  } else if (/JWT expired|session.*(missing|expired)|not logged in/i.test(text)) {
+    plain = "Your login has expired. Please log in again.";
+  } else if (code === "23514") {
+    plain = "That's too long or not allowed here.";
+  } else if (code === "23505") {
+    plain = "That already exists.";
+  } else if (code === "42501" || /row-level security|permission denied/i.test(text)) {
+    plain = "You're not allowed to do that. Try logging out and in again.";
+  } else {
+    // Supabase's own messages are usually clear enough on their own.
+    plain = text.endsWith(".") ? text : text + ".";
   }
-  return (start || "") + text;
+  return (start || "") + plain;
 }
 
 // The address of a page on this site, for links in emails.
@@ -115,7 +134,7 @@ async function createProfile(userId, username) {
   if (!error) return "";
   // 23505 is the database's code for "this value must be unique".
   if (error.code === "23505") return "Sorry, that username was just taken.";
-  return "Could not save your username: " + error.message;
+  return friendlyError(error, "Couldn't save your username. ");
 }
 
 // Makes sure a logged-in user has a profile, and returns it.
@@ -191,11 +210,35 @@ async function signInWithGoogle(showMessage) {
     provider: "google",
     options: { redirectTo: homePage },
   });
-  if (error) showMessage("error", error.message);
+  if (error) showMessage("error", friendlyError(error));
   // If there was no error the browser is now on its way to Google.
   // When the user comes back, auth.js sees they have no username yet and
   // sends them to choose-username.html.
 }
+
+
+// ---------- Page-wide problems ----------
+
+// Shows one red message at the top of the page (only the first one).
+function showPageProblem(text) {
+  if (document.getElementById("page-problem")) return;
+  const main = document.querySelector("main");
+  if (!main) return;
+  const box = el("p", "status status-error page-problem", text + " ");
+  box.id = "page-problem";
+  const retry = el("button", "link-button", "Try again");
+  retry.type = "button";
+  retry.addEventListener("click", () => window.location.reload());
+  box.appendChild(retry);
+  main.prepend(box);
+}
+
+// Safety net: if something fails that the page didn't expect, tell the
+// visitor instead of leaving a half-loaded page.
+window.addEventListener("unhandledrejection", function (event) {
+  console.error(event.reason);
+  showPageProblem(friendlyError(event.reason, "Part of this page didn't load. "));
+});
 
 
 // ---------- Header ----------
@@ -245,7 +288,7 @@ async function sendReport(kind, id, button) {
   // 23505 = they already reported it, which is fine.
   if (error && error.code !== "23505") {
     button.disabled = false;
-    window.alert("Sorry, the report didn't go through: " + error.message);
+    window.alert(friendlyError(error, "Sorry, the report didn't go through. "));
     return;
   }
   button.textContent = "Reported";
@@ -266,8 +309,12 @@ function makeReportButton(kind, id, ownerId) {
 async function setupHeader() {
   const nav = document.getElementById("site-nav");
 
-  // Supabase not set up yet (js/config.js still empty): show nothing.
-  if (!db) return { user: null, profile: null };
+  // Couldn't connect (no internet, or js/config.js not filled in):
+  // say so at the top of the page.
+  if (!db) {
+    showPageProblem(notConnectedText());
+    return { user: null, profile: null };
+  }
 
   const user = await getCurrentUser();
 

@@ -69,7 +69,7 @@ async function runSearch(query) {
     if (books.length > 0) bookResults.appendChild(el("h2", "", "Books"));
     for (const book of books) bookResults.appendChild(makeBookResult(book));
   } catch (error) {
-    showSearchStatus("Search failed: " + error.message + " Please try again.");
+    showSearchStatus(friendlyError(error, "Search didn't work. "));
   }
   await peopleDone;
 }

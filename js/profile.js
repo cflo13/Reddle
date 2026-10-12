@@ -53,7 +53,7 @@ async function loadPage() {
   const { profile: myProfile } = await authReady;
 
   if (!db) {
-    showNotFound("The site isn't connected to Supabase yet. Fill in js/config.js.");
+    showNotFound("This profile couldn't load.");
     return;
   }
 
@@ -78,7 +78,7 @@ async function loadPage() {
     .maybeSingle(); // null when there is no such user
 
   if (error) {
-    showNotFound("Could not load this profile: " + error.message);
+    showNotFound(friendlyError(error, "Could not load this profile. "));
     return;
   }
   if (!profile) {
@@ -198,7 +198,7 @@ async function setUpFollowButton(myProfile) {
     button.disabled = false;
 
     if (result.error) {
-      alert("Something went wrong: " + result.error.message);
+      alert(friendlyError(result.error, "Something went wrong. "));
       return;
     }
     following = !following;
@@ -295,7 +295,7 @@ async function saveBio(event) {
     .eq("id", shownProfile.id);
 
   if (error) {
-    showSmallMessage(bioMessage, "error", "Could not save: " + error.message);
+    showSmallMessage(bioMessage, "error", friendlyError(error, "Could not save. "));
     return;
   }
 
@@ -409,7 +409,7 @@ async function uploadAvatar() {
 
     showSmallMessage(avatarMessage, "ok", "Picture updated.");
   } catch (error) {
-    showSmallMessage(avatarMessage, "error", "Upload failed: " + error.message);
+    showSmallMessage(avatarMessage, "error", friendlyError(error, "Upload failed. "));
   } finally {
     avatarInput.disabled = false;
     avatarInput.value = ""; // so choosing the same file again still works
@@ -453,5 +453,5 @@ function setUpEditing() {
 
 
 loadPage().catch(function (error) {
-  showNotFound("Something went wrong: " + error.message);
+  showNotFound(friendlyError(error, "This profile couldn't load. "));
 });

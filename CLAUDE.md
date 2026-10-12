@@ -22,7 +22,10 @@ the people they follow are reading.
 - **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
 - **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
-- **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
+- **Feed:** the home page. Logged in: latest logs from people you follow (not your own). Following nobody yet, or logged out: latest logs from everyone, so there are people to discover.
+- **Load more:** the feed, profile logs and book page logs show 20 at a time (`PAGE_SIZE` in `js/books.js`) with a "Load more" button while there are more (`showPagedLogs()`; it asks for one extra row to know). Lists are ordered by `created_at` then `id`, so pages never repeat or skip. The book page's average uses a separate query over all ratings.
+- **Errors:** every error shown to visitors goes through `friendlyError(error, start)` in `js/auth.js`, which turns common problems into plain English (no internet, wrong password, unconfirmed email, too long, not allowed, expired login). Open Library failures say Open Library couldn't be reached (`fetchOpenLibrary()` in `js/books.js`). If the Supabase library can't load or `db` is missing, `showPageProblem()` puts one red message with a Try again button at the top of the page; it's also a safety net for any unexpected failure (`unhandledrejection`).
+- **404:** `404.html` is what GitHub Pages shows for any missing address. It has `<base href="/Reddle/">` so its links and styles work at any depth (only on the live site; opened as a local file its styles won't load, which is fine).
 - **Finding people:** the search page also matches usernames (shown above the book results), and every name on a log card links to that profile.
 - **Testing:** the owner asked to skip testing between steps until the site is usable, so steps 4 to 6 were built in one go and tested by Claude with stand-ins for Supabase and Open Library.
 - **Hosting:** GitHub Pages, live at https://cflo13.github.io/Reddle/ . The repo is public and Pages serves the `claude/letterboxd-books-ceznit` branch from the root folder. Every push updates the site in about a minute. Supabase Site URL and Redirect URLs are set to this address.
@@ -67,6 +70,7 @@ Pages:
 - `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
 - `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
 - `admin.html` + `js/admin.js`: admin-only. Open reports newest first, with the reported review or profile; buttons Remove review, Remove user (`admin_delete_user`, then deletes their picture), Dismiss. Non-admins see "only for the site admin"
+- `404.html`: Page not found, with a search box and a link home
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
@@ -157,6 +161,8 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 4 (About, Privacy, Terms, footer): built.**
 - **Batch 2 item 5 (report + admin): built.** `step10` applied; `step11` waits on the owner. Security advisor: `is_admin()` is callable by logged-in users on purpose (the rules need it); anon access revoked.
 - **Batch 2 item 6 (database limits): built.** `step12-limits.sql` applied; checked on the live database with a rolled-back test that tried to break each rule.
+- **Batch 2 item 7 (Load more): built.** Tested with 46 logs: 20 per page, no repeats, button disappears at the end.
+- **Batch 2 item 8 (404 + friendly errors): built.** Tested with a local server that copies GitHub Pages' 404 behaviour, and with Open Library and the Supabase library blocked.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

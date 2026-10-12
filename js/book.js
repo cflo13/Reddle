@@ -230,7 +230,7 @@ async function setUpShelfButtons() {
       try {
         await setShelf(newStatus);
       } catch (error) {
-        shelfMessage.textContent = "Could not update: " + error.message;
+        shelfMessage.textContent = friendlyError(error, "Could not update. ");
         shelfMessage.classList.add("hint-error");
         shelfMessage.hidden = false;
       } finally {
@@ -320,7 +320,7 @@ async function saveLog(event) {
     fillLogForm();
     showLogMessage("ok", "Saved.");
   } catch (error) {
-    showLogMessage("error", "Could not save: " + error.message);
+    showLogMessage("error", friendlyError(error, "Could not save. "));
   } finally {
     button.disabled = false;
   }
@@ -331,7 +331,7 @@ async function deleteLog() {
 
   const { error } = await db.from("logs").delete().eq("id", myLog.id);
   if (error) {
-    showLogMessage("error", "Could not delete: " + error.message);
+    showLogMessage("error", friendlyError(error, "Could not delete. "));
     return;
   }
   await loadLogs();
@@ -364,7 +364,7 @@ async function loadBookPage() {
     return;
   }
   if (!db) {
-    showBookNotFound("The site isn't connected to Supabase yet. Fill in js/config.js.");
+    showBookNotFound("This book couldn't load.");
     return;
   }
 
@@ -388,5 +388,5 @@ async function loadBookPage() {
 }
 
 loadBookPage().catch(function (error) {
-  showBookNotFound("Something went wrong: " + error.message);
+  showBookNotFound(friendlyError(error, "This book couldn't load. "));
 });

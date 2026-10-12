@@ -19,7 +19,7 @@ forgotForm.addEventListener("submit", async function (event) {
   button.disabled = false;
 
   if (error) {
-    showStatus(forgotMessage, "error", "Could not send the email: " + error.message);
+    showStatus(forgotMessage, "error", friendlyError(error, "Could not send the email. "));
     return;
   }
 

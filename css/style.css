@@ -902,3 +902,14 @@ body > main {
   align-self: center;
   margin: 20px auto 0;
 }
+
+/* ---------- Problems and the 404 page ---------- */
+
+.page-problem {
+  margin-bottom: 24px;
+}
+
+.not-found-search {
+  max-width: 460px;
+  margin: 24px auto;
+}

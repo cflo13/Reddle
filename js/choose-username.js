@@ -56,7 +56,7 @@ chooseInput.addEventListener("input", function () {
       }
       window.location.href = profileLink(username);
     } catch (error) {
-      showChooseMessage("error", "Something went wrong: " + error.message);
+      showChooseMessage("error", friendlyError(error, "Something went wrong. "));
     } finally {
       button.disabled = false;
     }

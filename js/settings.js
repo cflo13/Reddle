@@ -49,7 +49,7 @@ usernameForm.addEventListener("submit", async function (event) {
       .eq("id", settingsProfile.id);
     if (error) {
       const taken = error.code === "23505";
-      showStatus(usernameMessage, "error", taken ? "Sorry, that username was just taken." : "Could not save: " + error.message);
+      showStatus(usernameMessage, "error", taken ? "Sorry, that username was just taken." : friendlyError(error, "Could not save. "));
       return;
     }
 
@@ -101,7 +101,7 @@ emailForm.addEventListener("submit", async function (event) {
   button.disabled = false;
 
   if (error) {
-    showStatus(emailMessage, "error", "Could not change your email: " + error.message);
+    showStatus(emailMessage, "error", friendlyError(error, "Could not change your email. "));
     return;
   }
   settingsUser = data.user;
@@ -139,7 +139,7 @@ passwordForm.addEventListener("submit", async function (event) {
   button.disabled = false;
 
   if (error) {
-    showStatus(passwordMessage, "error", "Could not change your password: " + error.message);
+    showStatus(passwordMessage, "error", friendlyError(error, "Could not change your password. "));
     return;
   }
   showStatus(passwordMessage, "ok", "Your password is changed.");
@@ -176,7 +176,7 @@ deleteForm.addEventListener("submit", async function (event) {
       "error",
       missing
         ? "Deleting accounts isn't switched on yet. Nothing was deleted. Please contact us and we'll delete it for you."
-        : "Could not delete your account: " + error.message + " Nothing was deleted."
+        : friendlyError(error, "Could not delete your account. ") + " Nothing was deleted."
     );
     deleteButton.disabled = false;
     return;

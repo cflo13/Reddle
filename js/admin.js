@@ -60,7 +60,7 @@ async function dismiss(report) {
 // After an action: show what happened and reload the list.
 async function finish(error, doneText) {
   if (error) {
-    showStatus(adminMessage, "error", "That didn't work: " + error.message);
+    showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
     return;
   }
   showStatus(adminMessage, "ok", doneText);
@@ -123,7 +123,7 @@ async function loadReports() {
 
   reportsList.textContent = "";
   if (error) {
-    reportsList.appendChild(el("p", "status status-error", "Could not load reports: " + error.message));
+    reportsList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load reports. ")));
     return;
   }
   if (reports.length === 0) {

@@ -52,7 +52,7 @@ signupForm.addEventListener("submit", async function (event) {
       options: { data: { username: username } },
     });
     if (error) {
-      showSignupMessage("error", error.message);
+      showSignupMessage("error", friendlyError(error));
       return;
     }
 
@@ -74,7 +74,7 @@ signupForm.addEventListener("submit", async function (event) {
     const profile = await ensureProfile(data.user);
     window.location.href = profile ? profileLink(profile.username) : "choose-username.html";
   } catch (error) {
-    showSignupMessage("error", "Something went wrong: " + error.message);
+    showSignupMessage("error", friendlyError(error, "Something went wrong. "));
   } finally {
     button.disabled = false;
   }

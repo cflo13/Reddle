@@ -15,11 +15,22 @@ function isSupabaseConfigured() {
   );
 }
 
+// `supabase` (lowercase) is the library loaded from the CDN. If the
+// internet is down or the CDN is blocked, it won't exist.
+const supabaseLoaded = typeof supabase !== "undefined";
+
 let db = null;
 
-if (isSupabaseConfigured()) {
-  // `supabase` (lowercase) is the library loaded from the CDN.
+if (supabaseLoaded && isSupabaseConfigured()) {
   db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 } else {
-  console.warn("Supabase is not set up yet. Fill in js/config.js.");
+  console.warn(notConnectedText());
+}
+
+// Why `db` is missing, in plain words.
+function notConnectedText() {
+  if (!supabaseLoaded) {
+    return "Reddle couldn't load. Check your internet connection and try again.";
+  }
+  return "The site isn't connected to its database yet (js/config.js is empty).";
 }

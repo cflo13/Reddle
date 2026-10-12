@@ -22,7 +22,7 @@ function explainError(error) {
   if (error.code === "42P01" || error.code === "PGRST205") {
     return "The database tables are missing. Run supabase/schema.sql in the Supabase SQL Editor.";
   }
-  return "Could not load: " + error.message;
+  return friendlyError(error, "Could not load. ");
 }
 
 // A page of the latest logs from everyone (rows `from` to `to`).
@@ -66,7 +66,7 @@ async function loadHome() {
   const { profile } = await authReady;
 
   if (!db) {
-    showHomeStatus("Not connected: open js/config.js and paste your Supabase URL and key.");
+    return; // auth.js already shows the problem at the top of the page
     return;
   }
 

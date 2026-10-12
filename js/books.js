@@ -30,6 +30,19 @@ function coverUrlFromId(coverId, size) {
   return "https://covers.openlibrary.org/b/id/" + coverId + "-" + size + ".jpg";
 }
 
+// fetch() for Open Library. If Open Library can't be reached, the error
+// says so in plain words (instead of blaming Reddle).
+async function fetchOpenLibrary(url) {
+  try {
+    return await fetch(url);
+  } catch (error) {
+    throw new Error(
+      "We couldn't reach Open Library, where our book information comes from. " +
+        "Check your internet connection and try again in a minute."
+    );
+  }
+}
+
 // Searches Open Library. Returns a list of
 // { externalId, title, author, coverUrl, year }.
 async function searchBooks(query) {
@@ -38,8 +51,8 @@ async function searchBooks(query) {
     "&fields=key,title,author_name,cover_i,first_publish_year" +
     "&q=" + encodeURIComponent(query);
 
-  const response = await fetch(url);
-  if (!response.ok) throw new Error("Open Library didn't answer (" + response.status + ").");
+  const response = await fetchOpenLibrary(url);
+  if (!response.ok) throw new Error("Open Library isn't answering right now (error " + response.status + "). Try again in a minute.");
   const data = await response.json();
 
   return data.docs.map(function (doc) {
@@ -56,9 +69,9 @@ async function searchBooks(query) {
 // Fetches one book's details from Open Library, in the same shape as a row
 // of our `books` table (without the id). Returns null if it doesn't exist.
 async function fetchBookFromOpenLibrary(externalId) {
-  const workResponse = await fetch(OPEN_LIBRARY + "/works/" + externalId + ".json");
+  const workResponse = await fetchOpenLibrary(OPEN_LIBRARY + "/works/" + externalId + ".json");
   if (workResponse.status === 404) return null;
-  if (!workResponse.ok) throw new Error("Open Library didn't answer (" + workResponse.status + ").");
+  if (!workResponse.ok) throw new Error("Open Library isn't answering right now (error " + workResponse.status + "). Try again in a minute.");
   const work = await workResponse.json();
 
   // The author's name and the ISBN live in other places, so ask for those

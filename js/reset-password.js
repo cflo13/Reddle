@@ -52,7 +52,7 @@ resetForm.addEventListener("submit", async function (event) {
   button.disabled = false;
 
   if (error) {
-    showStatus(resetMessage, "error", "Could not save: " + error.message);
+    showStatus(resetMessage, "error", friendlyError(error, "Could not save. "));
     return;
   }
 
