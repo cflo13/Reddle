@@ -398,7 +398,7 @@ function buildRows(profile, myBooks, followingIds) {
   tasteRows.forEach((slug) => addGenreRow(slug, "Because you like ", rows.length >= 2));
 
   // 3. Popular this week, 4. New and noteworthy
-  addRow({ title: "Popular this week" }, popularThisWeekCandidates, rows.length >= 2);
+  addRow({ title: "Popular this week", titleLink: "popular.html", seeAll: "popular.html" }, popularThisWeekCandidates, rows.length >= 2);
   addRow({ title: "New and noteworthy" }, newAndNoteworthyCandidates, rows.length >= 2);
 
   // 5. Genre buttons

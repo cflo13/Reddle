@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popular this week · Reddle</title>
+  <meta name="description" content="The books Reddle readers are logging most this week, and what is trending on Open Library.">
+  <!-- Icon in the browser tab and on phone home screens -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <meta name="theme-color" content="#14181c">
+  <!-- The preview shown when a link is shared (WhatsApp, Instagram, iMessage...) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Reddle">
+  <meta property="og:title" content="Popular this week · Reddle">
+  <meta property="og:description" content="The books Reddle readers are logging most this week, and what is trending on Open Library.">
+  <meta property="og:url" content="https://reddle.org/popular.html">
+  <meta property="og:image" content="https://reddle.org/images/share.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Reddle: track the books you read">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css?v=31">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Links for everyone -->
+    <a class="header-link" href="genres.html">Genres</a>
+    <a class="header-link" href="popular.html">Popular</a>
+    <!-- Filled in by js/auth.js: log in links, or your Profile / Settings / Log out buttons -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page">
+    <h1>Popular this week</h1>
+    <p class="hint">The books Reddle readers logged most in the last 7 days, best rated first. Then what's trending on Open Library.</p>
+
+    <!-- Filled in by js/popular.js -->
+    <div id="popular-books" class="tile-grid"><p class="muted">Loading...</p></div>
+    <p class="center"><button id="more-popular" type="button" class="button button-secondary" hidden>Load more</button></p>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="About Reddle">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+  </footer>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=31"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=31"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=31"></script>
+  <!-- 5. Book helpers: Open Library, stars, covers, log cards -->
+  <script src="js/books.js?v=31"></script>
+  <!-- This page's own code -->
+  <script src="js/popular.js?v=31"></script>
+</body>
+</html>

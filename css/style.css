@@ -102,7 +102,7 @@ a {
 }
 
 .nav-username {
-  max-width: 160px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -448,6 +448,7 @@ a {
 
 .header-search {
   flex: 1;
+  min-width: 120px;
   max-width: 320px;
 }
 
@@ -705,18 +706,38 @@ a {
   margin-left: 12px;
 }
 
+/* ---------- Narrow screens: icons only in the header ---------- */
+
+@media (max-width: 1000px) {
+  /* Just your picture, the gear and the log out icon */
+  .nav-username,
+  .nav-label {
+    display: none;
+  }
+
+  .nav-button {
+    padding: 6px;
+  }
+
+  .nav-profile {
+    padding: 2px;
+  }
+}
+
 /* ---------- Phones ---------- */
 
 @media (max-width: 600px) {
   .site-header {
     flex-wrap: wrap;
+    gap: 12px;
     padding: 12px 16px;
   }
 
-  /* Row 1: logo and your account. Row 2: search box and Genres. */
+  /* Row 1: logo and your account. Row 2: search box, Genres and Popular. */
   .header-search {
     order: 3;
-    flex: 1 1 200px;
+    flex: 1 1 120px;
+    min-width: 0;
     max-width: none;
   }
 
@@ -737,20 +758,6 @@ a {
 
   .profile-username {
     font-size: 1.6rem;
-  }
-
-  /* Icons only in the header: your picture, gear, log out */
-  .nav-username,
-  .nav-label {
-    display: none;
-  }
-
-  .nav-button {
-    padding: 6px;
-  }
-
-  .nav-profile {
-    padding: 2px;
   }
 
   .site-nav {
