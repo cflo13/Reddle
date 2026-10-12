@@ -429,7 +429,9 @@ async function saveBookIfNeeded(book) {
 }
 
 function bookLink(externalId) {
-  return "book.html?id=" + encodeURIComponent(externalId);
+  return cleanAddresses
+    ? "book/" + encodeURIComponent(externalId)
+    : "book.html?id=" + encodeURIComponent(externalId);
 }
 
 

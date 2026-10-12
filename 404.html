@@ -2,8 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- This page can appear at any address, so links start from the site folder -->
-  <base href="/Reddle/">
+  <script>
+    // Where the site lives: on github.io it's in a folder (/Reddle/),
+    // on our own domain it's the top (/).
+    (function () {
+      var parts = location.pathname.split("/").filter(Boolean);
+      var root = location.hostname.endsWith("github.io") && parts.length ? "/" + parts[0] + "/" : "/";
+      window.SITE_ROOT = root;
+      document.write('<base href="' + root + '">');
+      // Clean addresses: u/NAME is a profile, book/ID is a book.
+      var rest = location.pathname.slice(root.length).split("/");
+      var pages = { u: "profile.html", book: "book.html" };
+      if (pages[rest[0]] && rest[1]) {
+        window.CLEAN_ROUTE = pages[rest[0]];
+        document.write("<style>body { visibility: hidden; }</style>");
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Page not found · Reddle</title>
   <meta name="robots" content="noindex">
@@ -24,7 +39,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Reddle: track the books you read">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=25">
+  <link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
   <header class="site-header">
@@ -59,15 +74,7 @@
     <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
   </footer>
 
-  <!-- 1. Supabase library from a CDN (nothing to install) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-  <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=25"></script>
-  <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=25"></script>
-  <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=25"></script>
-  <!-- This page's own code -->
-  <script src="js/static-page.js?v=25"></script>
+  <!-- Loads the page for a clean address, or the usual scripts (js/router.js) -->
+  <script src="js/router.js?v=27"></script>
 </body>
 </html>

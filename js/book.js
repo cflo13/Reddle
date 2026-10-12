@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// Book page: book.html?id=OL45804W
+// Book page: book/OL45804W (or the old book.html?id=OL45804W)
 // ------------------------------------------------------------
 // Shows a book's cover, title, author and description, everyone's logs,
 // and (when logged in) a form to log it with stars, a review and a date.
@@ -428,7 +428,7 @@ async function loadBookPage() {
   currentUser = auth.user;
   currentProfile = auth.profile;
 
-  const id = (new URLSearchParams(window.location.search).get("id") || "").trim();
+  const id = (pageParam("id") || "").trim();
   if (!isValidBookId(id)) {
     showBookNotFound("That doesn't look like a book link.");
     return;
@@ -447,6 +447,7 @@ async function loadBookPage() {
   }
 
   showBook(book);
+  useCleanAddress(bookLink(id));
 
   // Fill any gaps (genres, cover, description) from Open Library.
   const filled = await fillMissingDetails(book);

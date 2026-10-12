@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// Profile page: profile.html?u=USERNAME
+// Profile page: u/USERNAME (or the old profile.html?u=USERNAME)
 // ------------------------------------------------------------
 // Anyone can view a profile. If it's your own, you also get the
 // "Edit profile" section to change your bio and picture.
@@ -58,8 +58,8 @@ async function loadPage() {
   }
 
   // Read the ?u=USERNAME part of the address.
-  const params = new URLSearchParams(window.location.search);
-  const username = (params.get("u") || "").toLowerCase().trim();
+  // Read the username from the address (u/NAME or ?u=NAME).
+  const username = (pageParam("u") || "").toLowerCase().trim();
 
   // No username in the address: show your own profile if you're logged in.
   if (!username) {
@@ -93,6 +93,7 @@ async function loadPage() {
   }
 
   showProfile(profile);
+  useCleanAddress(profileLink(profile.username));
 
   const isMe = myProfile && myProfile.id === profile.id;
   if (isMe) {

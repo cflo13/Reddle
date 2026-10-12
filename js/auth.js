@@ -101,7 +101,42 @@ function friendlyError(error, start) {
 // The address of a page on this site, for links in emails.
 // Works both on the live site and when testing from a file.
 function pageAddress(fileName) {
-  return new URL(fileName, window.location.href).href;
+  // document.baseURI is the site's main folder (see the <base> tag), even
+  // on clean addresses like /u/maria.
+  return new URL(fileName, document.baseURI).href;
+}
+
+
+// ---------- Clean addresses ----------
+//
+// Profiles live at u/USERNAME and books at book/OL45804W. GitHub Pages
+// has no such files, so it shows 404.html, which loads the real page
+// (js/router.js). Old links (profile.html?u=..., book.html?id=...) still
+// work. Every page has <base href="./"> (404.html sets the main folder),
+// so links like "u/maria" always start from the site's main folder.
+
+// Clean addresses need a web server; opened as files we use the old style.
+const cleanAddresses = window.location.protocol !== "file:";
+
+// The page's main value, from ?u= / ?id= or from a clean address.
+// name is "u" (profile) or "id" (book).
+function pageParam(name) {
+  const fromQuery = new URLSearchParams(window.location.search).get(name);
+  if (fromQuery) return fromQuery;
+  const parts = window.location.pathname.split("/");
+  const at = parts.lastIndexOf(name === "id" ? "book" : "u");
+  return at >= 0 && parts[at + 1] ? decodeURIComponent(parts[at + 1]) : null;
+}
+
+// Opened with an old-style link? Show the clean address instead, without
+// reloading. `cleanLink` is relative, like "u/maria".
+function useCleanAddress(cleanLink) {
+  const address = new URL(cleanLink, document.baseURI).href;
+  // The share-preview address too (read by apps that run the page's code).
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl && cleanAddresses) ogUrl.content = address;
+  if (!cleanAddresses || !window.location.pathname.endsWith(".html")) return;
+  history.replaceState(null, "", address);
 }
 
 
@@ -156,7 +191,9 @@ async function ensureProfile(user) {
 
 // The link to someone's profile page.
 function profileLink(username) {
-  return "profile.html?u=" + encodeURIComponent(username);
+  return cleanAddresses
+    ? "u/" + encodeURIComponent(username)
+    : "profile.html?u=" + encodeURIComponent(username);
 }
 
 
@@ -205,7 +242,7 @@ async function signInWithGoogle(showMessage) {
     return;
   }
 
-  const homePage = new URL("index.html", window.location.href).href;
+  const homePage = pageAddress("index.html");
   const { error } = await db.auth.signInWithOAuth({
     provider: "google",
     options: { redirectTo: homePage },
