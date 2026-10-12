@@ -22,6 +22,7 @@ the people they follow are reading.
 - **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
 - **Finding people:** the search page also matches usernames (shown above the book results), and every name on a log card links to that profile.
 - **Testing:** the owner asked to skip testing between steps until the site is usable, so steps 4 to 6 were built in one go and tested by Claude with stand-ins for Supabase and Open Library.
+- **Hosting:** GitHub Pages, live at https://cflo13.github.io/Reddle/ . The repo is public and Pages serves the `claude/letterboxd-books-ceznit` branch from the root folder. Every push updates the site in about a minute. Supabase Site URL and Redirect URLs are set to this address.
 - **Supabase library:** loaded from the jsDelivr CDN with a fixed version (`@supabase/supabase-js@2.45.4`), so there is nothing to install.
 - **Supabase key:** only the public "publishable"/"anon" key goes in `js/config.js`. It is safe to commit. Data is protected by Row Level Security rules in `supabase/schema.sql`. The secret/service_role key must never be in this project.
 
@@ -30,7 +31,7 @@ the people they follow are reading.
 - Plain HTML, CSS and JavaScript, no Node.js or other installs needed
 - Supabase for the database, logins and profile picture storage, called straight from the browser
 - Free tiers and free hosting to start
-- Test by opening the files in the browser
+- Test on the live site (https://cflo13.github.io/Reddle/), or by opening the files in the browser
 
 ## Database tables
 
@@ -98,10 +99,12 @@ User text (bios, reviews) is always put on the page with `textContent`, never `i
 - **Step 5 (logging with rating and review): built.**
 - **Step 6 (follow system and the feed): built.** No new SQL needed: the tables and rules were already in `schema.sql`.
 - **Version 1 is complete and waiting for the owner to try it for real.** Steps 3 to 6 were tested with stand-ins (sign up, search, open a book, rate with half stars, review, update, delete, follow, unfollow, feed, missing user/book messages, phone layout), never against the real Supabase and Open Library.
-- Next: the owner tries the whole site. Then hosting on GitHub Pages (needed for Google sign in and for nicer links).
+- **Hosting: done.** Site is live on GitHub Pages (first deploy succeeded).
+- Next: the owner tries the whole site on the live address. Then Google sign in (needs a Google Cloud OAuth client and the Google provider turned on in Supabase).
 
 ## Notes for later steps
 
-- Supabase sends a confirmation email on sign up by default. The link in it goes to the "Site URL" (Authentication -> URL Configuration), which is `localhost:3000` until we host the site, so the page it opens may not load, but the email still counts as confirmed and the user can log in. To skip this while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
-- Google sign in needs the site to be served from a real web address (not opened as a `file://` path), because Google sends the user back to a URL after login. Plan: host for free on GitHub Pages or Netlify when we reach step 2, and add that address in Supabase -> Authentication -> URL Configuration. Email and password works from a local file.
+- Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
+- Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
+- Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
 - Profile links like `yoursite.com/username` need a small redirect trick on static hosting (e.g. a `404.html` that reads the path). Until then use `profile.html?u=username`.
