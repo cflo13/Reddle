@@ -136,10 +136,14 @@ a {
 }
 
 .button-secondary {
-  width: 100%;
   background: var(--surface);
   color: var(--text);
   border: 1px solid var(--muted);
+}
+
+/* Full-width button (used for "Continue with Google") */
+.button-wide {
+  width: 100%;
 }
 
 /* A button that looks like a link (used for "Log out") */
