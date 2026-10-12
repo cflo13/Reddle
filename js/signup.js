@@ -65,6 +65,7 @@ signupForm.addEventListener("submit", async function (event) {
         "Almost done! Check your email and click the confirmation link, then log in."
       );
       signupForm.reset();
+      signupMessage.after(makeResendButton(email, signupMessage));
       return;
     }
 

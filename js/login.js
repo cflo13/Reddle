@@ -9,11 +9,14 @@ function showLoginMessage(kind, text) {
   loginMessage.hidden = false;
 }
 
-// Already logged in? Go to your profile instead.
+// Already logged in? Go back to where you were (or the home page).
 (async function () {
   const { profile } = await authReady;
-  if (profile) window.location.href = profileLink(profile.username);
+  if (profile) goBackAfterLogin();
 })();
+
+// Shown under the form when the email isn't confirmed yet.
+let resendButton = null;
 
 loginForm.addEventListener("submit", async function (event) {
   event.preventDefault(); // stop the browser reloading the page
@@ -30,8 +33,13 @@ loginForm.addEventListener("submit", async function (event) {
       email: email,
       password: password,
     });
+    if (resendButton) resendButton.remove();
     if (error) {
       showLoginMessage("error", friendlyError(error));
+      if (/Email not confirmed/i.test(error.message || "")) {
+        resendButton = makeResendButton(email, loginMessage);
+        loginMessage.after(resendButton);
+      }
       return;
     }
 
@@ -42,7 +50,7 @@ loginForm.addEventListener("submit", async function (event) {
     } else if (!profile.onboarded) {
       window.location.href = "welcome.html"; // first time: say hello
     } else {
-      window.location.href = profileLink(profile.username);
+      goBackAfterLogin(); // the page they were on, or the home page
     }
   } catch (error) {
     showLoginMessage("error", friendlyError(error, "Something went wrong. "));

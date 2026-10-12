@@ -107,6 +107,130 @@ function pageAddress(fileName) {
 }
 
 
+// ---------- Going back after logging in ----------
+//
+// When a logged-out visitor clicks Log in or Sign up, we remember the page
+// they were on (in this browser, for 2 hours). After logging in, signing up
+// or choosing a username they go back there instead of the home page.
+
+const RETURN_KEY = "reddle-return-to";
+const RETURN_FOR_MS = 2 * 60 * 60 * 1000;
+
+// Pages that make no sense to go back to.
+const NO_RETURN_PAGES = [
+  "login.html", "signup.html", "choose-username.html", "welcome.html",
+  "forgot-password.html", "reset-password.html", "404.html",
+];
+
+// Turns an address into a safe one on our own site, like "book/OL45804W"
+// or "search.html?q=dune", or null. Outside websites are never allowed.
+function safeReturnPath(address) {
+  if (!address) return null;
+  let url;
+  try {
+    url = new URL(address, document.baseURI);
+  } catch (error) {
+    return null;
+  }
+  const root = new URL("./", document.baseURI).href; // the site's main folder
+  if (url.origin !== new URL(root).origin || !url.href.startsWith(root)) return null;
+  const path = url.href.slice(root.length);
+  const fileName = path.split(/[?#]/)[0];
+  if (NO_RETURN_PAGES.includes(fileName)) return null;
+  return path || "index.html";
+}
+
+function rememberReturnPage(address) {
+  const path = safeReturnPath(address);
+  try {
+    if (path) localStorage.setItem(RETURN_KEY, JSON.stringify({ path: path, at: Date.now() }));
+  } catch (error) {
+    // Storage blocked (private mode): they just go to the home page.
+  }
+}
+
+// The remembered page, or null. `forget` clears it once used.
+function returnPage(forget) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(RETURN_KEY) || "null");
+    if (forget) localStorage.removeItem(RETURN_KEY);
+    if (!saved || Date.now() - saved.at > RETURN_FOR_MS) return null;
+    return safeReturnPath(saved.path);
+  } catch (error) {
+    return null;
+  }
+}
+
+// Go to the remembered page, or the home page.
+function goBackAfterLogin() {
+  window.location.href = returnPage(true) || "index.html";
+}
+
+// Any click on a Log in or Sign up link remembers the current page.
+document.addEventListener("click", function (event) {
+  const link = event.target.closest && event.target.closest("a[href]");
+  if (!link) return;
+  const fileName = new URL(link.href).pathname.split("/").pop();
+  if (fileName === "login.html" || fileName === "signup.html") {
+    rememberReturnPage(window.location.href);
+  }
+});
+
+
+// ---------- Resend the confirmation email ----------
+
+// A "Resend the email" button for people whose email isn't confirmed yet.
+// It can be pressed once a minute (Supabase also limits how often emails
+// go out). Messages go in `messageBox` (a .status element).
+const resendLastPressed = {}; // email -> time, so a new button keeps the wait
+function makeResendButton(email, messageBox) {
+  const button = el("button", "button button-secondary resend-button", "Resend the email");
+  button.type = "button";
+  let waitTimer = null;
+
+  // Counts down on the button so people know when they can press again.
+  function waitBeforeNextTry(seconds) {
+    button.disabled = true;
+    clearInterval(waitTimer);
+    waitTimer = setInterval(function () {
+      seconds -= 1;
+      if (seconds <= 0) {
+        clearInterval(waitTimer);
+        button.disabled = false;
+        button.textContent = "Resend the email";
+      } else {
+        button.textContent = "Resend again in " + seconds + "s";
+      }
+    }, 1000);
+    button.textContent = "Resend again in " + seconds + "s";
+  }
+
+  const secondsLeft = Math.ceil(((resendLastPressed[email] || 0) + 60000 - Date.now()) / 1000);
+  if (secondsLeft > 0) waitBeforeNextTry(secondsLeft);
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    resendLastPressed[email] = Date.now();
+    const { error } = await db.auth.resend({ type: "signup", email: email });
+    if (error) {
+      const tooSoon = error.status === 429 || /rate limit|only request this after|seconds/i.test(error.message || "");
+      showStatus(
+        messageBox,
+        "error",
+        tooSoon
+          ? "We just sent one. Please wait a minute before asking again, and check your spam folder."
+          : friendlyError(error, "Couldn't send the email. ")
+      );
+      waitBeforeNextTry(60);
+      return;
+    }
+    showStatus(messageBox, "ok", "Sent! We emailed a new confirmation link to " + email + ". Check your inbox (and spam folder).");
+    waitBeforeNextTry(60);
+  });
+  return button;
+}
+
+
 // ---------- Clean addresses ----------
 //
 // Profiles live at u/USERNAME and books at book/OL45804W. GitHub Pages
@@ -422,6 +546,11 @@ async function setupHeader() {
 
   nav.textContent = "";
   nav.append(...buttons);
+
+  // Google sign in and email confirmation links land on the home page.
+  // If they started logging in from another page, go back there.
+  const onHomePage = isOnPage("index.html") || window.location.pathname.endsWith("/");
+  if (onHomePage && profile.onboarded && returnPage(false)) goBackAfterLogin();
 
   return { user: user, profile: profile };
 }

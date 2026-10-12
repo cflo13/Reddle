@@ -241,6 +241,11 @@ a {
   color: var(--text);
 }
 
+/* "Resend the email" under the login / sign up message */
+.resend-button {
+  margin-top: 12px;
+}
+
 /* ---------- Forms ---------- */
 
 .form {

@@ -292,6 +292,16 @@ async function showSuggestedPeople(myId) {
   }
   me = profile;
 
+  // Came here after logging in from another page? The last button takes
+  // them back there.
+  const backTo = returnPage(false);
+  if (backTo && backTo !== "index.html") {
+    const doneLink = document.querySelector(".welcome-done a");
+    doneLink.href = backTo;
+    doneLink.textContent = "Back to where I was";
+    doneLink.addEventListener("click", () => returnPage(true));
+  }
+
   const redo = new URLSearchParams(window.location.search).get("redo");
   document.getElementById("welcome-title").textContent = redo
     ? "Your reading taste"
