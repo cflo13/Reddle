@@ -45,10 +45,18 @@ a {
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text);
   text-decoration: none;
+}
+
+.logo img {
+  display: block;
+  border-radius: 6px;
 }
 
 /* Right-hand side of the header: log in links, or your picture + name */

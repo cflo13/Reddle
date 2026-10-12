@@ -93,6 +93,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
 
+- `favicon.svg` (the icon: three book spines), `images/favicon-32.png`, `images/apple-touch-icon.png` (phone home screens) and `images/share.png` (1200 x 630 picture shown when a link is shared). Made by Claude from the SVG with a browser
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
@@ -100,7 +101,7 @@ Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, 
 
 **Browser caching:** every page loads our CSS and JS with one shared site version number, like `css/style.css?v=4`. When any CSS or JS file changes, bump the number on every page (all files get the same number), so visitors get the new files instead of old saved copies.
 
-**Page template:** every page has the same head, header, footer and script tags; only `<main>` differs. Claude rebuilds the shared parts with a helper script in its scratch folder (not in the repo). If you add a page by hand, copy an existing page and change only the title, description, `<main>` and the last script. Hidden elements use the `hidden` attribute; `style.css` has a `[hidden] { display: none !important; }` rule so no other rule can show them by accident.
+**Page template:** every page has the same head, header, footer and script tags; only `<main>` differs. The head has a title, a description, the favicon, and share-preview tags (`og:title`, `og:description`, `og:image` = `images/share.png`, `og:url`). Private pages (settings, admin, password pages, choose username, 404) also have `<meta name="robots" content="noindex">`. Share previews are the same for every book and profile, because WhatsApp and Instagram read the page before any JavaScript runs (a static-hosting limit). Claude rebuilds the shared parts with a helper script in its scratch folder (not in the repo). If you add a page by hand, copy an existing page and change only the title, description, `<main>` and the last script. Hidden elements use the `hidden` attribute; `style.css` has a `[hidden] { display: none !important; }` rule so no other rule can show them by accident.
 
 User text (bios, reviews) is always put on the page with `textContent`, never `innerHTML`, so nobody can sneak code into the site.
 
@@ -163,6 +164,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 6 (database limits): built.** `step12-limits.sql` applied; checked on the live database with a rolled-back test that tried to break each rule.
 - **Batch 2 item 7 (Load more): built.** Tested with 46 logs: 20 per page, no repeats, button disappears at the end.
 - **Batch 2 item 8 (404 + friendly errors): built.** Tested with a local server that copies GitHub Pages' 404 behaviour, and with Open Library and the Supabase library blocked.
+- **Batch 2 item 9 (favicon, titles, previews): built.**
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

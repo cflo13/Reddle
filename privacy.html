@@ -5,11 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy policy · Reddle</title>
   <meta name="description" content="What Reddle keeps about you, who can see it, and how to delete it. In plain English.">
-  <link rel="stylesheet" href="css/style.css?v=13">
+  <!-- Icon in the browser tab and on phone home screens -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <meta name="theme-color" content="#14181c">
+  <!-- The preview shown when a link is shared (WhatsApp, Instagram, iMessage...) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Reddle">
+  <meta property="og:title" content="Privacy policy · Reddle">
+  <meta property="og:description" content="What Reddle keeps about you, who can see it, and how to delete it. In plain English.">
+  <meta property="og:url" content="https://cflo13.github.io/Reddle/privacy.html">
+  <meta property="og:image" content="https://cflo13.github.io/Reddle/images/share.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Reddle: track the books you read">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body>
   <header class="site-header">
-    <a class="logo" href="index.html">Reddle</a>
+    <a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Reddle</a>
     <!-- Search box: goes to search.html?q=... -->
     <form class="header-search" action="search.html" role="search">
       <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
@@ -79,12 +95,12 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=13"></script>
+  <script src="js/config.js?v=14"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=13"></script>
+  <script src="js/supabase-client.js?v=14"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=13"></script>
+  <script src="js/auth.js?v=14"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=13"></script>
+  <script src="js/static-page.js?v=14"></script>
 </body>
 </html>
