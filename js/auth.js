@@ -287,7 +287,8 @@ function isOnPage(fileName) {
 }
 
 async function logOut() {
-  await db.auth.signOut();
+  // "local": log out on this device only, so your other devices stay logged in.
+  await db.auth.signOut({ scope: "local" });
   window.location.href = "index.html";
 }
 

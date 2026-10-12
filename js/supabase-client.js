@@ -22,7 +22,18 @@ const supabaseLoaded = typeof supabase !== "undefined";
 let db = null;
 
 if (supabaseLoaded && isSupabaseConfigured()) {
-  db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      // Remember the login on this device (in the browser's local storage),
+      // so people stay logged in between visits until they press Log out.
+      persistSession: true,
+      // Quietly renew the login before it runs out (about every hour).
+      autoRefreshToken: true,
+      // Pick up the login from email links (password reset, confirm email)
+      // and from Google sign in.
+      detectSessionInUrl: true,
+    },
+  });
 } else {
   console.warn(notConnectedText());
 }
