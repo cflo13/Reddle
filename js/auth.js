@@ -45,6 +45,36 @@ async function isUsernameTaken(username) {
 }
 
 
+// ---------- Small helper for building HTML safely ----------
+
+// Creates an element, for example el("p", "muted", "Hello").
+// Text always goes in with textContent, which never runs code, so a review
+// containing "<script>" just shows up as text.
+function el(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined && text !== null) element.textContent = text;
+  return element;
+}
+
+
+// ---------- Messages ----------
+
+// Shows a message in a status box (a <p class="status"> element).
+// kind is "ok", "error" or "waiting"; it picks the colour in style.css.
+function showStatus(element, kind, text) {
+  element.className = "status status-" + kind;
+  element.textContent = text;
+  element.hidden = false;
+}
+
+// The address of a page on this site, for links in emails.
+// Works both on the live site and when testing from a file.
+function pageAddress(fileName) {
+  return new URL(fileName, window.location.href).href;
+}
+
+
 // ---------- Profiles ----------
 
 // Gets the logged-in account, or null if nobody is logged in.

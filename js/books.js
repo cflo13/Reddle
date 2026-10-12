@@ -11,19 +11,6 @@
 // ------------------------------------------------------------
 
 
-// ---------- Small helper for building HTML safely ----------
-
-// Creates an element, for example el("p", "muted", "Hello").
-// Text always goes in with textContent, which never runs code, so a review
-// containing "<script>" just shows up as text.
-function el(tag, className, text) {
-  const element = document.createElement(tag);
-  if (className) element.className = className;
-  if (text !== undefined && text !== null) element.textContent = text;
-  return element;
-}
-
-
 // ---------- Open Library ----------
 
 const OPEN_LIBRARY = "https://openlibrary.org";

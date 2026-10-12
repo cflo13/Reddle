@@ -55,6 +55,8 @@ Pages:
 - `login.html` + `js/login.js`: log in with email and password, or Google
 - `choose-username.html` + `js/choose-username.js`: for logged-in users who have no username yet
 - `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter), and click your picture to upload a new one (hidden file input behind the picture)
+- `forgot-password.html` + `js/forgot-password.js`: asks for your email and sends a reset link (Supabase `resetPasswordForEmail`). Same message whether or not the email has an account
+- `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
@@ -62,7 +64,7 @@ Shared:
 - `css/style.css`: all styling
 - `js/config.js`: Supabase URL and public key
 - `js/supabase-client.js`: creates the shared `db` connection used by every page
-- `js/auth.js`: login helpers used by every page: fills the header (log in links, or your picture + @username + log out), makes sure logged-in users have a profile, username checks, `makeAvatar` / `fillAvatar`. Page scripts wait for it with `const { user, profile } = await authReady;`
+- `js/auth.js`: shared helpers used by every page: `el()` (build HTML safely), `showStatus()` (fill a status message box), `pageAddress()` (full address of one of our pages, for email links), login helpers, fills the header (log in links, or your picture + @username + log out), makes sure logged-in users have a profile, username checks, `makeAvatar` / `fillAvatar`. Page scripts wait for it with `const { user, profile } = await authReady;`
 
 Supabase (SQL files, once each, in this order; for a new project run them in the SQL Editor):
 - `supabase/schema.sql`: database tables and security rules (step 1)
@@ -77,7 +79,9 @@ All of these have been applied to the live project.
 
 Every page has a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
 
-**Browser caching:** pages load CSS and JS with a version number, like `css/style.css?v=3`. When a CSS or JS file changes, bump its number in every page that loads it, so visitors get the new file instead of an old saved copy. Hidden elements use the `hidden` attribute; `style.css` has a `[hidden] { display: none !important; }` rule so no other rule can show them by accident.
+**Browser caching:** every page loads our CSS and JS with one shared site version number, like `css/style.css?v=4`. When any CSS or JS file changes, bump the number on every page (all files get the same number), so visitors get the new files instead of old saved copies.
+
+**Page template:** every page has the same head, header, footer and script tags; only `<main>` differs. Claude rebuilds the shared parts with a helper script in its scratch folder (not in the repo). If you add a page by hand, copy an existing page and change only the title, description, `<main>` and the last script. Hidden elements use the `hidden` attribute; `style.css` has a `[hidden] { display: none !important; }` rule so no other rule can show them by accident.
 
 User text (bios, reviews) is always put on the page with `textContent`, never `innerHTML`, so nobody can sneak code into the site.
 
@@ -103,6 +107,14 @@ Features after version 1, built one at a time in this order (the owner tests eac
 9. Cleaner profile links (/username) with a 404.html redirect on GitHub Pages
 10. Google sign in
 
+Batch 2 (asked for after feature 1, built in this order; the owner reviews at the end):
+
+A. Basics: 1 password reset (= feature 2 above), 2 account settings (email, password, username; old profile links still work), 3 delete account, 4 About/Privacy/Terms pages + footer, 5 report button + admin page, 6 limits enforced in the database, 7 Load more buttons, 8 404 page + friendly errors, 9 favicon + titles + share previews, 10 welcome step after sign up, 11 phone-size check of every page.
+B. Taste: 12 genres (from Open Library subjects; browse page, genre pages, tags on book page), 13 taste questionnaire after sign up (genres, then books read/loved/want; skippable; redo from settings), 14 For you recommendations on the home page, 15 Books you might like on the book page.
+C. 16 real covers: Open Library first, then other editions or Google Books by ISBN, plain title box only as a last resort.
+
+The rest of the earlier list (likes, comments, lists, favourites, popular this week, stats, /username links, Google sign in) comes after batch 2.
+
 New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `step8-...` and so on). Claude applies it to the live project through the Supabase connector and tells the owner.
 
 ## Working rules for Claude Code
@@ -124,7 +136,8 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Version 1 is complete and waiting for the owner to try it for real.** Steps 3 to 6 were tested with stand-ins (sign up, search, open a book, rate with half stars, review, update, delete, follow, unfollow, feed, missing user/book messages, phone layout), never against the real Supabase and Open Library.
 - **Hosting: done.** Site is live on GitHub Pages (first deploy succeeded).
 - **Feature 1 (Want to read / Currently reading): built, waiting for the owner to test.** `step7-shelves.sql` applied to the live project by Claude. Tested with stand-ins: add, switch, take off, survives reload, removed when the book is logged, both profile sections, hidden when logged out.
-- Next: feature 2, password reset.
+- **Feature 2 (password reset): built.** Tested with stand-ins: link on login page, email request, expired link message, password rules, save, log in with the new password.
+- **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Notes for later steps
 
