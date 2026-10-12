@@ -148,6 +148,16 @@ a {
   margin-bottom: 0;
 }
 
+/* The delete account card: a red edge so it stands apart */
+.card-danger {
+  border: 1px solid var(--error);
+}
+
+.button-danger {
+  background: var(--error);
+  color: #1a0000;
+}
+
 .card .form input[type="email"],
 .card .form input[type="password"] {
   background: var(--bg);

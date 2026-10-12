@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings · Reddle</title>
   <meta name="description" content="Change your Reddle username, email and password.">
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
   <header class="site-header">
@@ -63,18 +63,31 @@
           <p id="password-message" class="status" hidden></p>
         </form>
       </section>
+
+      <!-- Delete account -->
+      <section class="card card-danger">
+        <h2>Delete account</h2>
+        <p>This deletes your account for good: your profile, picture, every log and review,
+          your shelves, and who you follow. It can't be undone.</p>
+        <form id="delete-form" class="form">
+          <label for="delete-confirm">To confirm, type your username: <strong id="delete-username"></strong></label>
+          <input id="delete-confirm" type="text" autocomplete="off" required>
+          <button type="submit" class="button button-danger" disabled>Delete my account forever</button>
+          <p id="delete-message" class="status" hidden></p>
+        </form>
+      </section>
     </div>
   </main>
 
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=5"></script>
+  <script src="js/config.js?v=6"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=5"></script>
+  <script src="js/supabase-client.js?v=6"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=5"></script>
+  <script src="js/auth.js?v=6"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=5"></script>
+  <script src="js/settings.js?v=6"></script>
 </body>
 </html>

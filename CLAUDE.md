@@ -59,7 +59,7 @@ Pages:
 - `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter), and click your picture to upload a new one (hidden file input behind the picture)
 - `forgot-password.html` + `js/forgot-password.js`: asks for your email and sends a reset link (Supabase `resetPasswordForEmail`). Same message whether or not the email has an account
 - `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
-- `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password. Logged-out visitors go to login
+- `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
@@ -75,8 +75,9 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step3-avatars.sql`: the `avatars` storage bucket and its security rules (step 3)
 - `supabase/step7-shelves.sql`: the `shelves` table (feature 1, Want to read / Currently reading)
 - `supabase/step8-old-usernames.sql`: remembers old usernames (batch 2, account settings)
+- `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
-All of these have been applied to the live project.
+All of these have been applied to the live project, except `step9-delete-account.sql` (see "Waiting on the owner").
 
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
@@ -142,13 +143,18 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Feature 1 (Want to read / Currently reading): built, waiting for the owner to test.** `step7-shelves.sql` applied to the live project by Claude. Tested with stand-ins: add, switch, take off, survives reload, removed when the book is logged, both profile sections, hidden when logged out.
 - **Feature 2 (password reset): built.** Tested with stand-ins: link on login page, email request, expired link message, password rules, save, log in with the new password.
 - **Batch 2 item 2 (account settings): built.** Header account menu, settings page, `step8-old-usernames.sql` applied (trigger checked on the live database inside a rolled-back test).
+- **Batch 2 item 3 (delete account): built.** Tested with stand-ins (confirmation typing, function missing, full delete cascades, goodbye message). The SQL still has to be run by the owner.
 - **Batch 2 (owner's list of 16, see below): in progress.**
+
+## Waiting on the owner
+
+- Run `supabase/step9-delete-account.sql` in the Supabase SQL Editor. Claude's connector can't run SQL that touches the login table (`auth.users`): it waits for an approval that never arrives and times out. Until it's run, the Delete account button says deleting isn't switched on yet and deletes nothing.
 
 ## Notes for later steps
 
 - Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
 - Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
 - Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
-- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. Changing a trigger on `auth.users` timed out once; replacing just the function worked.
+- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table) always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
 - Security advisor, last check: one remaining warning, "Leaked password protection disabled" (a dashboard setting under Authentication; may need a paid plan).
 - Profile links like `yoursite.com/username` need a small redirect trick on static hosting (e.g. a `404.html` that reads the path). Until then use `profile.html?u=username`.

@@ -63,6 +63,11 @@ async function loadFollowingFeed(userId) {
 }
 
 async function loadHome() {
+  // Arrived here straight after deleting an account?
+  if (new URLSearchParams(window.location.search).get("deleted")) {
+    document.getElementById("deleted-message").hidden = false;
+  }
+
   const { profile } = await authReady;
 
   if (!db) {

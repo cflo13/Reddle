@@ -147,6 +147,52 @@ passwordForm.addEventListener("submit", async function (event) {
 });
 
 
+// ---------- Delete account ----------
+
+const deleteForm = document.getElementById("delete-form");
+const deleteInput = document.getElementById("delete-confirm");
+const deleteButton = deleteForm.querySelector("button[type=submit]");
+const deleteMessage = document.getElementById("delete-message");
+
+// The button only works once the username is typed exactly.
+deleteInput.addEventListener("input", function () {
+  deleteButton.disabled = deleteInput.value.trim().toLowerCase() !== settingsProfile.username;
+});
+
+deleteForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  if (deleteInput.value.trim().toLowerCase() !== settingsProfile.username) return;
+
+  deleteButton.disabled = true;
+  showStatus(deleteMessage, "waiting", "Deleting your account...");
+
+  // 1. Delete the account. The database deletes the profile, logs,
+  //    follows and shelves with it (supabase/step9-delete-account.sql).
+  const { error } = await db.rpc("delete_my_account");
+  if (error) {
+    const missing = error.code === "PGRST202"; // the function isn't installed
+    showStatus(
+      deleteMessage,
+      "error",
+      missing
+        ? "Deleting accounts isn't switched on yet. Nothing was deleted. Please contact us and we'll delete it for you."
+        : "Could not delete your account: " + error.message + " Nothing was deleted."
+    );
+    deleteButton.disabled = false;
+    return;
+  }
+
+  // 2. Delete the profile picture. Pictures live in Storage, so the
+  //    database can't delete them itself. Your login still works for a
+  //    few more seconds, which is enough for this. Fine if there isn't one.
+  await db.storage.from("avatars").remove([settingsProfile.id + "/avatar.jpg"]);
+
+  // 3. Forget the login on this device and say goodbye.
+  await db.auth.signOut({ scope: "local" });
+  window.location.href = "index.html?deleted=1";
+});
+
+
 // ---------- Start ----------
 
 (async function () {
@@ -159,6 +205,7 @@ passwordForm.addEventListener("submit", async function (event) {
   settingsProfile = profile;
 
   usernameInput.value = profile.username;
+  document.getElementById("delete-username").textContent = profile.username;
   showEmails();
 
   document.getElementById("loading").hidden = true;

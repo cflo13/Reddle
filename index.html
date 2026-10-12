@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reddle</title>
   <meta name="description" content="Track the books you read, rate and review them, and see what your friends are reading.">
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
   <header class="site-header">
@@ -29,6 +29,9 @@
       </p>
     </section>
 
+    <!-- Shown after someone deletes their account -->
+    <p id="deleted-message" class="status status-ok" hidden>Your account and everything in it has been deleted. Thanks for reading with us.</p>
+
     <p id="home-status" class="status status-error" hidden></p>
 
     <h2 id="feed-heading">Loading...</h2>
@@ -40,14 +43,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=5"></script>
+  <script src="js/config.js?v=6"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=5"></script>
+  <script src="js/supabase-client.js?v=6"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=5"></script>
+  <script src="js/auth.js?v=6"></script>
   <!-- 5. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=5"></script>
+  <script src="js/books.js?v=6"></script>
   <!-- This page's own code -->
-  <script src="js/home.js?v=5"></script>
+  <script src="js/home.js?v=6"></script>
 </body>
 </html>
