@@ -344,6 +344,27 @@ function makeReportButton(kind, id, ownerId) {
 }
 
 
+// Small icons for the header buttons (fixed drawings, no user text).
+const ICON_GEAR =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const ICON_LOG_OUT =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+const ICON_SHIELD =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+
+// One header button: an icon plus a word. On phones only the icon shows,
+// so the word is also the button's accessible name and tooltip.
+function makeNavButton(tag, href, label, icon) {
+  const button = el(tag, "nav-button");
+  if (href) button.href = href;
+  if (tag === "button") button.type = "button";
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  button.innerHTML = icon;
+  button.appendChild(el("span", "nav-label", label));
+  return button;
+}
+
 async function setupHeader() {
   const nav = document.getElementById("site-nav");
 
@@ -378,42 +399,29 @@ async function setupHeader() {
   currentUserId = user.id;
   currentIsAdmin = await checkAdmin(user.id);
 
-  // Logged in with a profile: your picture and @username open a small
-  // menu with Profile, Settings and Log out. It's a <details> element,
-  // which opens and closes on click without any extra code.
-  const menu = el("details", "account-menu");
-  const summary = el("summary", "nav-profile");
-  summary.setAttribute("aria-label", "Your account menu");
+  // Logged in with a profile: separate buttons that are always visible.
+  // Profile (your picture + @username), Admin (admins only), Settings
+  // (gear) and Log out. On phones only the icons show (see style.css).
+  const profileButton = el("a", "nav-button nav-profile");
+  profileButton.href = profileLink(profile.username);
+  profileButton.title = "Your profile";
   const avatar = makeAvatar(profile, "avatar-small");
   avatar.id = "header-avatar"; // profile.js updates this after an upload
-  summary.appendChild(avatar);
-  summary.appendChild(el("span", "nav-username", "@" + profile.username));
-  menu.appendChild(summary);
+  profileButton.appendChild(avatar);
+  profileButton.appendChild(el("span", "nav-username", "@" + profile.username));
 
-  const items = el("div", "account-menu-items");
-  const profileItem = el("a", "", "Your profile");
-  profileItem.href = profileLink(profile.username);
-  const settingsItem = el("a", "", "Settings");
-  settingsItem.href = "settings.html";
-  const logOutItem = el("button", "link-button", "Log out");
-  logOutItem.type = "button";
-  logOutItem.addEventListener("click", logOut);
-  items.append(profileItem, settingsItem);
+  const buttons = [profileButton];
   if (currentIsAdmin) {
-    const adminItem = el("a", "", "Admin");
-    adminItem.href = "admin.html";
-    items.appendChild(adminItem);
+    buttons.push(makeNavButton("a", "admin.html", "Admin", ICON_SHIELD));
   }
-  items.appendChild(logOutItem);
-  menu.appendChild(items);
-
-  // Close the menu when clicking anywhere else on the page.
-  document.addEventListener("click", function (event) {
-    if (!menu.contains(event.target)) menu.open = false;
-  });
+  buttons.push(makeNavButton("a", "settings.html", "Settings", ICON_GEAR));
+  const logOutButton = makeNavButton("button", null, "Log out", ICON_LOG_OUT);
+  logOutButton.classList.add("nav-log-out");
+  logOutButton.addEventListener("click", logOut);
+  buttons.push(logOutButton);
 
   nav.textContent = "";
-  nav.appendChild(menu);
+  nav.append(...buttons);
 
   return { user: user, profile: profile };
 }

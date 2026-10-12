@@ -63,71 +63,54 @@ a {
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   margin-left: auto; /* stays on the right, even when the header wraps */
 }
 
-.nav-profile {
-  display: flex;
+/* ---------- Header buttons (when logged in) ---------- */
+
+.nav-button {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #39424c;
+  border-radius: var(--radius);
+  background: none;
   color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
   text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
-.nav-profile:hover span {
+.nav-button:hover {
+  border-color: var(--muted);
   color: var(--accent);
 }
 
-/* ---------- Account menu (your picture + name in the header) ---------- */
-
-.account-menu {
-  position: relative;
+.nav-button svg {
+  flex-shrink: 0;
 }
 
-.account-menu summary {
-  cursor: pointer;
-  list-style: none; /* hide the default triangle */
+/* Profile button: just your picture and name, no border */
+.nav-profile {
+  padding: 2px 6px 2px 2px;
+  border-color: transparent;
+  min-width: 0;
 }
 
-.account-menu summary::-webkit-details-marker {
-  display: none;
+.nav-username {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* A small arrow after your name */
-.account-menu summary::after {
-  content: "\25BE";
+/* Log out is the quietest button */
+.nav-log-out {
+  border-color: transparent;
   color: var(--muted);
-  font-size: 0.8rem;
-}
-
-.account-menu-items {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  min-width: 180px;
-  padding: 6px;
-  border: 1px solid #39424c;
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
-
-.account-menu-items a,
-.account-menu-items button {
-  padding: 8px 12px;
-  border-radius: 6px;
-  color: var(--text);
-  text-align: left;
-  text-decoration: none;
-}
-
-.account-menu-items a:hover,
-.account-menu-items button:hover {
-  background: var(--bg);
 }
 
 /* ---------- Page content ---------- */
@@ -751,13 +734,22 @@ a {
     font-size: 1.6rem;
   }
 
-  /* Just your picture in the header (it still opens the menu) */
-  .nav-username {
+  /* Icons only in the header: your picture, gear, log out */
+  .nav-username,
+  .nav-label {
     display: none;
   }
 
+  .nav-button {
+    padding: 6px;
+  }
+
+  .nav-profile {
+    padding: 2px;
+  }
+
   .site-nav {
-    gap: 12px;
+    gap: 8px;
   }
 
   .book-info {

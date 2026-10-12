@@ -58,7 +58,7 @@ usernameForm.addEventListener("submit", async function (event) {
     // Update the name in the header too.
     const headerName = document.querySelector(".nav-username");
     if (headerName) headerName.textContent = "@" + newName;
-    const profileItem = document.querySelector(".account-menu-items a");
+    const profileItem = document.querySelector("a.nav-profile");
     if (profileItem) profileItem.href = profileLink(newName);
   } finally {
     button.disabled = false;
