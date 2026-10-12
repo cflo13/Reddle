@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of use · Reddle</title>
+  <meta name="description" content="The rules for using Reddle, in plain English.">
+  <link rel="stylesheet" href="css/style.css?v=7">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Filled in by js/auth.js: log in links, or your picture and menu -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page prose">
+    <h1>Terms of use</h1>
+    <p class="muted">Last updated 12 October 2026</p>
+    <p class="lead">The short version: be kind, post your own words, and remember Reddle is a free project that comes with no guarantees.</p>
+
+    <h2>Your account</h2>
+    <ul>
+      <li>You need to be 13 or older to use Reddle.</li>
+      <li>Keep your password safe. You're responsible for what happens on your account.</li>
+      <li>Don't pretend to be someone else.</li>
+    </ul>
+
+    <h2>What you post</h2>
+    <ul>
+      <li>Your reviews and other posts stay yours. By posting them, you let Reddle show them on the site.</li>
+      <li>Only post things you have the right to share. Don't copy other people's reviews or long passages from books.</li>
+      <li>Your profile and reviews are public, so don't post anything you want to keep private.</li>
+    </ul>
+
+    <h2>House rules</h2>
+    <p>Don't post anything that:</p>
+    <ul>
+      <li>harasses, threatens or bullies anyone</li>
+      <li>attacks people because of who they are</li>
+      <li>is spam, advertising or misleading</li>
+      <li>is sexual content involving minors, or is otherwise illegal</li>
+      <li>shares someone else's private information</li>
+    </ul>
+    <p>If you see something that breaks these rules, use the Report button next to it. We may remove posts or accounts that break the rules, with or without warning.</p>
+
+    <h2>Book information</h2>
+    <p>Book details and covers come from <a href="https://openlibrary.org">Open Library</a> and sometimes Google Books. They're usually right, but not always.</p>
+
+    <h2>No guarantees</h2>
+    <p>Reddle is free and provided "as is". We do our best to keep it running and your data safe, but we can't promise it will always be available or free of mistakes. We may change or stop the service. As far as the law allows, we're not responsible for losses caused by using it.</p>
+
+    <h2>Leaving</h2>
+    <p>You can delete your account at any time in <a href="settings.html">Settings</a>.</p>
+
+    <h2>Changes</h2>
+    <p>We may update these terms. If the changes matter, we'll update the date at the top and mention it on the site. Using Reddle after that means you accept the new terms.</p>
+
+    <h2>Questions</h2>
+    <p>See the <a href="about.html#contact">contact details on the About page</a>.</p>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="About Reddle">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+  </footer>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=7"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=7"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=7"></script>
+  <!-- This page's own code -->
+  <script src="js/static-page.js?v=7"></script>
+</body>
+</html>

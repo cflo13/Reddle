@@ -60,12 +60,13 @@ Pages:
 - `forgot-password.html` + `js/forgot-password.js`: asks for your email and sends a reset link (Supabase `resetPasswordForEmail`). Same message whether or not the email has an account
 - `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
 - `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
+- `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
 Shared:
 - `css/style.css`: all styling
-- `js/config.js`: Supabase URL and public key
+- `js/config.js`: Supabase URL and public key, and `CONTACT_EMAIL` (the public contact address; the owner chose to leave it empty until they have a dedicated address)
 - `js/supabase-client.js`: creates the shared `db` connection used by every page
 - `js/auth.js`: shared helpers used by every page: `el()` (build HTML safely), `showStatus()` (fill a status message box), `pageAddress()` (full address of one of our pages, for email links), login helpers, fills the header (log in links, or your picture + @username + log out), makes sure logged-in users have a profile, username checks, `makeAvatar` / `fillAvatar`. Page scripts wait for it with `const { user, profile } = await authReady;`
 
@@ -82,7 +83,7 @@ All of these have been applied to the live project, except `step9-delete-account
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
-Every page has a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
+Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, and an Open Library credit), a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
 
 **Browser caching:** every page loads our CSS and JS with one shared site version number, like `css/style.css?v=4`. When any CSS or JS file changes, bump the number on every page (all files get the same number), so visitors get the new files instead of old saved copies.
 
@@ -144,6 +145,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Feature 2 (password reset): built.** Tested with stand-ins: link on login page, email request, expired link message, password rules, save, log in with the new password.
 - **Batch 2 item 2 (account settings): built.** Header account menu, settings page, `step8-old-usernames.sql` applied (trigger checked on the live database inside a rolled-back test).
 - **Batch 2 item 3 (delete account): built.** Tested with stand-ins (confirmation typing, function missing, full delete cascades, goodbye message). The SQL still has to be run by the owner.
+- **Batch 2 item 4 (About, Privacy, Terms, footer): built.**
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

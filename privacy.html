@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy policy · Reddle</title>
+  <meta name="description" content="What Reddle keeps about you, who can see it, and how to delete it. In plain English.">
+  <link rel="stylesheet" href="css/style.css?v=7">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Filled in by js/auth.js: log in links, or your picture and menu -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page prose">
+    <h1>Privacy policy</h1>
+    <p class="muted">Last updated 12 October 2026</p>
+    <p class="lead">This page explains, in plain English, what Reddle keeps about you, who can see it, and how to delete it.</p>
+
+    <h2>What we keep</h2>
+    <ul>
+      <li><strong>Your account:</strong> your email address and a password. Passwords are scrambled (hashed) by our login provider, so nobody at Reddle can read them.</li>
+      <li><strong>Your profile:</strong> your username, bio and profile picture, if you add them.</li>
+      <li><strong>What you do on Reddle:</strong> the books you log, your ratings, reviews and dates read, your Want to read and Currently reading shelves, and who you follow.</li>
+      <li><strong>Reports:</strong> if you report a review or profile, we keep the report and who sent it, so we can look into it.</li>
+      <li><strong>Google sign in:</strong> if you use it, Google tells us your email address and name.</li>
+    </ul>
+
+    <h2>What's public</h2>
+    <p>Reddle is a social site, so your profile is public: your username, bio, picture, logs, ratings, reviews, shelves, and who you follow and who follows you. Anyone can see these, even without an account.</p>
+    <p><strong>Your email address is never shown</strong> to other people.</p>
+
+    <h2>Where it's stored</h2>
+    <ul>
+      <li>Your account, profile, picture and activity are stored with <a href="https://supabase.com">Supabase</a>, the service that runs our database and logins.</li>
+      <li>The website itself is hosted on <a href="https://pages.github.com">GitHub Pages</a>.</li>
+      <li>Book details and covers are loaded from <a href="https://openlibrary.org">Open Library</a> and sometimes Google Books. Your browser contacts them directly when it shows a book, so they can see your IP address, like any website you visit.</li>
+    </ul>
+
+    <h2>What we don't do</h2>
+    <ul>
+      <li>We don't show ads.</li>
+      <li>We don't sell or rent your information to anyone.</li>
+      <li>We don't use tracking or advertising cookies. Your browser stores a small login token so you stay logged in, and that's it.</li>
+    </ul>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>You can change your username, email and password, edit your bio and picture, and edit or delete any log, at any time.</li>
+      <li>You can delete your account in <a href="settings.html">Settings</a>. This deletes your profile, picture, logs, reviews, shelves and follows straight away. Books stay on Reddle because they're shared, but nothing on them is linked to you any more.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <p>Reddle is for people aged 13 and over. If you're under 13, please don't sign up.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes in a way that matters, we'll update the date at the top and mention it on the site.</p>
+
+    <h2>Questions</h2>
+    <p>See the <a href="about.html#contact">contact details on the About page</a>.</p>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="About Reddle">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+  </footer>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=7"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=7"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=7"></script>
+  <!-- This page's own code -->
+  <script src="js/static-page.js?v=7"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About · Reddle</title>
+  <meta name="description" content="Reddle is a free place to track the books you read, rate and review them, and follow friends.">
+  <link rel="stylesheet" href="css/style.css?v=7">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Filled in by js/auth.js: log in links, or your picture and menu -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page prose">
+    <h1>About Reddle</h1>
+    <p class="lead">Reddle is a place to keep track of the books you read, rate and review them, and see what your friends are reading. Think Letterboxd, but for books.</p>
+
+    <h2>What you can do</h2>
+    <ul>
+      <li>Search for any book and log it with a star rating, a review and the date you finished it.</li>
+      <li>Keep a Want to read list and show what you're Currently reading.</li>
+      <li>Follow other readers and see their latest books on your home page.</li>
+    </ul>
+
+    <h2>Who runs it</h2>
+    <p>Reddle is a small, independent project. It's free, has no ads, and doesn't sell anyone's data.</p>
+    <p>Book information and most covers come from <a href="https://openlibrary.org">Open Library</a>, a free, open catalogue of books run by the Internet Archive. If a book's details look wrong, Open Library is where they come from.</p>
+
+    <h2 id="contact">Contact</h2>
+    <!-- Filled in by js/about.js from CONTACT_EMAIL in js/config.js -->
+    <p id="contact-text">Loading...</p>
+    <p>To report a review or a profile that breaks the rules, use the Report button next to it.</p>
+
+    <p class="muted">Also see the <a href="privacy.html">Privacy policy</a> and <a href="terms.html">Terms</a>.</p>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="About Reddle">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+  </footer>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=7"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=7"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=7"></script>
+  <!-- This page's own code -->
+  <script src="js/about.js?v=7"></script>
+</body>
+</html>

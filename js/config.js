@@ -17,3 +17,10 @@
 
 const SUPABASE_URL = "https://trfgztdvecpswcwoakyz.supabase.co";
 const SUPABASE_KEY = "sb_publishable_jkAblJfgtqvEBa2hl42_7A_D4Pff0Mm";
+
+// ------------------------------------------------------------
+// Contact email, shown on the About page (the footer's Contact link
+// goes there). Leave it empty ("") until you have an address you're
+// happy to make public, for example a new reddle.contact@gmail.com.
+// ------------------------------------------------------------
+const CONTACT_EMAIL = "";
