@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Reddle: track the books you read">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=18">
+  <link rel="stylesheet" href="css/style.css?v=19">
 </head>
 <body>
   <header class="site-header">
@@ -38,29 +38,56 @@
 
   <main class="page page-medium">
     <h1 id="welcome-title">Welcome to Reddle!</h1>
-    <p class="lead">Two quick ways to get started. You can do these any time.</p>
+    <p id="step-counter" class="muted">Step 1 of 3</p>
 
-    <div class="welcome-steps">
-      <!-- Log a first book -->
-      <section class="card">
-        <h2>1. Log a book you've read</h2>
-        <p>Search for a book you finished recently, then give it some stars.</p>
-        <form class="form search-form" action="search.html" role="search">
-          <input name="q" type="search" placeholder="Book title or author" aria-label="Search for a book">
-          <button type="submit" class="button">Search</button>
-        </form>
-      </section>
+    <!-- Step 1: favourite genres -->
+    <section id="step-genres" class="welcome-step">
+      <h2>What do you like to read?</h2>
+      <p>Pick as many genres as you like. We'll use them to suggest books.</p>
+      <!-- Filled in by js/welcome.js -->
+      <div id="genre-choices" class="genre-choices"></div>
+      <div class="step-buttons">
+        <button id="genres-next" type="button" class="button" disabled>Next</button>
+        <button type="button" class="link-button skip-button">Skip for now</button>
+      </div>
+    </section>
 
-      <!-- Follow people -->
-      <section class="card">
-        <h2>2. Follow some readers</h2>
-        <p>Their latest books show up on your home page.</p>
-        <!-- Filled in by js/welcome.js -->
-        <div id="suggested-people" class="suggested-people"><p class="muted">Finding readers...</p></div>
-      </section>
-    </div>
+    <!-- Step 2: books they've read -->
+    <section id="step-books" class="welcome-step" hidden>
+      <h2>Which of these have you read?</h2>
+      <p>Tap a book once if you've <strong>read</strong> it, twice if you <strong>loved</strong> it,
+        or three times if you <strong>want to read</strong> it. Tap again to clear.</p>
+      <!-- Filled in by js/welcome.js -->
+      <div id="book-choices" class="pick-grid"><p class="muted">Finding popular books...</p></div>
+      <p id="books-message" class="status" hidden></p>
+      <div class="step-buttons">
+        <button id="books-save" type="button" class="button">Save and continue</button>
+        <button type="button" class="link-button skip-button">Skip</button>
+      </div>
+    </section>
 
-    <p class="welcome-done"><a class="button" href="index.html">Go to my home page</a></p>
+    <!-- Step 3: get going -->
+    <section id="step-start" class="welcome-step" hidden>
+      <div class="welcome-steps">
+        <section class="card">
+          <h2>Log a book you've read</h2>
+          <p>Search for a book you finished recently, then give it some stars.</p>
+          <form class="form search-form" action="search.html" role="search">
+            <input name="q" type="search" placeholder="Book title or author" aria-label="Search for a book">
+            <button type="submit" class="button">Search</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Follow some readers</h2>
+          <p>Their latest books show up on your home page.</p>
+          <!-- Filled in by js/welcome.js -->
+          <div id="suggested-people" class="suggested-people"><p class="muted">Finding readers...</p></div>
+        </section>
+      </div>
+
+      <p class="welcome-done"><a class="button" href="index.html">Go to my home page</a></p>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -76,14 +103,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=18"></script>
+  <script src="js/config.js?v=19"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=18"></script>
+  <script src="js/supabase-client.js?v=19"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=18"></script>
+  <script src="js/auth.js?v=19"></script>
   <!-- 5. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=18"></script>
+  <script src="js/books.js?v=19"></script>
   <!-- This page's own code -->
-  <script src="js/welcome.js?v=18"></script>
+  <script src="js/welcome.js?v=19"></script>
 </body>
 </html>

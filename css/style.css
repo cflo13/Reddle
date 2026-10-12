@@ -1129,3 +1129,107 @@ body > main {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ---------- Taste questionnaire (welcome page) ---------- */
+
+.welcome-step h2 {
+  margin-top: 8px;
+}
+
+.genre-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+
+/* A genre you can switch on and off */
+.genre-choice {
+  padding: 8px 14px;
+  border: 1px solid #39424c;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.genre-choice:hover {
+  border-color: var(--accent);
+}
+
+.genre-choice[aria-pressed="true"] {
+  border-color: var(--ok);
+  background: var(--ok);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.step-buttons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 8px;
+}
+
+/* Book covers you can tap */
+.pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 16px 12px;
+  margin: 16px 0 24px;
+}
+
+.pick-grid > p {
+  grid-column: 1 / -1;
+}
+
+.pick-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pick-tile .cover {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+
+.pick-tile[data-pick="read"] .cover { outline-color: var(--accent); }
+.pick-tile[data-pick="loved"] .cover { outline-color: var(--ok); }
+.pick-tile[data-pick="want"] .cover { outline-color: #e2b23a; }
+
+/* "Read" / "Loved" / "Want to read" label on a picked cover */
+.pick-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pick-tile[data-pick="loved"] .pick-badge::before { content: "\2665  "; color: var(--ok); }
+
+@media (max-width: 600px) {
+  .pick-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

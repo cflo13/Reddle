@@ -44,7 +44,7 @@ the people they follow are reading.
 
 Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 
-- **profiles:** id (same as the login user id), username, bio, avatar_url, onboarded (has seen the welcome page; `step13-onboarding.sql`)
+- **profiles:** id (same as the login user id), username, bio, avatar_url, onboarded (has seen the welcome page; `step13-onboarding.sql`), favorite_genres (from the taste questionnaire; `step15-favorite-genres.sql`)
 - **books:** id, external_id (unique), title, author, cover_url, description, isbn, genres (list of genre slugs; `step14-genres.sql`)
 - **books_with_stats** (a view, not a table): each book plus log_count, avg_rating, rating_count and logs_this_week. Use it for anything ranked (genre pages, recommendations, popular).
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
@@ -69,10 +69,10 @@ Pages:
 - `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter), and click your picture to upload a new one (hidden file input behind the picture)
 - `forgot-password.html` + `js/forgot-password.js`: asks for your email and sends a reset link (Supabase `resetPasswordForEmail`). Same message whether or not the email has an account
 - `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
-- `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
+- `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password; "Redo the taste questionnaire" link; delete account (type your username to unlock the button; calls `delete_my_account`, then deletes the picture, logs out, and shows a goodbye message on the home page via `index.html?deleted=1`). Logged-out visitors go to login
 - `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
 - `admin.html` + `js/admin.js`: admin-only. Open reports newest first, with the reported review or profile; buttons Remove review, Remove user (`admin_delete_user`, then deletes their picture), Dismiss. Non-admins see "only for the site admin"
-- `welcome.html` + `js/welcome.js`: shown once to new users (after sign up, after choosing a username, or on first login when `onboarded` is false). Search box to log a first book, and the 6 readers with the most recent logs with Follow buttons. Visiting it sets `onboarded` to true
+- `welcome.html` + `js/welcome.js`: shown once to new users (after sign up, after choosing a username, or on first login when `onboarded` is false), and from Settings as `welcome.html?redo=1`. Three skippable steps: 1) pick favourite genres (saved to `favorite_genres`); 2) tap popular Open Library books from those genres, 1 tap = read (log, no rating), 2 = loved (5-star log), 3 = want to read (shelf), saved in a few batched requests that never overwrite existing logs or shelves; 3) log a first book and follow the 6 most active readers. Visiting it sets `onboarded` to true
 - `genres.html` + `js/genres.js`: Browse by genre, a card per genre with how many Reddle books are in it
 - `genre.html` + `js/genre.js`: `genre.html?g=fantasy`. "Top on Reddle" (most logged in that genre, from `books_with_stats`) and "Popular on Open Library" (Open Library's subject page, 24 at a time with Load more)
 - `404.html`: Page not found, with a search box and a link home
@@ -96,6 +96,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step12-limits.sql`: limits the database enforces (review 5000 and not blank, bio not blank, avatar must be in our storage, book id format and field sizes, sensible reading dates) (batch 2)
 - `supabase/step13-onboarding.sql`: `profiles.onboarded` (existing accounts true, new ones false) (batch 2, welcome step)
 - `supabase/step14-genres.sql`: `books.genres` (only known slugs allowed), `books_with_stats` view, `fill_book_details()` (fills only empty genres/cover/description/ISBN on a saved book) (batch 2, genres)
+- `supabase/step15-favorite-genres.sql`: `profiles.favorite_genres` (same allowed slugs as books) (batch 2, taste questionnaire)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -175,6 +176,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 10 (welcome step): built.** `step13-onboarding.sql` applied (as add-with-default-true, then default false, to avoid an all-rows update).
 - **Batch 2 item 11 (phone check): done.** Every page checked at 375px (and the trickiest at 320px) with long titles, long reviews and a 20-character username; no page scrolls sideways. Fixed: 404 page side margins, long usernames on profiles (wrap) and in the header (shortened with ...), menu stays on the right when the header wraps.
 - **Batch 2 item 12 (genres): built.** `step14-genres.sql` applied. Tested the matching on real Open Library subject lists (Dune, Pride and Prejudice, Sapiens, Harry Potter, The Shining, Wolf Hall, Atomic Habits, Gone Girl, Maus) and the pages with stand-ins, including phones.
+- **Batch 2 item 13 (taste questionnaire): built.** `step15-favorite-genres.sql` applied. Tested: genre picking, books alternate between genres without repeats, tap cycle, saving, redo keeps earlier logs, skip.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

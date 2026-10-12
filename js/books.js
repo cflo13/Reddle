@@ -245,6 +245,7 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
       title: work.title,
       author: work.authors && work.authors[0] ? work.authors[0].name : "",
       coverUrl: work.cover_id ? coverUrlFromId(work.cover_id, "M") : null,
+      coverId: work.cover_id || null,
     };
   });
 }
