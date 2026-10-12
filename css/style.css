@@ -15,6 +15,12 @@
   box-sizing: border-box;
 }
 
+/* Anything marked "hidden" in the HTML stays hidden, even if another rule
+   below gives it display: flex. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -641,5 +647,57 @@ a {
 
   .book-info {
     text-align: left;
+  }
+}
+
+/* ---------- Shelves (Want to read / Currently reading) ---------- */
+
+.shelf-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.shelf-button {
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
+/* The shelf the book is on */
+.shelf-button.shelf-active {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #ffffff;
+}
+
+/* A row of covers that wraps onto more lines */
+.cover-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cover-link {
+  display: block;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+
+.cover-link:hover,
+.cover-link:focus-visible {
+  transform: translateY(-3px);
+}
+
+.cover-medium {
+  width: 90px;
+  height: 135px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-link {
+    transition: none;
   }
 }

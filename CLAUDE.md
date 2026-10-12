@@ -18,6 +18,7 @@ the people they follow are reading.
 - **Sign up:** email and password, plus Google sign in.
 - **Usernames at sign up:** the chosen username is stored on the login account (`user_metadata.username`). A database trigger (`supabase/step2-profile-trigger.sql`) creates the profile row the moment the account is created; it skips bad or taken usernames instead of failing the sign up. As a backup, `ensureProfile` in `js/auth.js` creates it on first login. Any logged-in user without a profile (e.g. first Google sign in, or their username got taken meanwhile) is sent to `choose-username.html` by `js/auth.js`.
 - **Profile links:** `profile.html?u=username` for now.
+- **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
 - **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
 - **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
 - **Finding people:** the search page also matches usernames (shown above the book results), and every name on a log card links to that profile.
@@ -41,8 +42,9 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **books:** id, external_id (unique), title, author, cover_url, description, isbn
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
 - **follows:** follower_id, following_id
+- **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
 
-Everyone can read everything. Users can only change their own profile, logs and follows.
+Everyone can read everything. Users can only change their own profile, logs, follows and shelves.
 Any signed-in user can save a new book.
 
 ## Files
@@ -66,6 +68,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/schema.sql`: database tables and security rules (step 1)
 - `supabase/step2-profile-trigger.sql`: creates the profile automatically at sign up (step 2)
 - `supabase/step3-avatars.sql`: the `avatars` storage bucket and its security rules (step 3)
+- `supabase/step7-shelves.sql`: the `shelves` table (feature 1, Want to read / Currently reading)
 
 All of these have been applied to the live project.
 
@@ -73,6 +76,8 @@ All of these have been applied to the live project.
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
 Every page has a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
+
+**Browser caching:** pages load CSS and JS with a version number, like `css/style.css?v=3`. When a CSS or JS file changes, bump its number in every page that loads it, so visitors get the new file instead of an old saved copy. Hidden elements use the `hidden` attribute; `style.css` has a `[hidden] { display: none !important; }` rule so no other rule can show them by accident.
 
 User text (bios, reviews) is always put on the page with `textContent`, never `innerHTML`, so nobody can sneak code into the site.
 
@@ -84,6 +89,21 @@ User text (bios, reviews) is always put on the page with `textContent`, never `i
 4. Book search and book pages
 5. Logging a book with rating and review
 6. Follow system and the feed
+
+Features after version 1, built one at a time in this order (the owner tests each before the next):
+
+1. Want to read and Currently reading shelves
+2. Password reset ("Forgot password" on the login page)
+3. Likes on reviews, with a like count on each log card
+4. Comments on reviews, under the review on the book page
+5. Lists ("Best fantasy", "Books that made me cry"), shown on the profile
+6. Four favourite books pinned at the top of the profile
+7. Popular this week page (most logged and highest rated in the last 7 days), linked from the header
+8. Reading stats on the profile (books this year, average rating, books per month chart)
+9. Cleaner profile links (/username) with a 404.html redirect on GitHub Pages
+10. Google sign in
+
+New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `step8-...` and so on). Claude applies it to the live project through the Supabase connector and tells the owner.
 
 ## Working rules for Claude Code
 
@@ -103,7 +123,8 @@ User text (bios, reviews) is always put on the page with `textContent`, never `i
 - **Step 6 (follow system and the feed): built.** No new SQL needed: the tables and rules were already in `schema.sql`.
 - **Version 1 is complete and waiting for the owner to try it for real.** Steps 3 to 6 were tested with stand-ins (sign up, search, open a book, rate with half stars, review, update, delete, follow, unfollow, feed, missing user/book messages, phone layout), never against the real Supabase and Open Library.
 - **Hosting: done.** Site is live on GitHub Pages (first deploy succeeded).
-- Next: the owner tries the whole site on the live address. Then Google sign in (needs a Google Cloud OAuth client and the Google provider turned on in Supabase).
+- **Feature 1 (Want to read / Currently reading): built, waiting for the owner to test.** `step7-shelves.sql` applied to the live project by Claude. Tested with stand-ins: add, switch, take off, survives reload, removed when the book is logged, both profile sections, hidden when logged out.
+- Next: feature 2, password reset.
 
 ## Notes for later steps
 

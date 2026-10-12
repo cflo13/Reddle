@@ -100,7 +100,7 @@ async function loadPage() {
     document.getElementById("follow-login").hidden = false;
   }
 
-  await Promise.all([loadStats(), loadProfileLogs()]);
+  await Promise.all([loadStats(), loadShelves(isMe), loadProfileLogs()]);
 }
 
 
@@ -183,6 +183,40 @@ async function setUpFollowButton(myProfile) {
     updateButton();
     await loadStats();
   });
+}
+
+
+// ---------- Shelves: Currently reading / Want to read ----------
+
+// Fills one shelf with covers, or shows `emptyText`.
+function showShelf(container, books, emptyText) {
+  container.textContent = "";
+  if (books.length === 0) {
+    container.appendChild(el("p", "muted", emptyText));
+    return;
+  }
+  for (const book of books) container.appendChild(makeCoverLink(book));
+}
+
+async function loadShelves(isMe) {
+  // Every shelf row for this person, newest first, with the book joined in.
+  const { data: rows, error } = await db
+    .from("shelves")
+    .select("status, books(external_id, title, author, cover_url)")
+    .eq("user_id", shownProfile.id)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+
+  const reading = rows.filter((row) => row.status === "currently_reading").map((row) => row.books);
+  const want = rows.filter((row) => row.status === "want_to_read").map((row) => row.books);
+
+  document.getElementById("reading-section").hidden = reading.length === 0;
+  showShelf(document.getElementById("reading-books"), reading, "");
+  showShelf(
+    document.getElementById("want-books"),
+    want,
+    isMe ? "Nothing yet. Open a book and click \u201cWant to read\u201d." : "Nothing yet."
+  );
 }
 
 

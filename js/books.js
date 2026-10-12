@@ -185,6 +185,17 @@ function makeCover(book, sizeClass) {
 }
 
 
+// A cover that links to the book page, with the title shown on hover.
+// Used for the shelves on the profile page.
+function makeCoverLink(book) {
+  const link = el("a", "cover-link");
+  link.href = bookLink(book.external_id);
+  link.title = book.author ? book.title + " by " + book.author : book.title;
+  link.appendChild(makeCover(book, "cover-medium"));
+  return link;
+}
+
+
 // ---------- Log cards (feed, book page, profile) ----------
 
 // Turns a date like "2026-10-12" into "12 Oct 2026".

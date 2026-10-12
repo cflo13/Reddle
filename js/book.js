@@ -12,6 +12,7 @@ let currentProfile = null;
 let shownBook = null;   // the book's details (from our table or Open Library)
 let myLog = null;       // your log of this book, if you have one
 let currentRating = null; // the stars picked in the form (null = no rating)
+let myShelf = null;       // "want_to_read", "currently_reading", or null
 
 
 // ---------- Showing the book ----------
@@ -133,6 +134,102 @@ function setUpStars() {
 }
 
 
+// ---------- Saving the book ----------
+
+// Books only go into our own `books` table the first time someone does
+// something with them (logs them or puts them on a shelf).
+async function ensureBookSaved() {
+  if (shownBook.id) return;
+  shownBook = await saveBookIfNeeded({
+    external_id: shownBook.external_id,
+    title: shownBook.title,
+    author: shownBook.author,
+    cover_url: shownBook.cover_url,
+    description: shownBook.description,
+    isbn: shownBook.isbn,
+  });
+}
+
+
+// ---------- Want to read / Currently reading ----------
+
+const shelfButtons = document.querySelectorAll(".shelf-button");
+const shelfMessage = document.getElementById("shelf-message");
+
+// Highlights the button for the shelf the book is on (if any).
+function updateShelfButtons() {
+  shelfButtons.forEach(function (button) {
+    const active = button.dataset.status === myShelf;
+    button.classList.toggle("shelf-active", active);
+    button.setAttribute("aria-pressed", active);
+    const label = button.dataset.status === "want_to_read" ? "Want to read" : "Currently reading";
+    button.textContent = active ? "\u2713 " + label : label; // \u2713 is a tick
+  });
+}
+
+// Which shelf is this book on for you?
+async function loadMyShelf() {
+  myShelf = null;
+  if (!shownBook.id) return; // not saved yet, so it can't be on a shelf
+  const { data, error } = await db
+    .from("shelves")
+    .select("status")
+    .eq("user_id", currentUser.id)
+    .eq("book_id", shownBook.id)
+    .maybeSingle();
+  if (error) throw error;
+  myShelf = data ? data.status : null;
+}
+
+// Puts the book on a shelf, or takes it off when `status` is null.
+async function setShelf(status) {
+  if (status === null) {
+    const { error } = await db
+      .from("shelves")
+      .delete()
+      .eq("user_id", currentUser.id)
+      .eq("book_id", shownBook.id);
+    if (error) throw error;
+  } else {
+    await ensureBookSaved();
+    // "upsert": add it, or move it from the other shelf.
+    const { error } = await db
+      .from("shelves")
+      .upsert(
+        { user_id: currentUser.id, book_id: shownBook.id, status: status },
+        { onConflict: "user_id,book_id" }
+      );
+    if (error) throw error;
+  }
+  myShelf = status;
+  updateShelfButtons();
+}
+
+async function setUpShelfButtons() {
+  await loadMyShelf();
+  updateShelfButtons();
+  document.getElementById("shelf-buttons").hidden = false;
+
+  shelfButtons.forEach(function (button) {
+    button.addEventListener("click", async function () {
+      // Clicking the shelf it's already on takes it off.
+      const newStatus = button.dataset.status === myShelf ? null : button.dataset.status;
+      shelfButtons.forEach((b) => (b.disabled = true));
+      shelfMessage.hidden = true;
+      try {
+        await setShelf(newStatus);
+      } catch (error) {
+        shelfMessage.textContent = "Could not update: " + error.message;
+        shelfMessage.classList.add("hint-error");
+        shelfMessage.hidden = false;
+      } finally {
+        shelfButtons.forEach((b) => (b.disabled = false));
+      }
+    });
+  });
+}
+
+
 // ---------- Your log form ----------
 
 const logForm = document.getElementById("log-form");
@@ -188,16 +285,7 @@ async function saveLog(event) {
 
   try {
     // 1. Make sure the book is saved in our own table (first log only).
-    if (!shownBook.id) {
-      shownBook = await saveBookIfNeeded({
-        external_id: shownBook.external_id,
-        title: shownBook.title,
-        author: shownBook.author,
-        cover_url: shownBook.cover_url,
-        description: shownBook.description,
-        isbn: shownBook.isbn,
-      });
-    }
+    await ensureBookSaved();
 
     // 2. Save your log. "upsert" means: create it, or update it if you
     //    already logged this book (one log per person per book).
@@ -212,6 +300,10 @@ async function saveLog(event) {
       { onConflict: "user_id,book_id" }
     );
     if (error) throw error;
+
+    // 3. You've read it now, so take it off "Want to read" or
+    //    "Currently reading".
+    if (myShelf) await setShelf(null);
 
     await loadLogs();
     fillLogForm();
@@ -276,6 +368,7 @@ async function loadBookPage() {
   await loadLogs();
 
   if (currentProfile) {
+    await setUpShelfButtons();
     setUpLogForm();
   } else {
     document.getElementById("log-login").hidden = false;
