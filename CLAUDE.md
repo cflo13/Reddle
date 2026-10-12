@@ -49,7 +49,9 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **reports:** reporter_id, log_id or reported_user_id (exactly one), reason (max 500), status (`open` / `dismissed`). Anyone logged in can send; only admins can read, dismiss or delete. One report per person per review/profile. Admins may also delete any log and any avatar (`is_admin()` in the rules).
 - **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
 
-Everyone can read everything. Users can only change their own profile, logs, follows and shelves.
+Everyone can read everything (except reports and admins). Users can only change their own profile, logs, follows and shelves.
+
+**Limits live in the database too** (schema.sql + step12-limits.sql): usernames, bio 300, review 5000, ratings in half steps, report reason 500, avatars only from our storage, books only with Open Library ids. If you change a limit in the browser code, change the SQL too.
 Any signed-in user can save a new book.
 
 ## Files
@@ -82,6 +84,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step8-old-usernames.sql`: remembers old usernames (batch 2, account settings)
 - `supabase/step10-reports-admin.sql`: admins, reports, admin rules (batch 2, moderation)
 - `supabase/step11-admin-remove-user.sql`: `admin_delete_user(target)` for the admin page (touches `auth.users`, so the owner runs it)
+- `supabase/step12-limits.sql`: limits the database enforces (review 5000 and not blank, bio not blank, avatar must be in our storage, book id format and field sizes, sensible reading dates) (batch 2)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -153,6 +156,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 3 (delete account): built.** Tested with stand-ins (confirmation typing, function missing, full delete cascades, goodbye message). The SQL still has to be run by the owner.
 - **Batch 2 item 4 (About, Privacy, Terms, footer): built.**
 - **Batch 2 item 5 (report + admin): built.** `step10` applied; `step11` waits on the owner. Security advisor: `is_admin()` is callable by logged-in users on purpose (the rules need it); anon access revoked.
+- **Batch 2 item 6 (database limits): built.** `step12-limits.sql` applied; checked on the live database with a rolled-back test that tried to break each rule.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

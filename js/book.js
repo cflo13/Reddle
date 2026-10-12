@@ -330,6 +330,7 @@ async function deleteLog() {
 
 function setUpLogForm() {
   document.getElementById("log-section").hidden = false;
+  dateInput.max = todayText(); // no reading dates in the future
   reviewInput.maxLength = MAX_REVIEW_LENGTH;
   setUpStars();
   fillLogForm();
