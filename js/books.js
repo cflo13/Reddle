@@ -262,3 +262,54 @@ function showLogList(container, logs, options, emptyText) {
   }
   for (const log of logs) container.appendChild(makeLogCard(log, options));
 }
+
+
+// ---------- Long lists, a page at a time ----------
+
+// How many log cards to show at once before the "Load more" button.
+const PAGE_SIZE = 20;
+
+// Shows log cards PAGE_SIZE at a time, with a "Load more" button
+// underneath while there are more.
+//
+// `makeQuery(from, to)` returns a Supabase query for rows number `from`
+// to `to` (counting from 0), for example:
+//   (from, to) => db.from("logs").select(LOG_FIELDS).eq(...).order(...).range(from, to)
+// We ask for one extra row each time; if it comes back, there's more.
+async function showPagedLogs(container, makeQuery, options, emptyText) {
+  container.textContent = "";
+  let shown = 0;
+
+  const moreButton = el("button", "button button-secondary load-more", "Load more");
+  moreButton.type = "button";
+
+  async function loadNextPage() {
+    moreButton.disabled = true;
+    moreButton.textContent = "Loading...";
+
+    const { data, error } = await makeQuery(shown, shown + PAGE_SIZE);
+    moreButton.remove();
+
+    if (error) {
+      const problem = el("p", "status status-error", friendlyError(error, "Couldn't load these. "));
+      container.appendChild(problem);
+      return;
+    }
+    if (shown === 0 && data.length === 0) {
+      container.appendChild(el("p", "muted", emptyText));
+      return;
+    }
+
+    for (const log of data.slice(0, PAGE_SIZE)) container.appendChild(makeLogCard(log, options));
+    shown += Math.min(data.length, PAGE_SIZE);
+
+    if (data.length > PAGE_SIZE) {
+      moreButton.disabled = false;
+      moreButton.textContent = "Load more";
+      container.appendChild(moreButton);
+    }
+  }
+
+  moreButton.addEventListener("click", loadNextPage);
+  await loadNextPage();
+}

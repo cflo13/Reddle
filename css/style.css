@@ -895,3 +895,10 @@ body > main {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ---------- Load more ---------- */
+
+.load-more {
+  align-self: center;
+  margin: 20px auto 0;
+}

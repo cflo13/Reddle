@@ -49,29 +49,40 @@ function showBook(book) {
 async function loadLogs() {
   const list = document.getElementById("book-logs");
   const average = document.getElementById("book-average");
+  const emptyText = "Nobody has logged this book yet. Be the first!";
 
   // Nobody has logged it yet if we haven't saved a copy.
   if (!shownBook.id) {
-    showLogList(list, [], {}, "Nobody has logged this book yet. Be the first!");
+    showLogList(list, [], {}, emptyText);
     average.textContent = "";
+    myLog = null;
     return;
   }
 
-  const { data: logs, error } = await db
-    .from("logs")
-    .select(LOG_FIELDS)
-    .eq("book_id", shownBook.id)
-    .order("created_at", { ascending: false });
+  // Three things at once: everyone's ratings (for the average), your own
+  // log (for the form), and the first page of logs.
+  const [ratingsResult, myLogResult] = await Promise.all([
+    db.from("logs").select("rating").eq("book_id", shownBook.id).not("rating", "is", null),
+    currentUser
+      ? db.from("logs").select(LOG_FIELDS).eq("book_id", shownBook.id).eq("user_id", currentUser.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    showPagedLogs(
+      list,
+      (from, to) =>
+        db
+          .from("logs")
+          .select(LOG_FIELDS)
+          .eq("book_id", shownBook.id)
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to),
+      { showUser: true },
+      emptyText
+    ),
+  ]);
 
-  if (error) {
-    list.textContent = "Could not load logs: " + error.message;
-    return;
-  }
-
-  showLogList(list, logs, { showUser: true }, "Nobody has logged this book yet. Be the first!");
-
-  // Average of the logs that have a rating.
-  const ratings = logs.filter((log) => log.rating).map((log) => Number(log.rating));
+  // Average of everyone's ratings.
+  const ratings = (ratingsResult.data || []).map((row) => Number(row.rating));
   if (ratings.length > 0) {
     const sum = ratings.reduce((total, rating) => total + rating, 0);
     average.textContent =
@@ -82,7 +93,7 @@ async function loadLogs() {
   }
 
   // Your own log (if any) fills in the form.
-  myLog = currentUser ? logs.find((log) => log.user_id === currentUser.id) || null : null;
+  myLog = myLogResult.data || null;
 }
 
 

@@ -245,20 +245,19 @@ async function loadShelves(isMe) {
 // ---------- Their books ----------
 
 async function loadProfileLogs() {
-  const list = document.getElementById("profile-logs");
-
-  const { data: logs, error } = await db
-    .from("logs")
-    .select(LOG_FIELDS)
-    .eq("user_id", shownProfile.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  if (error) {
-    list.textContent = "Could not load books: " + error.message;
-    return;
-  }
-  showLogList(list, logs, { showBook: true }, "No books logged yet.");
+  await showPagedLogs(
+    document.getElementById("profile-logs"),
+    (from, to) =>
+      db
+        .from("logs")
+        .select(LOG_FIELDS)
+        .eq("user_id", shownProfile.id)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to),
+    { showBook: true },
+    "No books logged yet."
+  );
 }
 
 

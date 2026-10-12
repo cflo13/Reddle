@@ -68,6 +68,17 @@ function showStatus(element, kind, text) {
   element.hidden = false;
 }
 
+// Turns an error into a message people can understand. `start` is put
+// in front, for example "Couldn't save your log. ".
+function friendlyError(error, start) {
+  const text = (error && error.message) || String(error);
+  // The browser couldn't reach the server at all.
+  if (/Failed to fetch|NetworkError|Load failed|network/i.test(text)) {
+    return (start || "") + "We couldn't reach Reddle. Check your internet connection and try again.";
+  }
+  return (start || "") + text;
+}
+
 // The address of a page on this site, for links in emails.
 // Works both on the live site and when testing from a file.
 function pageAddress(fileName) {
