@@ -1233,3 +1233,37 @@ body > main {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ---------- For you (home page) ---------- */
+
+.for-you {
+  margin-bottom: 32px;
+}
+
+/* One row of book tiles you can scroll sideways */
+.tile-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 112px;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x proximity;
+}
+
+.tile-row .book-tile {
+  scroll-snap-align: start;
+}
+
+.book-tile-reason {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+/* Covers that are links never get an underline (books with no picture
+   show their title on the cover) */
+.log-cover,
+.book-tile {
+  text-decoration: none;
+}

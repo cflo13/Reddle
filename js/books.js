@@ -251,6 +251,53 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
 }
 
 
+// ---------- Popular and top-rated lists ----------
+
+// Books on Reddle in any of these genres that readers rated highly (an
+// average of 3.5 stars or more), best first, then most logged. Leaves out
+// any book whose id is in `excludeIds`.
+async function fetchTopRatedInGenres(genres, excludeIds, limit) {
+  if (!genres || genres.length === 0) return [];
+  const { data, error } = await db
+    .from("books_with_stats")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")
+    .overlaps("genres", genres) // shares at least one genre
+    .gte("avg_rating", 3.5)
+    .order("avg_rating", { ascending: false, nullsFirst: false })
+    .order("log_count", { ascending: false })
+    .limit(limit + excludeIds.length);
+  if (error) throw error;
+  const skip = new Set(excludeIds);
+  return data.filter((book) => !skip.has(book.id)).slice(0, limit);
+}
+
+// The most logged books on Reddle.
+async function fetchMostLoggedOnReddle(limit) {
+  const { data, error } = await db
+    .from("books_with_stats")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")
+    .gt("log_count", 0)
+    .order("log_count", { ascending: false })
+    .order("avg_rating", { ascending: false, nullsFirst: false })
+    .limit(limit);
+  if (error) throw error;
+  return data;
+}
+
+// What's popular on Open Library this week. Returns our tile shape.
+async function fetchTrendingFromOpenLibrary(limit) {
+  const response = await fetchOpenLibrary(OPEN_LIBRARY + "/trending/weekly.json?limit=" + limit);
+  if (!response.ok) return [];
+  const data = await response.json();
+  return (data.works || []).map((work) => ({
+    external_id: workIdFromKey(work.key),
+    title: work.title,
+    author: work.author_name ? work.author_name[0] : "",
+    cover_url: work.cover_i ? coverUrlFromId(work.cover_i, "M") : null,
+  }));
+}
+
+
 // ---------- Our own books table ----------
 
 // Gets our saved copy of a book, or null if nobody has logged it yet.
@@ -322,13 +369,15 @@ function makeCoverLink(book) {
 // A book as a tile: cover, title, author, and an optional small note
 // underneath (like "★ 4.2 · 12 logs"). `book` needs external_id, title,
 // author and cover_url. Used on genre pages and for recommendations.
-function makeBookTile(book, note) {
+// `reason` (optional) is a grey line underneath, like "Because you like Fantasy".
+function makeBookTile(book, note, reason) {
   const tile = el("a", "book-tile");
   tile.href = bookLink(book.external_id);
   tile.appendChild(makeCover(book, "cover-medium"));
   tile.appendChild(el("span", "book-tile-title", book.title));
   if (book.author) tile.appendChild(el("span", "book-tile-author", book.author));
   if (note) tile.appendChild(el("span", "book-tile-note", note));
+  if (reason) tile.appendChild(el("span", "book-tile-reason", reason));
   return tile;
 }
 
