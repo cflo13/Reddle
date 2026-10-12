@@ -374,6 +374,26 @@ function setUpEditing() {
   bioInput.addEventListener("input", updateBioCounter);
   document.getElementById("bio-form").addEventListener("submit", saveBio);
   avatarInput.addEventListener("change", uploadAvatar);
+
+  // Your own picture is the upload button: click it (or press Enter or
+  // Space when it has focus) to choose a new one.
+  const avatarSpot = document.getElementById("profile-avatar");
+  avatarSpot.classList.add("avatar-editable");
+  avatarSpot.setAttribute("role", "button");
+  avatarSpot.setAttribute("tabindex", "0");
+  avatarSpot.setAttribute("aria-label", "Change profile picture");
+  avatarSpot.title = "Change profile picture";
+
+  function chooseNewPicture() {
+    if (!avatarInput.disabled) avatarInput.click(); // disabled while uploading
+  }
+  avatarSpot.addEventListener("click", chooseNewPicture);
+  avatarSpot.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      chooseNewPicture();
+    }
+  });
 }
 
 

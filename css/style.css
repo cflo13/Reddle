@@ -256,6 +256,49 @@ a {
   font-size: 3.5rem;
 }
 
+/* On your own profile the picture is the upload button.
+   A dark "Change" layer appears over it when you point at it or tab to it. */
+.avatar-editable {
+  position: relative;
+  display: inline-block;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.avatar-editable::after {
+  content: "Change";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.avatar-editable:hover::after,
+.avatar-editable:focus-visible::after {
+  opacity: 1;
+}
+
+/* Phones have no hover, so show a small round badge instead */
+@media (hover: none) {
+  .avatar-editable::after {
+    content: "+";
+    inset: auto 4px 4px auto;
+    width: 30px;
+    height: 30px;
+    font-size: 1.3rem;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 1;
+  }
+}
+
 /* ---------- Profile page ---------- */
 
 .profile-top {

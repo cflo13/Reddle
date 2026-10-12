@@ -31,6 +31,8 @@
     <section id="profile" hidden>
       <div class="profile-top">
         <div id="profile-avatar"></div>
+        <!-- Hidden file chooser. On your own profile, clicking the picture opens it. -->
+        <input id="avatar-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         <div>
           <h1 id="profile-username" class="profile-username"></h1>
           <p id="profile-bio" class="profile-bio"></p>
@@ -58,9 +60,7 @@
         </form>
 
         <div class="form">
-          <label for="avatar-input">Profile picture</label>
-          <input id="avatar-input" type="file" accept="image/jpeg,image/png,image/webp">
-          <p class="hint">JPG, PNG or WEBP, up to 5 MB. We crop it to a square from the middle.</p>
+          <p class="hint">To change your profile picture, click it at the top of the page. JPG, PNG or WEBP, up to 5 MB. We crop it to a square from the middle.</p>
           <p id="avatar-message" class="status" hidden></p>
         </div>
       </section>

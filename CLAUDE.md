@@ -52,7 +52,7 @@ Pages:
 - `signup.html` + `js/signup.js`: sign up with username, email, password, or Google
 - `login.html` + `js/login.js`: log in with email and password, or Google
 - `choose-username.html` + `js/choose-username.js`: for logged-in users who have no username yet
-- `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter) and upload a picture
+- `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter), and click your picture to upload a new one (hidden file input behind the picture)
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
