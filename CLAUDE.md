@@ -17,7 +17,8 @@ the people they follow are reading.
 - **Profile picture:** JPG, PNG or WEBP up to 5 MB. Cropped to a square from the centre and resized to 256 x 256 JPEG in the browser (canvas), then uploaded to the public Supabase Storage bucket `avatars` as `USERID/avatar.jpg` (one picture per user, replaced on each upload). The public link plus `?v=timestamp` is saved in `profiles.avatar_url`, so browsers show the new picture instead of an old cached copy. No picture: grey circle with the first letter of the username (pure CSS).
 - **Sign up:** email and password, plus Google sign in.
 - **Usernames at sign up:** the chosen username is stored on the login account (`user_metadata.username`). A database trigger (`supabase/step2-profile-trigger.sql`) creates the profile row the moment the account is created; it skips bad or taken usernames instead of failing the sign up. As a backup, `ensureProfile` in `js/auth.js` creates it on first login. Any logged-in user without a profile (e.g. first Google sign in, or their username got taken meanwhile) is sent to `choose-username.html` by `js/auth.js`.
-- **Profile links:** `profile.html?u=username` for now.
+- **Profile links:** `profile.html?u=username` for now. If no current user has that name, the profile page looks it up in `old_usernames` and sends the visitor on to the person's new name.
+- **Header menu:** when logged in, your picture and @username open a small menu (a `<details>` element): Your profile, Settings, Log out. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
 - **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
 - **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
@@ -42,6 +43,7 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **books:** id, external_id (unique), title, author, cover_url, description, isbn
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
 - **follows:** follower_id, following_id
+- **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
 - **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
 
 Everyone can read everything. Users can only change their own profile, logs, follows and shelves.
@@ -57,6 +59,7 @@ Pages:
 - `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter), and click your picture to upload a new one (hidden file input behind the picture)
 - `forgot-password.html` + `js/forgot-password.js`: asks for your email and sends a reset link (Supabase `resetPasswordForEmail`). Same message whether or not the email has an account
 - `reset-password.html` + `js/reset-password.js`: the email link opens this page already logged in; choose a new password (`updateUser`). Expired or used links show Supabase's error and a "Send a new link" link
+- `settings.html` + `js/settings.js`: change username (same rules; old links redirect), email (Supabase sends a confirmation link; shows the pending address), and password. Logged-out visitors go to login
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
@@ -71,6 +74,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step2-profile-trigger.sql`: creates the profile automatically at sign up (step 2)
 - `supabase/step3-avatars.sql`: the `avatars` storage bucket and its security rules (step 3)
 - `supabase/step7-shelves.sql`: the `shelves` table (feature 1, Want to read / Currently reading)
+- `supabase/step8-old-usernames.sql`: remembers old usernames (batch 2, account settings)
 
 All of these have been applied to the live project.
 
@@ -137,6 +141,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Hosting: done.** Site is live on GitHub Pages (first deploy succeeded).
 - **Feature 1 (Want to read / Currently reading): built, waiting for the owner to test.** `step7-shelves.sql` applied to the live project by Claude. Tested with stand-ins: add, switch, take off, survives reload, removed when the book is logged, both profile sections, hidden when logged out.
 - **Feature 2 (password reset): built.** Tested with stand-ins: link on login page, email request, expired link message, password rules, save, log in with the new password.
+- **Batch 2 item 2 (account settings): built.** Header account menu, settings page, `step8-old-usernames.sql` applied (trigger checked on the live database inside a rolled-back test).
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Notes for later steps

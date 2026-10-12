@@ -82,6 +82,12 @@ async function loadPage() {
     return;
   }
   if (!profile) {
+    // Maybe they changed their username. If so, go to the new one.
+    const newName = await findRenamedUser(username);
+    if (newName) {
+      window.location.replace(profileLink(newName));
+      return;
+    }
     showNotFound("No user with that name.");
     return;
   }
@@ -101,6 +107,19 @@ async function loadPage() {
   }
 
   await Promise.all([loadStats(), loadShelves(isMe), loadProfileLogs()]);
+}
+
+
+// Looks up an old username (see supabase/step8-old-usernames.sql).
+// Returns the person's current username, or null.
+async function findRenamedUser(oldName) {
+  const { data, error } = await db
+    .from("old_usernames")
+    .select("profiles(username)")
+    .eq("username", oldName)
+    .maybeSingle();
+  if (error || !data || !data.profiles) return null;
+  return data.profiles.username;
 }
 
 

@@ -70,6 +70,57 @@ a {
   color: var(--accent);
 }
 
+/* ---------- Account menu (your picture + name in the header) ---------- */
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu summary {
+  cursor: pointer;
+  list-style: none; /* hide the default triangle */
+}
+
+.account-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A small arrow after your name */
+.account-menu summary::after {
+  content: "\25BE";
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.account-menu-items {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid #39424c;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.account-menu-items a,
+.account-menu-items button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+}
+
+.account-menu-items a:hover,
+.account-menu-items button:hover {
+  background: var(--bg);
+}
+
 /* ---------- Page content ---------- */
 
 .page {
@@ -80,6 +131,26 @@ a {
 
 .page-narrow {
   max-width: 420px;
+}
+
+.page-medium {
+  max-width: 600px;
+}
+
+/* Settings page: one card per setting, with space between */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settings .form {
+  margin-bottom: 0;
+}
+
+.card .form input[type="email"],
+.card .form input[type="password"] {
+  background: var(--bg);
 }
 
 .muted {

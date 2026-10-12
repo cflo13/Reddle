@@ -227,29 +227,36 @@ async function setupHeader() {
     return { user: user, profile: null };
   }
 
-  // Logged in with a profile: picture + @username (both link to the
-  // profile page) and a log out button.
-  const link = document.createElement("a");
-  link.className = "nav-profile";
-  link.href = profileLink(profile.username);
-
+  // Logged in with a profile: your picture and @username open a small
+  // menu with Profile, Settings and Log out. It's a <details> element,
+  // which opens and closes on click without any extra code.
+  const menu = el("details", "account-menu");
+  const summary = el("summary", "nav-profile");
+  summary.setAttribute("aria-label", "Your account menu");
   const avatar = makeAvatar(profile, "avatar-small");
   avatar.id = "header-avatar"; // profile.js updates this after an upload
-  link.appendChild(avatar);
+  summary.appendChild(avatar);
+  summary.appendChild(el("span", "nav-username", "@" + profile.username));
+  menu.appendChild(summary);
 
-  const name = document.createElement("span");
-  name.textContent = "@" + profile.username;
-  link.appendChild(name);
+  const items = el("div", "account-menu-items");
+  const profileItem = el("a", "", "Your profile");
+  profileItem.href = profileLink(profile.username);
+  const settingsItem = el("a", "", "Settings");
+  settingsItem.href = "settings.html";
+  const logOutItem = el("button", "link-button", "Log out");
+  logOutItem.type = "button";
+  logOutItem.addEventListener("click", logOut);
+  items.append(profileItem, settingsItem, logOutItem);
+  menu.appendChild(items);
 
-  const logOutButton = document.createElement("button");
-  logOutButton.type = "button";
-  logOutButton.className = "link-button";
-  logOutButton.textContent = "Log out";
-  logOutButton.addEventListener("click", logOut);
+  // Close the menu when clicking anywhere else on the page.
+  document.addEventListener("click", function (event) {
+    if (!menu.contains(event.target)) menu.open = false;
+  });
 
   nav.textContent = "";
-  nav.appendChild(link);
-  nav.appendChild(logOutButton);
+  nav.appendChild(menu);
 
   return { user: user, profile: profile };
 }

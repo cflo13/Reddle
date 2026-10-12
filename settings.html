@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings · Reddle</title>
+  <meta name="description" content="Change your Reddle username, email and password.">
+  <link rel="stylesheet" href="css/style.css?v=5">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Filled in by js/auth.js: log in links, or your picture and menu -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page page-medium">
+    <h1>Settings</h1>
+    <p id="loading" class="muted">Loading your settings...</p>
+
+    <div id="settings" class="settings" hidden>
+      <!-- Username -->
+      <section class="card">
+        <h2>Username</h2>
+        <form id="username-form" class="form">
+          <label for="username">Username</label>
+          <input id="username" type="text" autocomplete="username" required minlength="3" maxlength="20">
+          <p id="username-hint" class="hint">Lowercase letters, numbers and _ only. 3 to 20 characters.</p>
+          <p class="hint">Old links to your profile will keep working and lead to your new name.</p>
+          <button type="submit" class="button">Change username</button>
+          <p id="username-message" class="status" hidden></p>
+        </form>
+      </section>
+
+      <!-- Email -->
+      <section class="card">
+        <h2>Email</h2>
+        <form id="email-form" class="form">
+          <p>Your email is <strong id="current-email"></strong>.</p>
+          <p id="pending-email" class="hint" hidden></p>
+          <label for="email">New email</label>
+          <input id="email" type="email" autocomplete="email" required>
+          <p class="hint">We'll send a confirmation link. The change happens once you click it.</p>
+          <button type="submit" class="button">Change email</button>
+          <p id="email-message" class="status" hidden></p>
+        </form>
+      </section>
+
+      <!-- Password -->
+      <section class="card">
+        <h2>Password</h2>
+        <form id="password-form" class="form">
+          <label for="password">New password</label>
+          <input id="password" type="password" autocomplete="new-password" required minlength="6">
+          <p class="hint">At least 6 characters.</p>
+          <label for="password-again">New password again</label>
+          <input id="password-again" type="password" autocomplete="new-password" required minlength="6">
+          <button type="submit" class="button">Change password</button>
+          <p id="password-message" class="status" hidden></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=5"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=5"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=5"></script>
+  <!-- This page's own code -->
+  <script src="js/settings.js?v=5"></script>
+</body>
+</html>
