@@ -66,6 +66,7 @@ Supabase (run by hand in the SQL Editor, once each, in this order):
 - `supabase/step3-avatars.sql`: the `avatars` storage bucket and its security rules (step 3)
 
 - `SETUP.md`: step by step guide to set up the Supabase project
+- `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
 Every page has a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
 
