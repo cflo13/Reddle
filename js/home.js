@@ -1,50 +1,104 @@
-// Home page. For now it only checks that Supabase is connected
-// and that the database tables exist.
+// ------------------------------------------------------------
+// Home page
+// ------------------------------------------------------------
+// Logged out: a welcome message and recent activity from everyone.
+// Logged in:  your feed, the latest logs from the people you follow.
+//             If you don't follow anyone yet, recent activity from
+//             everyone instead, so you can find people to follow.
+// ------------------------------------------------------------
 
-const statusBox = document.getElementById("connection-status");
+const FEED_SIZE = 30;
 
-function showStatus(kind, message) {
-  // kind is "ok", "error" or "waiting". It picks the colour in style.css.
-  statusBox.className = "status status-" + kind;
-  statusBox.textContent = message;
+const homeStatus = document.getElementById("home-status");
+const feedHeading = document.getElementById("feed-heading");
+const feedNote = document.getElementById("feed-note");
+const feedList = document.getElementById("feed");
+
+function showHomeStatus(text) {
+  homeStatus.textContent = text;
+  homeStatus.hidden = !text;
 }
 
-async function checkConnection() {
-  if (!isSupabaseConfigured()) {
-    showStatus(
-      "error",
-      "Not connected: open js/config.js and paste your Supabase URL and key."
-    );
+// Explains the most common setup problems in plain words.
+function explainError(error) {
+  if (error.code === "42P01" || error.code === "PGRST205") {
+    return "The database tables are missing. Run supabase/schema.sql in the Supabase SQL Editor.";
+  }
+  return "Could not load: " + error.message;
+}
+
+// The latest logs from everyone.
+async function loadEveryone() {
+  const { data, error } = await db
+    .from("logs")
+    .select(LOG_FIELDS)
+    .order("created_at", { ascending: false })
+    .limit(FEED_SIZE);
+  if (error) throw error;
+  return data;
+}
+
+// The latest logs from the people `userId` follows.
+// Returns null when they don't follow anyone yet.
+async function loadFollowingFeed(userId) {
+  // Step 1: who do I follow?
+  const { data: follows, error: followsError } = await db
+    .from("follows")
+    .select("following_id")
+    .eq("follower_id", userId);
+  if (followsError) throw followsError;
+  if (follows.length === 0) return null;
+
+  const ids = follows.map((row) => row.following_id);
+
+  // Step 2: their latest logs.
+  const { data, error } = await db
+    .from("logs")
+    .select(LOG_FIELDS)
+    .in("user_id", ids) // "user_id is one of these ids"
+    .order("created_at", { ascending: false })
+    .limit(FEED_SIZE);
+  if (error) throw error;
+  return data;
+}
+
+async function loadHome() {
+  const { profile } = await authReady;
+
+  if (!db) {
+    showHomeStatus("Not connected: open js/config.js and paste your Supabase URL and key.");
     return;
   }
 
-  showStatus("waiting", "Checking connection to Supabase...");
-
-  // Ask the database how many books are saved. We don't need the rows,
-  // just proof that the request works ("head: true" skips the rows).
-  const { count, error } = await db
-    .from("books")
-    .select("id", { count: "exact", head: true });
-
-  if (error) {
-    // The most common problem: the tables were not created yet.
-    if (error.code === "42P01" || error.code === "PGRST205") {
-      showStatus(
-        "error",
-        "Connected to Supabase, but the tables are missing. " +
-          "Run supabase/schema.sql in the Supabase SQL Editor."
-      );
-    } else {
-      showStatus("error", "Could not connect: " + error.message);
-    }
-    console.error(error);
+  // Logged out: show the welcome box and everyone's activity.
+  if (!profile) {
+    document.getElementById("welcome").hidden = false;
+    feedHeading.textContent = "Recent activity";
+    showLogList(feedList, await loadEveryone(), { showUser: true, showBook: true },
+      "Nothing logged yet.");
     return;
   }
 
-  showStatus(
-    "ok",
-    "Connected to Supabase. Books saved so far: " + count + "."
-  );
+  // Logged in.
+  const feed = await loadFollowingFeed(profile.id);
+
+  if (feed === null) {
+    feedHeading.textContent = "Recent activity from everyone";
+    feedNote.innerHTML =
+      "You're not following anyone yet. Click a name below, or " +
+      '<a href="search.html">search</a> for people and books.';
+    feedNote.hidden = false;
+    showLogList(feedList, await loadEveryone(), { showUser: true, showBook: true },
+      "Nothing logged yet. Search for a book you've read and log it!");
+    return;
+  }
+
+  feedHeading.textContent = "From people you follow";
+  showLogList(feedList, feed, { showUser: true, showBook: true },
+    "The people you follow haven't logged anything yet.");
 }
 
-checkConnection();
+loadHome().catch(function (error) {
+  console.error(error);
+  showHomeStatus(explainError(error));
+});

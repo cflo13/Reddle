@@ -9,15 +9,31 @@
 <body>
   <header class="site-header">
     <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
     <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
     <nav id="site-nav" class="site-nav"></nav>
   </header>
 
   <main class="page">
-    <h1>Track the books you read.</h1>
-    <p class="lead">Log books, rate them, write reviews, and follow your friends.</p>
+    <!-- Only shown when logged out -->
+    <section id="welcome" class="welcome" hidden>
+      <h1>Track the books you read.</h1>
+      <p class="lead">Log books, rate them, write reviews, and follow your friends.</p>
+      <p>
+        <a class="button" href="signup.html">Get started, it's free</a>
+        <a class="welcome-login" href="login.html">or log in</a>
+      </p>
+    </section>
 
-    <p id="connection-status" class="status status-waiting">Loading...</p>
+    <p id="home-status" class="status status-error" hidden></p>
+
+    <h2 id="feed-heading">Loading...</h2>
+    <p id="feed-note" class="muted" hidden></p>
+    <!-- Filled in by js/home.js -->
+    <div id="feed" class="log-list"></div>
   </main>
 
   <!-- 1. Supabase library from a CDN (nothing to install) -->
@@ -28,7 +44,9 @@
   <script src="js/supabase-client.js"></script>
   <!-- 4. Login helpers and the header -->
   <script src="js/auth.js"></script>
-  <!-- 5. This page's own code -->
+  <!-- 5. Book helpers: Open Library, stars, log cards -->
+  <script src="js/books.js"></script>
+  <!-- 6. This page's own code -->
   <script src="js/home.js"></script>
 </body>
 </html>

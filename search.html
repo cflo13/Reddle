@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search · Reddle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page">
+    <h1>Search</h1>
+    <form class="form search-form" action="search.html" role="search">
+      <input id="search-input" name="q" type="search" placeholder="Book title, author, or username" aria-label="Search">
+      <button type="submit" class="button">Search</button>
+    </form>
+
+    <!-- Filled in by js/search.js -->
+    <section id="people-results"></section>
+    <p id="search-status" class="muted" hidden></p>
+    <section id="book-results" class="book-results"></section>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js"></script>
+  <!-- 4. Login helpers and the header -->
+  <script src="js/auth.js"></script>
+  <!-- 5. Book helpers: Open Library, stars, log cards -->
+  <script src="js/books.js"></script>
+  <!-- 6. This page's own code -->
+  <script src="js/search.js"></script>
+</body>
+</html>

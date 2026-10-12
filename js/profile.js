@@ -88,10 +88,121 @@ async function loadPage() {
 
   showProfile(profile);
 
-  // Your own profile? Show the edit section.
-  if (myProfile && myProfile.id === profile.id) {
+  const isMe = myProfile && myProfile.id === profile.id;
+  if (isMe) {
+    // Your own profile: show the edit section.
     setUpEditing();
+  } else if (myProfile) {
+    // Someone else's profile while logged in: show the follow button.
+    await setUpFollowButton(myProfile);
+  } else {
+    // Logged out: invite them to log in to follow.
+    document.getElementById("follow-login").hidden = false;
   }
+
+  await Promise.all([loadStats(), loadProfileLogs()]);
+}
+
+
+// ---------- Counts: books, followers, following ----------
+
+// Counts rows in a table without downloading them ("head: true").
+async function countRows(table, column, value) {
+  const { count, error } = await db
+    .from(table)
+    .select("*", { count: "exact", head: true })
+    .eq(column, value);
+  if (error) throw error;
+  return count;
+}
+
+function plural(count, word) {
+  return count + " " + word + (count === 1 ? "" : "s");
+}
+
+async function loadStats() {
+  const [books, followers, following] = await Promise.all([
+    countRows("logs", "user_id", shownProfile.id),
+    countRows("follows", "following_id", shownProfile.id), // people who follow them
+    countRows("follows", "follower_id", shownProfile.id),  // people they follow
+  ]);
+  document.getElementById("stat-books").textContent = plural(books, "book");
+  document.getElementById("stat-followers").textContent = plural(followers, "follower");
+  document.getElementById("stat-following").textContent = following + " following";
+}
+
+
+// ---------- Follow / Unfollow ----------
+
+async function setUpFollowButton(myProfile) {
+  const button = document.getElementById("follow-button");
+  let following = false;
+
+  function updateButton() {
+    button.textContent = following ? "Following" : "Follow";
+    button.classList.toggle("button-secondary", following);
+  }
+
+  // Do I already follow this person?
+  const { data, error } = await db
+    .from("follows")
+    .select("follower_id")
+    .eq("follower_id", myProfile.id)
+    .eq("following_id", shownProfile.id)
+    .maybeSingle();
+  if (error) throw error;
+  following = data !== null;
+
+  updateButton();
+  button.hidden = false;
+
+  // Show "Unfollow" when hovering over "Following", like Letterboxd.
+  button.addEventListener("mouseenter", function () {
+    if (following) button.textContent = "Unfollow";
+  });
+  button.addEventListener("mouseleave", updateButton);
+
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    const result = following
+      ? await db
+          .from("follows")
+          .delete()
+          .eq("follower_id", myProfile.id)
+          .eq("following_id", shownProfile.id)
+      : await db
+          .from("follows")
+          .insert({ follower_id: myProfile.id, following_id: shownProfile.id });
+    button.disabled = false;
+
+    if (result.error) {
+      alert("Something went wrong: " + result.error.message);
+      return;
+    }
+    following = !following;
+    updateButton();
+    await loadStats();
+  });
+}
+
+
+// ---------- Their books ----------
+
+async function loadProfileLogs() {
+  const list = document.getElementById("profile-logs");
+
+  const { data: logs, error } = await db
+    .from("logs")
+    .select(LOG_FIELDS)
+    .eq("user_id", shownProfile.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    list.textContent = "Could not load books: " + error.message;
+    return;
+  }
+  showLogList(list, logs, { showBook: true }, "No books logged yet.");
 }
 
 

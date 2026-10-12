@@ -173,6 +173,8 @@ a {
 .form input[type="text"],
 .form input[type="email"],
 .form input[type="password"],
+.form input[type="search"],
+.form input[type="date"],
 .form textarea {
   width: 100%;
   padding: 10px 12px;
@@ -232,6 +234,12 @@ a {
   font-weight: 700;
 }
 
+.avatar-tiny {
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+}
+
 .avatar-small {
   width: 32px;
   height: 32px;
@@ -282,10 +290,303 @@ a {
   padding: 40px 0;
 }
 
-/* Stack the profile picture above the name on phones */
-@media (max-width: 520px) {
-  .profile-top {
+
+.profile-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+
+/* ---------- Header search box ---------- */
+
+.header-search {
+  flex: 1;
+  max-width: 320px;
+}
+
+.header-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #39424c;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+/* ---------- Search page ---------- */
+
+.search-form {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-form .button {
+  margin-top: 0;
+  align-self: auto;
+}
+
+.people-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.book-result {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.book-result:hover .book-result-title {
+  color: var(--accent);
+}
+
+.book-result p {
+  margin: 0;
+}
+
+.book-result-title {
+  font-weight: 600;
+}
+
+/* ---------- Book covers ---------- */
+
+.cover {
+  display: block;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: var(--surface);
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* No cover: a box with the title written on it */
+.cover-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  overflow: hidden;
+  border: 1px solid #39424c;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.cover-small {
+  width: 60px;
+  height: 90px;
+}
+
+.cover-large {
+  width: 200px;
+  height: 300px;
+  font-size: 1rem;
+}
+
+/* ---------- Book page ---------- */
+
+.book-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-title {
+  margin: 0 0 4px;
+}
+
+.book-title + .lead {
+  margin-top: 0;
+}
+
+.book-description {
+  white-space: pre-wrap;
+}
+
+.stars-average {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+/* ---------- Star rating picker ---------- */
+
+.star-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.star-input {
+  position: relative;
+  display: inline-block;
+  font-size: 2rem;
+  line-height: 1;
+  color: #39424c; /* grey stars */
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* The green stars, cut off at the chosen rating by their width */
+.star-input-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  overflow: hidden;
+  color: var(--ok);
+}
+
+.star-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.form-buttons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.form-buttons .button {
+  margin-top: 12px;
+}
+
+.form-buttons .link-button {
+  margin-top: 12px;
+  color: var(--error);
+}
+
+/* ---------- Log cards (feed, book page, profile) ---------- */
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.log-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--surface);
+}
+
+.log-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-body p {
+  margin: 0 0 4px;
+}
+
+.log-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.log-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.log-title {
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.log-user:hover,
+.log-title:hover {
+  color: var(--accent);
+}
+
+.log-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.stars {
+  color: var(--ok);
+  letter-spacing: 1px;
+}
+
+.log-review {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* ---------- Home page ---------- */
+
+.welcome {
+  margin-bottom: 40px;
+}
+
+.welcome-login {
+  margin-left: 12px;
+}
+
+/* ---------- Phones ---------- */
+
+@media (max-width: 600px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+  }
+
+  /* Search box gets its own full-width row under the logo and links */
+  .header-search {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .profile-top,
+  .book-top {
     flex-direction: column;
+    align-items: center;
     text-align: center;
+  }
+
+  .profile-stats {
+    justify-content: center;
+  }
+
+  .book-info {
+    text-align: left;
   }
 }

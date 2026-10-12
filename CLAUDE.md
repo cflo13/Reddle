@@ -11,13 +11,17 @@ the people they follow are reading.
 ## Decisions made
 
 - **Friend system:** FOLLOW, like Letterboxd. No approval needed. The feed is the logs from people you follow.
-- **Book library:** do not preload books. Search Open Library or Google Books live. The first time anyone logs or reviews a book, save a copy (title, author, cover, description, ISBN, external ID) into our own database. Reviews and scores attach to that saved copy.
+- **Book library:** do not preload books. Search Open Library live (chosen over Google Books because it needs no key). A book's external ID is its Open Library work id, like `OL45804W`, and book pages are `book.html?id=OL45804W`. The first time anyone logs or reviews a book, save a copy (title, author, cover, description, ISBN, external ID) into our own database. Reviews and scores attach to that saved copy.
 - **Ratings:** half stars from 0.5 to 5. One log per user per book to start with. A log may have no rating (empty).
 - **Username:** chosen at sign up, unique, lowercase letters, numbers and underscores only, 3 to 20 characters. It becomes the profile link (yoursite.com/username).
 - **Profile picture:** JPG, PNG or WEBP up to 5 MB. Cropped to a square from the centre and resized to 256 x 256 JPEG in the browser (canvas), then uploaded to the public Supabase Storage bucket `avatars` as `USERID/avatar.jpg` (one picture per user, replaced on each upload). The public link plus `?v=timestamp` is saved in `profiles.avatar_url`, so browsers show the new picture instead of an old cached copy. No picture: grey circle with the first letter of the username (pure CSS).
 - **Sign up:** email and password, plus Google sign in.
 - **Usernames at sign up:** the chosen username is stored on the login account (`user_metadata.username`) and the profile row is created as soon as the user has a session (straight away, or on first login after confirming their email). Any logged-in user without a profile (e.g. first Google sign in, or their username got taken meanwhile) is sent to `choose-username.html` by `js/auth.js`.
 - **Profile links:** `profile.html?u=username` for now.
+- **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
+- **Feed:** the home page. Logged in: latest 30 logs from people you follow (not your own). Following nobody yet, or logged out: latest 30 logs from everyone, so there are people to discover.
+- **Finding people:** the search page also matches usernames (shown above the book results), and every name on a log card links to that profile.
+- **Testing:** the owner asked to skip testing between steps until the site is usable, so steps 4 to 6 were built in one go and tested by Claude with stand-ins for Supabase and Open Library.
 - **Supabase library:** loaded from the jsDelivr CDN with a fixed version (`@supabase/supabase-js@2.45.4`), so there is nothing to install.
 - **Supabase key:** only the public "publishable"/"anon" key goes in `js/config.js`. It is safe to commit. Data is protected by Row Level Security rules in `supabase/schema.sql`. The secret/service_role key must never be in this project.
 
@@ -43,11 +47,13 @@ Any signed-in user can save a new book.
 ## Files
 
 Pages:
-- `index.html` + `js/home.js`: home page (currently shows the Supabase connection check)
+- `index.html` + `js/home.js`: home page with the feed (see Feed above)
 - `signup.html` + `js/signup.js`: sign up with username, email, password, or Google
 - `login.html` + `js/login.js`: log in with email and password, or Google
 - `choose-username.html` + `js/choose-username.js`: for logged-in users who have no username yet
-- `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio. On your own profile: edit bio (300 characters, counter) and upload a picture
+- `profile.html` + `js/profile.js`: `profile.html?u=USERNAME`. Picture, @username, bio, counts (books, followers, following), their logged books. Other people's profile: Follow / Following button. Your own profile: edit bio (300 characters, counter) and upload a picture
+- `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
+- `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
 Shared:
 - `css/style.css`: all styling
@@ -61,7 +67,9 @@ Supabase (run by hand in the SQL Editor, once each, in this order):
 
 - `SETUP.md`: step by step guide to set up the Supabase project
 
-Every page has `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, then the page's own script.
+Every page has a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
+
+User text (bios, reviews) is always put on the page with `textContent`, never `innerHTML`, so nobody can sneak code into the site.
 
 ## Build order
 
@@ -84,8 +92,12 @@ Every page has `<nav id="site-nav">` in the header and loads scripts in this ord
 
 - **Step 1 (project setup): done.** Supabase project created, `js/config.js` filled in, tables created.
 - **Step 2 (sign up, log in, username): done.** Built in the same session as step 3 (the earlier step 2 files never reached GitHub). Tested in a browser with a stand-in for Supabase.
-- **Step 3 (profile page with picture upload): built, waiting for the owner to confirm.** Needs `supabase/step3-avatars.sql` run once in the SQL Editor. Tested in a browser with a stand-in for Supabase: crop/resize to 256 x 256 JPEG, upload path, instant picture swap, bio counter and save, file type and size checks, missing user message, edit section only on your own profile.
-- Next: step 4, book search and book pages.
+- **Step 3 (profile page with picture upload): built.** Needs `supabase/step3-avatars.sql` run once in the SQL Editor.
+- **Step 4 (book search and book pages): built.**
+- **Step 5 (logging with rating and review): built.**
+- **Step 6 (follow system and the feed): built.** No new SQL needed: the tables and rules were already in `schema.sql`.
+- **Version 1 is complete and waiting for the owner to try it for real.** Steps 3 to 6 were tested with stand-ins (sign up, search, open a book, rate with half stars, review, update, delete, follow, unfollow, feed, missing user/book messages, phone layout), never against the real Supabase and Open Library.
+- Next: the owner tries the whole site. Then hosting on GitHub Pages (needed for Google sign in and for nicer links).
 
 ## Notes for later steps
 

@@ -9,6 +9,10 @@
 <body>
   <header class="site-header">
     <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
     <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
     <nav id="site-nav" class="site-nav"></nav>
   </header>

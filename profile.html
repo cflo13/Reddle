@@ -9,6 +9,10 @@
 <body>
   <header class="site-header">
     <a class="logo" href="index.html">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
     <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
     <nav id="site-nav" class="site-nav"></nav>
   </header>
@@ -30,6 +34,14 @@
         <div>
           <h1 id="profile-username" class="profile-username"></h1>
           <p id="profile-bio" class="profile-bio"></p>
+          <p class="profile-stats">
+            <span id="stat-books"></span>
+            <span id="stat-followers"></span>
+            <span id="stat-following"></span>
+          </p>
+          <!-- Only shown on other people's profiles -->
+          <button id="follow-button" type="button" class="button" hidden>Follow</button>
+          <p id="follow-login" class="muted" hidden><a href="login.html">Log in</a> to follow.</p>
         </div>
       </div>
 
@@ -52,6 +64,10 @@
           <p id="avatar-message" class="status" hidden></p>
         </div>
       </section>
+
+      <h2>Books</h2>
+      <!-- Filled in by js/profile.js -->
+      <div id="profile-logs" class="log-list"></div>
     </section>
   </main>
 
@@ -63,7 +79,9 @@
   <script src="js/supabase-client.js"></script>
   <!-- 4. Login helpers and the header -->
   <script src="js/auth.js"></script>
-  <!-- 5. This page's own code -->
+  <!-- 5. Book helpers: Open Library, stars, log cards -->
+  <script src="js/books.js"></script>
+  <!-- 6. This page's own code -->
   <script src="js/profile.js"></script>
 </body>
 </html>
