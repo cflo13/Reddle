@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+  </header>
+
+  <main class="page">
+    <h1>Track the books you read.</h1>
+    <p class="lead">Log books, rate them, write reviews, and follow your friends.</p>
+
+    <p id="connection-status" class="status status-waiting">Loading...</p>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js"></script>
+  <!-- 4. This page's own code -->
+  <script src="js/home.js"></script>
+</body>
+</html>
