@@ -64,6 +64,7 @@ a {
   display: flex;
   align-items: center;
   gap: 16px;
+  margin-left: auto; /* stays on the right, even when the header wraps */
 }
 
 .nav-profile {
@@ -413,6 +414,11 @@ a {
 
 .profile-username {
   margin: 0 0 8px;
+  overflow-wrap: anywhere; /* long usernames break instead of overflowing */
+}
+
+.profile-top > div {
+  min-width: 0;
 }
 
 .profile-bio {
@@ -437,7 +443,8 @@ a {
 
 .empty-state {
   text-align: center;
-  padding: 40px 0;
+  padding-top: 40px;
+  padding-bottom: 40px;
 }
 
 
@@ -734,6 +741,18 @@ a {
 
   .profile-stats {
     justify-content: center;
+  }
+
+  .profile-username {
+    font-size: 1.6rem;
+  }
+
+  /* Long usernames in the header menu get shortened with "..." */
+  .nav-username {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .book-info {

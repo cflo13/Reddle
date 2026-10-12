@@ -99,7 +99,7 @@ All of these have been applied to the live project, except `step9-delete-account
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
-Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, and an Open Library credit), a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
+Phones: the header puts the search box on its own row under 600px; long words in reviews and usernames wrap; check new pages at 375px wide. Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, and an Open Library credit), a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, (`books.js` on pages showing books), then the page's own script.
 
 **Browser caching:** every page loads our CSS and JS with one shared site version number, like `css/style.css?v=4`. When any CSS or JS file changes, bump the number on every page (all files get the same number), so visitors get the new files instead of old saved copies.
 
@@ -168,6 +168,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 8 (404 + friendly errors): built.** Tested with a local server that copies GitHub Pages' 404 behaviour, and with Open Library and the Supabase library blocked.
 - **Batch 2 item 9 (favicon, titles, previews): built.**
 - **Batch 2 item 10 (welcome step): built.** `step13-onboarding.sql` applied (as add-with-default-true, then default false, to avoid an all-rows update).
+- **Batch 2 item 11 (phone check): done.** Every page checked at 375px (and the trickiest at 320px) with long titles, long reviews and a 20-character username; no page scrolls sideways. Fixed: 404 page side margins, long usernames on profiles (wrap) and in the header (shortened with ...), menu stays on the right when the header wraps.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner
