@@ -378,6 +378,77 @@ async function signInWithGoogle(showMessage) {
 }
 
 
+// ---------- Installable app ----------
+//
+// sw.js (the service worker) lets the site be installed like an app and
+// shows a friendly page when offline. It needs a real web address (https),
+// so nothing happens when the site is opened as a file.
+
+if ("serviceWorker" in navigator && window.isSecureContext && window.location.protocol !== "file:") {
+  // sw.js sits in the site's main folder (/Reddle/ on github.io, / on
+  // reddle.org), so it looks after every page.
+  navigator.serviceWorker.register(new URL("sw.js", document.baseURI).href).catch(function (error) {
+    console.warn("Offline support could not start:", error);
+  });
+}
+
+// Already opened as an installed app?
+function isInstalledApp() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+// The footer gets an "Install app" button where the browser allows it
+// (Chrome, Edge, Android), or a short how-to on iPhone and iPad Safari.
+let installPrompt = null;
+
+function installBox() {
+  const footer = document.querySelector(".site-footer");
+  if (!footer) return null;
+  let box = document.getElementById("install-app");
+  if (!box) {
+    box = el("p", "footer-install");
+    box.id = "install-app";
+    footer.prepend(box);
+  }
+  return box;
+}
+
+window.addEventListener("beforeinstallprompt", function (event) {
+  event.preventDefault(); // we show our own button instead
+  installPrompt = event;
+  const box = installBox();
+  if (!box) return;
+  box.textContent = "";
+  const button = el("button", "button button-secondary", "Install app");
+  button.type = "button";
+  button.addEventListener("click", async function () {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    box.remove();
+  });
+  box.appendChild(button);
+});
+
+window.addEventListener("appinstalled", function () {
+  const box = document.getElementById("install-app");
+  if (box) box.remove();
+});
+
+(function showIphoneHint() {
+  const isApple = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); // iPads say "Mac"
+  if (!isApple || isInstalledApp() || window.location.protocol !== "https:") return;
+  const show = function () {
+    const box = installBox();
+    if (box) box.textContent = "Get the app: tap Share, then \u201cAdd to Home Screen\u201d.";
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", show);
+  else show();
+})();
+
+
 // ---------- Page-wide problems ----------
 
 // Shows one red message at the top of the page (only the first one).

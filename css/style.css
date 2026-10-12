@@ -1424,3 +1424,11 @@ body > main {
     flex-shrink: 0;
   }
 }
+
+/* ---------- Install app (footer) ---------- */
+
+.footer-install {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
