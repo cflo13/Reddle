@@ -69,7 +69,7 @@ Every page loads scripts in this order: Supabase CDN, `config.js`, `supabase-cli
 
 ## Progress
 
-- **Step 1 (project setup): built, waiting for the owner to confirm.** Files created, database schema written.
+- **Step 1 (project setup): built, waiting for the owner to confirm.** Files created, database schema written, Supabase project created and `js/config.js` filled in.
   To confirm: follow `SETUP.md`, then open `index.html` and see the green "Connected to Supabase" message.
 - Next: step 2, sign up, log in, username.
 

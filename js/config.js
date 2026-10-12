@@ -15,5 +15,5 @@
 // NEVER put the "secret" or "service_role" key in this file.
 // ------------------------------------------------------------
 
-const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
-const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+const SUPABASE_URL = "https://trfgztdvecpswcwoakyz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_jkAblJfgtqvEBa2hl42_7A_D4Pff0Mm";
