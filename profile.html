@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile · Reddle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page">
+    <p id="loading" class="muted">Loading profile...</p>
+
+    <!-- Shown when the username doesn't exist -->
+    <section id="not-found" class="empty-state" hidden>
+      <h1>Hmm.</h1>
+      <p id="not-found-text">No user with that name.</p>
+      <p><a href="index.html">Back to the home page</a></p>
+    </section>
+
+    <!-- The profile itself, filled in by js/profile.js -->
+    <section id="profile" hidden>
+      <div class="profile-top">
+        <div id="profile-avatar"></div>
+        <div>
+          <h1 id="profile-username" class="profile-username"></h1>
+          <p id="profile-bio" class="profile-bio"></p>
+        </div>
+      </div>
+
+      <!-- Only shown on your own profile -->
+      <section id="edit-profile" class="card" hidden>
+        <h2>Edit profile</h2>
+
+        <form id="bio-form" class="form">
+          <label for="bio-input">Bio</label>
+          <textarea id="bio-input" rows="4" placeholder="A few words about you and what you like to read"></textarea>
+          <p id="bio-counter" class="hint">0 / 300</p>
+          <button type="submit" class="button">Save bio</button>
+          <p id="bio-message" class="status" hidden></p>
+        </form>
+
+        <div class="form">
+          <label for="avatar-input">Profile picture</label>
+          <input id="avatar-input" type="file" accept="image/jpeg,image/png,image/webp">
+          <p class="hint">JPG, PNG or WEBP, up to 5 MB. We crop it to a square from the middle.</p>
+          <p id="avatar-message" class="status" hidden></p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js"></script>
+  <!-- 4. Login helpers and the header -->
+  <script src="js/auth.js"></script>
+  <!-- 5. This page's own code -->
+  <script src="js/profile.js"></script>
+</body>
+</html>

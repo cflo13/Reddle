@@ -9,6 +9,8 @@
 <body>
   <header class="site-header">
     <a class="logo" href="index.html">Reddle</a>
+    <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
+    <nav id="site-nav" class="site-nav"></nav>
   </header>
 
   <main class="page">
@@ -24,7 +26,9 @@
   <script src="js/config.js"></script>
   <!-- 3. Shared connection, available as `db` -->
   <script src="js/supabase-client.js"></script>
-  <!-- 4. This page's own code -->
+  <!-- 4. Login helpers and the header -->
+  <script src="js/auth.js"></script>
+  <!-- 5. This page's own code -->
   <script src="js/home.js"></script>
 </body>
 </html>

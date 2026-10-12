@@ -47,3 +47,11 @@ Open `index.html` in your browser (double click it, or drag it into a browser wi
 - "Not connected: open js/config.js..." means the values in step 3 are still missing.
 - "Connected to Supabase, but the tables are missing" means step 2 didn't run.
 - Anything else: press F12, open the **Console** tab, and share the red error message.
+
+## 5. Step 3: storage for profile pictures
+
+1. In Supabase, open **SQL Editor** and click **New query**.
+2. Open `supabase/step3-avatars.sql`, copy everything, paste it in, click **Run**.
+3. You should see "Success. No rows returned".
+4. Check: open **Storage** in the left menu. There is now a bucket called **avatars**
+   marked **Public**.

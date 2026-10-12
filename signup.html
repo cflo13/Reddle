@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign up · Reddle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page page-narrow">
+    <h1>Create your account</h1>
+
+    <form id="signup-form" class="form">
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username" required
+             minlength="3" maxlength="20" placeholder="e.g. book_worm">
+      <p id="username-hint" class="hint">Lowercase letters, numbers and _ only. 3 to 20 characters.</p>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password" required minlength="6">
+      <p class="hint">At least 6 characters.</p>
+
+      <button type="submit" class="button">Sign up</button>
+    </form>
+
+    <p class="divider">or</p>
+    <button id="google-button" type="button" class="button button-secondary">Continue with Google</button>
+
+    <p id="form-message" class="status" hidden></p>
+
+    <p class="muted">Already have an account? <a href="login.html">Log in</a></p>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js"></script>
+  <!-- 4. Login helpers and the header -->
+  <script src="js/auth.js"></script>
+  <!-- 5. This page's own code -->
+  <script src="js/signup.js"></script>
+</body>
+</html>

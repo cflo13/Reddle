@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose a username · Reddle</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html">Reddle</a>
+    <!-- Filled in by js/auth.js: log in links, or your picture and @username -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page page-narrow">
+    <h1>Choose your username</h1>
+    <p class="lead">This is your name on Reddle and your profile link.</p>
+
+    <form id="username-form" class="form">
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username" required
+             minlength="3" maxlength="20" placeholder="e.g. book_worm">
+      <p id="username-hint" class="hint">Lowercase letters, numbers and _ only. 3 to 20 characters.</p>
+
+      <button type="submit" class="button">Save username</button>
+    </form>
+
+    <p id="form-message" class="status" hidden></p>
+  </main>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js"></script>
+  <!-- 4. Login helpers and the header -->
+  <script src="js/auth.js"></script>
+  <!-- 5. This page's own code -->
+  <script src="js/choose-username.js"></script>
+</body>
+</html>
