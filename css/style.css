@@ -257,12 +257,31 @@ a {
 }
 
 /* On your own profile the picture is the upload button.
-   A dark "Change" layer appears over it when you point at it or tab to it. */
+   A small round plus badge is always visible in the corner, and a dark
+   "Change" layer covers the picture when you point at it or tab to it. */
 .avatar-editable {
   position: relative;
-  display: inline-block;
+  display: flex;
   border-radius: 50%;
   cursor: pointer;
+}
+
+.avatar-editable::before {
+  content: "+";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .avatar-editable::after {
@@ -284,19 +303,6 @@ a {
 .avatar-editable:hover::after,
 .avatar-editable:focus-visible::after {
   opacity: 1;
-}
-
-/* Phones have no hover, so show a small round badge instead */
-@media (hover: none) {
-  .avatar-editable::after {
-    content: "+";
-    inset: auto 4px 4px auto;
-    width: 30px;
-    height: 30px;
-    font-size: 1.3rem;
-    background: rgba(0, 0, 0, 0.7);
-    opacity: 1;
-  }
 }
 
 /* ---------- Profile page ---------- */
