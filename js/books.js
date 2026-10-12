@@ -355,6 +355,38 @@ async function fetchMostLoggedOnReddle(limit) {
   return data;
 }
 
+// The books logged most on Reddle in the last 7 days (then best rated).
+async function fetchPopularThisWeek(limit) {
+  const { data, error } = await db
+    .from("books_with_stats")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week")
+    .gt("logs_this_week", 0)
+    .order("logs_this_week", { ascending: false })
+    .order("avg_rating", { ascending: false, nullsFirst: false })
+    .limit(limit);
+  if (error) throw error;
+  return data;
+}
+
+// Books someone logged recently, newest first, each book once, with
+// the username of whoever logged it.
+async function fetchRecentlyLoggedBooks(limit) {
+  const { data, error } = await db
+    .from("logs")
+    .select("created_at, profiles(username), books(id, external_id, title, author, cover_url)")
+    .order("created_at", { ascending: false })
+    .limit(limit * 4);
+  if (error) throw error;
+  const seen = new Set();
+  const books = [];
+  for (const log of data) {
+    if (!log.books || seen.has(log.books.external_id)) continue;
+    seen.add(log.books.external_id);
+    books.push({ book: log.books, username: log.profiles ? log.profiles.username : "" });
+  }
+  return books.slice(0, limit);
+}
+
 // What's popular on Open Library this week. Returns our tile shape.
 async function fetchTrendingFromOpenLibrary(limit) {
   const response = await fetchOpenLibrary(OPEN_LIBRARY + "/trending/weekly.json?limit=" + limit);

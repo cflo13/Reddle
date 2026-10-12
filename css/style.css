@@ -1273,3 +1273,150 @@ body > main {
 .hint + .tile-grid {
   margin-top: 12px;
 }
+
+/* ---------- Home page rows ---------- */
+
+.home-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-bottom: 36px;
+}
+
+.row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.row-title {
+  margin: 0;
+  font-size: 1.25rem;
+  min-width: 0;
+}
+
+.row-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.row-title a:hover {
+  color: var(--accent);
+}
+
+.row-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.see-all {
+  margin-right: 4px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* Left/right arrows: only on computers with a mouse. Phones scroll
+   the row with a finger. */
+.row-arrow {
+  display: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.row-arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .row-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Grey book shapes while a row loads */
+.tile-placeholder {
+  height: 168px;
+  border-radius: 4px;
+  background: var(--surface);
+  animation: placeholder-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes placeholder-pulse {
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile-placeholder {
+    animation: none;
+  }
+}
+
+/* Scrollbar under a row: thin and quiet */
+.tile-row {
+  scrollbar-width: thin;
+  scrollbar-color: var(--surface) transparent;
+}
+
+/* Genre buttons on the home page */
+.genre-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.genre-pill {
+  padding: 7px 14px;
+  border: 1px solid var(--surface);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.genre-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.home-nudge {
+  margin: 0;
+}
+
+/* An empty spot that triggers the extra genre rows; takes no space */
+.home-more {
+  height: 1px;
+  margin-top: -28px;
+}
+
+.row-fits .row-arrow {
+  display: none;
+}
+
+/* On phones the genre buttons are one line you scroll sideways */
+@media (max-width: 600px) {
+  .genre-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+  }
+
+  .genre-pill {
+    flex-shrink: 0;
+  }
+}
