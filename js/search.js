@@ -44,7 +44,7 @@ async function searchPeople(query) {
 function makeBookResult(book) {
   const link = el("a", "book-result");
   link.href = bookLink(book.externalId);
-  link.appendChild(makeCover({ title: book.title, cover_url: book.coverUrl }, "cover-small"));
+  link.appendChild(makeCover({ title: book.title, author: book.author, cover_url: book.coverUrl, isbns: book.isbns }, "cover-small"));
 
   const text = el("div", "");
   text.appendChild(el("p", "book-result-title", book.title));

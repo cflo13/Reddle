@@ -26,8 +26,60 @@ function workIdFromKey(key) {
 }
 
 function coverUrlFromId(coverId, size) {
-  // size: "S" small, "M" medium, "L" large
-  return "https://covers.openlibrary.org/b/id/" + coverId + "-" + size + ".jpg";
+  // size: "S" small, "M" medium, "L" large.
+  // "default=false" makes Open Library answer "not found" for a missing
+  // cover (instead of a blank picture), so we can try somewhere else.
+  return "https://covers.openlibrary.org/b/id/" + coverId + "-" + size + ".jpg?default=false";
+}
+
+
+// ---------- Covers from elsewhere (Google Books) ----------
+//
+// When Open Library has no cover, we ask Google Books: first by ISBN
+// (exact), then by title and author. Answers are remembered for this
+// browser tab, so the same book isn't looked up twice.
+
+const coverLookups = new Map();
+
+// Google's picture links start with http:// and have a page-curl effect;
+// we want https:// (the database only accepts https) and a plain cover.
+function cleanGoogleCover(link) {
+  return link.replace(/^http:/, "https:").replace("&edge=curl", "");
+}
+
+async function askGoogleBooks(query) {
+  const url =
+    "https://www.googleapis.com/books/v1/volumes?maxResults=3" +
+    "&fields=items(volumeInfo(title,imageLinks))" +
+    "&q=" + encodeURIComponent(query);
+  const data = await fetchJson(url);
+  const items = (data && data.items) || [];
+  for (const item of items) {
+    const links = item.volumeInfo && item.volumeInfo.imageLinks;
+    if (links && (links.thumbnail || links.smallThumbnail)) {
+      return cleanGoogleCover(links.thumbnail || links.smallThumbnail);
+    }
+  }
+  return null;
+}
+
+// Returns a cover link, or null if nobody has one.
+// `book` has any of: isbns (a list), title, author.
+function findCoverElsewhere(book) {
+  const key = (book.isbns || []).join(",") + "|" + (book.title || "") + "|" + (book.author || "");
+  if (!coverLookups.has(key)) {
+    coverLookups.set(key, (async function () {
+      for (const isbn of book.isbns || []) {
+        const found = await askGoogleBooks("isbn:" + isbn);
+        if (found) return found;
+      }
+      if (book.title && book.author) {
+        return await askGoogleBooks('intitle:"' + book.title + '" inauthor:"' + book.author + '"');
+      }
+      return null;
+    })().catch(() => null));
+  }
+  return coverLookups.get(key);
 }
 
 // fetch() for Open Library. If Open Library can't be reached, the error
@@ -48,7 +100,7 @@ async function fetchOpenLibrary(url) {
 async function searchBooks(query) {
   const url =
     OPEN_LIBRARY + "/search.json?limit=20" +
-    "&fields=key,title,author_name,cover_i,first_publish_year" +
+    "&fields=key,title,author_name,cover_i,first_publish_year,isbn" +
     "&q=" + encodeURIComponent(query);
 
   const response = await fetchOpenLibrary(url);
@@ -62,6 +114,8 @@ async function searchBooks(query) {
       author: doc.author_name ? doc.author_name.join(", ") : "",
       coverUrl: doc.cover_i ? coverUrlFromId(doc.cover_i, "M") : null,
       year: doc.first_publish_year || null,
+      // A few ISBNs, to find a cover elsewhere if Open Library has none.
+      isbns: (doc.isbn || []).slice(0, 3),
     };
   });
 }
@@ -81,10 +135,11 @@ async function fetchBookFromOpenLibrary(externalId) {
       ? work.authors[0].author.key
       : null;
 
-  const [author, isbn] = await Promise.all([
+  const [author, editions] = await Promise.all([
     authorKey ? fetchJson(OPEN_LIBRARY + authorKey + ".json").then((a) => a && a.name) : null,
-    fetchJson(OPEN_LIBRARY + "/works/" + externalId + "/editions.json?limit=20").then(findIsbn),
+    fetchJson(OPEN_LIBRARY + "/works/" + externalId + "/editions.json?limit=20"),
   ]);
+  const isbn = findIsbn(editions);
 
   // The description is sometimes plain text, sometimes { value: "text" }.
   let description = work.description || "";
@@ -93,13 +148,19 @@ async function fetchBookFromOpenLibrary(externalId) {
   // links. Keep only the part before it.
   description = description.split(/\n\s*-{3,}/)[0];
 
-  const coverId = work.covers ? work.covers.find((id) => id > 0) : null;
+  // The cover: the book's own, else another edition's, else Google Books.
+  const coverId =
+    (work.covers || []).find((id) => id > 0) ||
+    findEditionCoverId(editions);
+  const coverUrl = coverId
+    ? coverUrlFromId(coverId, "L")
+    : await findCoverElsewhere({ isbns: isbn ? [isbn] : [], title: work.title, author: author });
 
   return {
     external_id: externalId,
     title: work.title,
     author: author || null,
-    cover_url: coverId ? coverUrlFromId(coverId, "L") : null,
+    cover_url: coverUrl || null,
     description: description.trim() || null,
     isbn: isbn || null,
     genres: genresFromSubjects(work.subjects),
@@ -114,6 +175,16 @@ async function fetchJson(url) {
   } catch (error) {
     return null;
   }
+}
+
+// The first cover found on any edition of the book, or null.
+function findEditionCoverId(editions) {
+  if (!editions || !editions.entries) return null;
+  for (const edition of editions.entries) {
+    const id = (edition.covers || []).find((coverId) => coverId > 0);
+    if (id) return id;
+  }
+  return null;
 }
 
 // Picks the first ISBN from a list of editions (13-digit ones preferred).
@@ -343,15 +414,44 @@ function starsText(rating) {
 // ---------- Covers ----------
 
 // A book cover image, or a plain box with the title when there's no cover.
+//
+// If there's no cover link, or the picture doesn't load, we look for one
+// elsewhere (findCoverElsewhere) and swap it in when found. The plain box
+// with the title is only for books nobody has a cover for.
+// `book` can also have `isbn` / `isbns` and `author`, which help that search.
 function makeCover(book, sizeClass) {
-  if (book.cover_url) {
+  const titleBox = el("div", "cover cover-missing " + sizeClass, book.title);
+
+  function lookElsewhere(current) {
+    const isbns = book.isbns || (book.isbn ? [book.isbn] : []);
+    findCoverElsewhere({ isbns: isbns, title: book.title, author: book.author }).then(function (link) {
+      if (link && link !== book.cover_url && current.isConnected) {
+        current.replaceWith(makeImage(link, false));
+      } else if (current !== titleBox && current.isConnected) {
+        current.replaceWith(titleBox);
+      }
+    });
+  }
+
+  function makeImage(link, canRetry) {
     const img = el("img", "cover " + sizeClass);
-    img.src = book.cover_url;
     img.alt = book.title;
     img.loading = "lazy";
+    // A broken or tiny (blank placeholder) picture counts as no cover.
+    img.addEventListener("error", function () {
+      if (canRetry) lookElsewhere(img);
+      else if (img.isConnected) img.replaceWith(titleBox);
+    });
+    img.addEventListener("load", function () {
+      if (img.naturalWidth < 10) img.dispatchEvent(new Event("error"));
+    });
+    img.src = link;
     return img;
   }
-  return el("div", "cover cover-missing " + sizeClass, book.title);
+
+  if (book.cover_url) return makeImage(book.cover_url, true);
+  lookElsewhere(titleBox);
+  return titleBox;
 }
 
 
@@ -392,7 +492,7 @@ function statsNote(book) {
 // Turns a book from Open Library lists ({ externalId, title, author,
 // coverUrl }) into the shape our tiles use.
 function openLibraryToBook(book) {
-  return { external_id: book.externalId, title: book.title, author: book.author, cover_url: book.coverUrl };
+  return { external_id: book.externalId, title: book.title, author: book.author, cover_url: book.coverUrl, isbns: book.isbns };
 }
 
 

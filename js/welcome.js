@@ -105,7 +105,7 @@ async function findPopularBooks() {
 function makePickTile(book) {
   const tile = el("button", "pick-tile");
   tile.type = "button";
-  tile.appendChild(makeCover({ title: book.title, cover_url: book.coverUrl }, "cover-medium"));
+  tile.appendChild(makeCover({ title: book.title, author: book.author, cover_url: book.coverUrl }, "cover-medium"));
   const badge = el("span", "pick-badge");
   badge.hidden = true;
   tile.appendChild(badge);
