@@ -386,6 +386,41 @@ function setUpLogForm() {
 }
 
 
+// ---------- Books you might like ----------
+
+const SIMILAR_SIZE = 12;
+
+// Books that share a genre with this one and readers rated highly
+// (3.5+ on average), then popular Open Library books from its first
+// genre to fill up. Never this book itself.
+async function loadSimilarBooks(book) {
+  const genres = book.genres || [];
+  if (genres.length === 0) return;
+
+  const picks = [];
+  const seen = new Set([book.external_id]);
+  function add(candidate, note) {
+    if (picks.length >= SIMILAR_SIZE || seen.has(candidate.external_id)) return;
+    seen.add(candidate.external_id);
+    picks.push(makeBookTile(candidate, note));
+  }
+
+  const topRated = await fetchTopRatedInGenres(genres, book.id ? [book.id] : [], SIMILAR_SIZE);
+  for (const candidate of topRated) add(candidate, statsNote(candidate));
+
+  if (picks.length < SIMILAR_SIZE) {
+    const popular = await fetchGenreBooksFromOpenLibrary(genres[0], SIMILAR_SIZE + 1, 0).catch(() => []);
+    for (const candidate of popular) add(openLibraryToBook(candidate), "");
+  }
+
+  if (picks.length === 0) return;
+  const row = document.getElementById("similar-books");
+  row.textContent = "";
+  picks.forEach((tile) => row.appendChild(tile));
+  document.getElementById("similar-section").hidden = false;
+}
+
+
 // ---------- Start ----------
 
 async function loadBookPage() {
@@ -416,6 +451,9 @@ async function loadBookPage() {
   // Fill any gaps (genres, cover, description) from Open Library.
   const filled = await fillMissingDetails(book);
   if (filled !== book) showBook(filled);
+
+  // Suggestions load in the background; the page doesn't wait for them.
+  loadSimilarBooks(shownBook).catch((error) => console.error("Suggestions didn't load:", error));
 
   await loadLogs();
 

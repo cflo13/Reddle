@@ -1267,3 +1267,9 @@ body > main {
 .book-tile {
   text-decoration: none;
 }
+
+/* A little space between a hint line and the books under it */
+.hint + .tile-row,
+.hint + .tile-grid {
+  margin-top: 12px;
+}

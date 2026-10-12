@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Reddle: track the books you read">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=20">
+  <link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body>
   <header class="site-header">
@@ -104,6 +104,13 @@
         </form>
       </section>
 
+      <!-- Filled in by js/book.js; hidden if there's nothing to suggest -->
+      <section id="similar-section" hidden>
+        <h2>Books you might like</h2>
+        <p class="hint">Same genres, rated highly by other readers.</p>
+        <div id="similar-books" class="tile-row"></div>
+      </section>
+
       <h2>Logs</h2>
       <!-- Filled in by js/book.js -->
       <div id="book-logs" class="log-list"></div>
@@ -123,14 +130,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=20"></script>
+  <script src="js/config.js?v=21"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=20"></script>
+  <script src="js/supabase-client.js?v=21"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=20"></script>
+  <script src="js/auth.js?v=21"></script>
   <!-- 5. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=20"></script>
+  <script src="js/books.js?v=21"></script>
   <!-- This page's own code -->
-  <script src="js/book.js?v=20"></script>
+  <script src="js/book.js?v=21"></script>
 </body>
 </html>
