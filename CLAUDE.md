@@ -21,6 +21,7 @@ the people they follow are reading.
 - **Header menu:** when logged in, your picture and @username open a small menu (a `<details>` element): Your profile, Settings, Admin (admins only), Log out.
 - **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
+- **Genres:** 30 genres, defined once in `GENRES` in `js/books.js` (slug, name, Open Library subject, keywords, nonfiction flag). `genresFromSubjects()` turns a book's Open Library subjects into up to 4 genres by whole-word keyword matching; nonfiction genres are skipped for fiction (so a WW2 novel is Historical fiction, not History). Genres are saved with the book the first time it's saved. Books saved earlier (or missing a cover/description) get filled in from Open Library when someone logged in opens their page (`fillMissingDetails()` in `js/book.js` + `fill_book_details`). The database only accepts the 30 slugs: if you change `GENRES`, change `step14-genres.sql` too. Book pages show genres as small tags linking to the genre page. The header has a Genres link (on phones it sits next to the search box, and the header shows just your picture, not your name).
 - **Logs:** saved with an "upsert" (create or update) on user + book. A log can have just a date. Reviews up to 5000 characters (only checked in the browser). Star picker: click the left half of a star for a half star; arrow keys work too.
 - **Feed:** the home page. Logged in: latest logs from people you follow (not your own). Following nobody yet, or logged out: latest logs from everyone, so there are people to discover.
 - **Load more:** the feed, profile logs and book page logs show 20 at a time (`PAGE_SIZE` in `js/books.js`) with a "Load more" button while there are more (`showPagedLogs()`; it asks for one extra row to know). Lists are ordered by `created_at` then `id`, so pages never repeat or skip. The book page's average uses a separate query over all ratings.
@@ -44,7 +45,8 @@ the people they follow are reading.
 Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 
 - **profiles:** id (same as the login user id), username, bio, avatar_url, onboarded (has seen the welcome page; `step13-onboarding.sql`)
-- **books:** id, external_id (unique), title, author, cover_url, description, isbn
+- **books:** id, external_id (unique), title, author, cover_url, description, isbn, genres (list of genre slugs; `step14-genres.sql`)
+- **books_with_stats** (a view, not a table): each book plus log_count, avg_rating, rating_count and logs_this_week. Use it for anything ranked (genre pages, recommendations, popular).
 - **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
 - **follows:** follower_id, following_id
 - **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
@@ -71,6 +73,8 @@ Pages:
 - `about.html` + `js/about.js`, `privacy.html`, `terms.html` (+ `js/static-page.js`, an empty placeholder): plain-English text pages. About's Contact section shows `CONTACT_EMAIL` from `js/config.js` (empty for now, so it says "coming soon"). If the site starts collecting new kinds of data (e.g. comments, reports), update the Privacy page's "What we keep" list
 - `admin.html` + `js/admin.js`: admin-only. Open reports newest first, with the reported review or profile; buttons Remove review, Remove user (`admin_delete_user`, then deletes their picture), Dismiss. Non-admins see "only for the site admin"
 - `welcome.html` + `js/welcome.js`: shown once to new users (after sign up, after choosing a username, or on first login when `onboarded` is false). Search box to log a first book, and the 6 readers with the most recent logs with Follow buttons. Visiting it sets `onboarded` to true
+- `genres.html` + `js/genres.js`: Browse by genre, a card per genre with how many Reddle books are in it
+- `genre.html` + `js/genre.js`: `genre.html?g=fantasy`. "Top on Reddle" (most logged in that genre, from `books_with_stats`) and "Popular on Open Library" (Open Library's subject page, 24 at a time with Load more)
 - `404.html`: Page not found, with a search box and a link home
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Books from Open Library, plus matching usernames
 - `book.html` + `js/book.js`: `book.html?id=OL45804W`. Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
@@ -91,6 +95,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step11-admin-remove-user.sql`: `admin_delete_user(target)` for the admin page (touches `auth.users`, so the owner runs it)
 - `supabase/step12-limits.sql`: limits the database enforces (review 5000 and not blank, bio not blank, avatar must be in our storage, book id format and field sizes, sensible reading dates) (batch 2)
 - `supabase/step13-onboarding.sql`: `profiles.onboarded` (existing accounts true, new ones false) (batch 2, welcome step)
+- `supabase/step14-genres.sql`: `books.genres` (only known slugs allowed), `books_with_stats` view, `fill_book_details()` (fills only empty genres/cover/description/ISBN on a saved book) (batch 2, genres)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -169,6 +174,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Batch 2 item 9 (favicon, titles, previews): built.**
 - **Batch 2 item 10 (welcome step): built.** `step13-onboarding.sql` applied (as add-with-default-true, then default false, to avoid an all-rows update).
 - **Batch 2 item 11 (phone check): done.** Every page checked at 375px (and the trickiest at 320px) with long titles, long reviews and a 20-character username; no page scrolls sideways. Fixed: 404 page side margins, long usernames on profiles (wrap) and in the header (shortened with ...), menu stays on the right when the header wraps.
+- **Batch 2 item 12 (genres): built.** `step14-genres.sql` applied. Tested the matching on real Open Library subject lists (Dune, Pride and Prejudice, Sapiens, Harry Potter, The Shining, Wolf Hall, Atomic Habits, Gone Girl, Maus) and the pages with stand-ins, including phones.
 - **Batch 2 (owner's list of 16, see below): in progress.**
 
 ## Waiting on the owner

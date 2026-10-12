@@ -102,6 +102,7 @@ async function fetchBookFromOpenLibrary(externalId) {
     cover_url: coverId ? coverUrlFromId(coverId, "L") : null,
     description: description.trim() || null,
     isbn: isbn || null,
+    genres: genresFromSubjects(work.subjects),
   };
 }
 
@@ -125,6 +126,127 @@ function findIsbn(editions) {
     if (edition.isbn_10 && edition.isbn_10[0]) return edition.isbn_10[0];
   }
   return null;
+}
+
+
+// ---------- Genres ----------
+//
+// Open Library tags each book with many "subjects" ("Dune (Imaginary
+// place)", "Fiction", "Space warfare"...). We turn those into a short list
+// of genres by looking for keywords.
+//
+//   slug:     the short name we save in the database (books.genres)
+//   name:     what people see
+//   subject:  the matching Open Library subject page, used for
+//             "Popular on Open Library" lists
+//   words:    keywords to look for in a book's subjects
+//   nonfiction: only for books that aren't fiction (so a novel set in
+//             WW2 is Historical fiction, not History)
+//
+// If you add or rename a genre here, update the list in
+// supabase/step14-genres.sql too (the database only accepts these slugs).
+const GENRES = [
+  { slug: "fantasy", name: "Fantasy", subject: "fantasy", words: ["fantasy", "fantasy fiction", "magic", "dragons", "wizards", "elves"] },
+  { slug: "science_fiction", name: "Science fiction", subject: "science_fiction", words: ["science fiction", "sci-fi", "space opera", "time travel", "space warfare", "robots"] },
+  { slug: "mystery", name: "Mystery", subject: "mystery_and_detective_stories", words: ["mystery", "mystery fiction", "detective", "detective and mystery stories", "private investigators", "murder"] },
+  { slug: "thriller", name: "Thriller", subject: "thrillers", words: ["thriller", "thrillers", "suspense", "espionage", "spy stories"] },
+  { slug: "romance", name: "Romance", subject: "romance", words: ["romance", "love stories", "romantic"] },
+  { slug: "horror", name: "Horror", subject: "horror", words: ["horror", "ghost stories", "ghosts", "vampires", "haunted houses", "zombies"] },
+  { slug: "historical_fiction", name: "Historical fiction", subject: "historical_fiction", words: ["historical fiction", "history, fiction"] },
+  { slug: "literary_fiction", name: "Literary fiction", subject: "literary_fiction", words: ["literary fiction", "psychological fiction", "domestic fiction", "family life", "coming of age"] },
+  { slug: "classics", name: "Classics", subject: "classic_literature", words: ["classic literature", "classics", "english literature", "american literature"] },
+  { slug: "young_adult", name: "Young adult", subject: "young_adult_fiction", words: ["young adult", "young adult fiction", "teenagers", "high schools"] },
+  { slug: "children", name: "Children's", subject: "juvenile_fiction", words: ["juvenile fiction", "juvenile literature", "children's stories", "picture books", "children's fiction"] },
+  { slug: "dystopian", name: "Dystopian", subject: "dystopias", words: ["dystopia", "dystopias", "dystopian", "totalitarianism"] },
+  { slug: "adventure", name: "Adventure", subject: "adventure", words: ["adventure", "adventure stories", "adventure and adventurers", "voyages and travels"] },
+  { slug: "humour", name: "Humour", subject: "humor", words: ["humor", "humour", "humorous fiction", "humorous stories", "satire"] },
+  { slug: "short_stories", name: "Short stories", subject: "short_stories", words: ["short stories"] },
+  { slug: "poetry", name: "Poetry", subject: "poetry", words: ["poetry", "poems"] },
+  { slug: "graphic_novels", name: "Graphic novels & comics", subject: "comics", words: ["graphic novels", "comic books", "comics", "manga", "comic books, strips"] },
+  { slug: "biography", name: "Biography & memoir", subject: "biography", words: ["biography", "autobiography", "memoir", "memoirs"], nonfiction: true },
+  { slug: "history", name: "History", subject: "history", words: ["history", "world war, 1939-1945", "civilization", "ancient history"], nonfiction: true },
+  { slug: "science", name: "Science & nature", subject: "science", words: ["science", "physics", "biology", "astronomy", "chemistry", "evolution", "natural history", "nature"], nonfiction: true },
+  { slug: "philosophy", name: "Philosophy", subject: "philosophy", words: ["philosophy", "ethics", "stoics"], nonfiction: true },
+  { slug: "psychology", name: "Psychology", subject: "psychology", words: ["psychology", "mental health", "neuroscience"], nonfiction: true },
+  { slug: "self_help", name: "Self-help", subject: "self-help", words: ["self-help", "self help", "personal development", "success", "self-actualization", "habits"], nonfiction: true },
+  { slug: "business", name: "Business & money", subject: "business", words: ["business", "economics", "management", "finance", "entrepreneurship", "leadership"], nonfiction: true },
+  { slug: "true_crime", name: "True crime", subject: "true_crime", words: ["true crime", "criminals", "murder investigation"], nonfiction: true },
+  { slug: "travel", name: "Travel", subject: "travel", words: ["travel", "description and travel"], nonfiction: true },
+  { slug: "food", name: "Food & cooking", subject: "cooking", words: ["cooking", "cookbooks", "recipes", "food"], nonfiction: true },
+  { slug: "religion", name: "Religion & spirituality", subject: "religion", words: ["religion", "spirituality", "christianity", "buddhism", "islam", "judaism", "spiritual life"], nonfiction: true },
+  { slug: "politics", name: "Politics & society", subject: "politics", words: ["politics", "political science", "social science", "sociology"], nonfiction: true },
+  { slug: "art", name: "Art & design", subject: "art", words: ["art", "design", "photography", "architecture", "music"], nonfiction: true },
+];
+
+// The most genres we give one book.
+const MAX_GENRES_PER_BOOK = 4;
+
+function findGenre(slug) {
+  return GENRES.find((genre) => genre.slug === slug) || null;
+}
+
+function genreLink(slug) {
+  return "genre.html?g=" + encodeURIComponent(slug);
+}
+
+// Is this word (or phrase) in the subject? Whole words only, so "art"
+// doesn't match "smart" or "martial".
+function subjectHasWord(subject, word) {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp("(^|[^a-z])" + escaped + "($|[^a-z])").test(subject);
+}
+
+// Turns a list of Open Library subjects into our genre slugs, for
+// example ["Fiction", "Space warfare", "Dune (Imaginary place)"] gives
+// ["science_fiction"]. Returns [] when nothing matches.
+function genresFromSubjects(subjects) {
+  if (!subjects || subjects.length === 0) return [];
+  const lower = subjects.map((subject) => String(subject).toLowerCase());
+  const isFiction = lower.some((subject) => /fiction|novel|stories/.test(subject));
+
+  // Count how many subjects match each genre, then keep the best ones.
+  const scores = [];
+  for (const genre of GENRES) {
+    if (genre.nonfiction && isFiction) continue;
+    const hits = lower.filter((subject) => genre.words.some((word) => subjectHasWord(subject, word))).length;
+    if (hits > 0) scores.push({ slug: genre.slug, hits: hits });
+  }
+  scores.sort((a, b) => b.hits - a.hits);
+  return scores.slice(0, MAX_GENRES_PER_BOOK).map((score) => score.slug);
+}
+
+// Small genre tags (links) for a book page.
+function makeGenreTags(slugs) {
+  const tags = el("p", "genre-tags");
+  for (const slug of slugs) {
+    const genre = findGenre(slug);
+    if (!genre) continue;
+    const tag = el("a", "genre-tag", genre.name);
+    tag.href = genreLink(slug);
+    tags.appendChild(tag);
+  }
+  return tags;
+}
+
+// Popular books in a genre, from Open Library's subject pages.
+// Returns [{ externalId, title, author, coverUrl }].
+async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
+  const genre = findGenre(slug);
+  if (!genre) return [];
+  const url =
+    OPEN_LIBRARY + "/subjects/" + genre.subject + ".json" +
+    "?limit=" + (limit || 24) + "&offset=" + (offset || 0);
+  const response = await fetchOpenLibrary(url);
+  if (!response.ok) throw new Error("Open Library isn't answering right now (error " + response.status + "). Try again in a minute.");
+  const data = await response.json();
+  return (data.works || []).map(function (work) {
+    return {
+      externalId: workIdFromKey(work.key),
+      title: work.title,
+      author: work.authors && work.authors[0] ? work.authors[0].name : "",
+      coverUrl: work.cover_id ? coverUrlFromId(work.cover_id, "M") : null,
+    };
+  });
 }
 
 
@@ -193,6 +315,34 @@ function makeCoverLink(book) {
   link.title = book.author ? book.title + " by " + book.author : book.title;
   link.appendChild(makeCover(book, "cover-medium"));
   return link;
+}
+
+
+// A book as a tile: cover, title, author, and an optional small note
+// underneath (like "★ 4.2 · 12 logs"). `book` needs external_id, title,
+// author and cover_url. Used on genre pages and for recommendations.
+function makeBookTile(book, note) {
+  const tile = el("a", "book-tile");
+  tile.href = bookLink(book.external_id);
+  tile.appendChild(makeCover(book, "cover-medium"));
+  tile.appendChild(el("span", "book-tile-title", book.title));
+  if (book.author) tile.appendChild(el("span", "book-tile-author", book.author));
+  if (note) tile.appendChild(el("span", "book-tile-note", note));
+  return tile;
+}
+
+// "★ 4.2 · 12 logs" for a row of books_with_stats.
+function statsNote(book) {
+  const parts = [];
+  if (book.avg_rating) parts.push("\u2605 " + Number(book.avg_rating).toFixed(1));
+  if (book.log_count) parts.push(book.log_count + (book.log_count === 1 ? " log" : " logs"));
+  return parts.join(" \u00b7 ");
+}
+
+// Turns a book from Open Library lists ({ externalId, title, author,
+// coverUrl }) into the shape our tiles use.
+function openLibraryToBook(book) {
+  return { external_id: book.externalId, title: book.title, author: book.author, cover_url: book.coverUrl };
 }
 
 

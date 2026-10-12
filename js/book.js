@@ -35,6 +35,10 @@ function showBook(book) {
   document.getElementById("book-author").textContent = book.author ? "by " + book.author : "";
   document.getElementById("book-isbn").textContent = book.isbn ? "ISBN " + book.isbn : "";
 
+  const genres = document.getElementById("book-genres");
+  genres.textContent = "";
+  if (book.genres && book.genres.length > 0) genres.appendChild(makeGenreTags(book.genres));
+
   const description = document.getElementById("book-description");
   description.textContent = book.description || "No description available.";
   description.classList.toggle("muted", !book.description);
@@ -158,7 +162,38 @@ async function ensureBookSaved() {
     cover_url: shownBook.cover_url,
     description: shownBook.description,
     isbn: shownBook.isbn,
+    genres: shownBook.genres || [],
   });
+}
+
+// Books saved before genres existed (or with gaps) get their missing
+// details from Open Library. We show them straight away, and logged-in
+// visitors also save them, so the next visitor gets them from our table.
+async function fillMissingDetails(book) {
+  const missing = !book.genres || book.genres.length === 0 || !book.cover_url || !book.description;
+  if (!book.id || !missing) return book;
+
+  const fresh = await fetchBookFromOpenLibrary(book.external_id).catch(() => null);
+  if (!fresh) return book;
+
+  const filled = Object.assign({}, book, {
+    genres: book.genres && book.genres.length ? book.genres : fresh.genres,
+    cover_url: book.cover_url || fresh.cover_url,
+    description: book.description || fresh.description,
+    isbn: book.isbn || fresh.isbn,
+  });
+
+  if (currentUser) {
+    // Only fills empty fields (supabase/step14-genres.sql).
+    await db.rpc("fill_book_details", {
+      p_book_id: book.id,
+      p_genres: filled.genres,
+      p_cover_url: filled.cover_url,
+      p_description: filled.description,
+      p_isbn: filled.isbn,
+    });
+  }
+  return filled;
 }
 
 
@@ -377,6 +412,11 @@ async function loadBookPage() {
   }
 
   showBook(book);
+
+  // Fill any gaps (genres, cover, description) from Open Library.
+  const filled = await fillMissingDetails(book);
+  if (filled !== book) showBook(filled);
+
   await loadLogs();
 
   if (currentProfile) {
