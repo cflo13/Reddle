@@ -2213,3 +2213,84 @@ body > main {
 .sk-stat {
   height: 84px;
 }
+
+/* ---------- People lists (notifications, blocked and muted) ---------- */
+
+.people-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.person-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.person-row-name {
+  min-width: 0;
+  color: var(--text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.person-row .button {
+  padding: 6px 14px;
+}
+
+.person-row .button:first-of-type {
+  margin-left: auto;
+}
+
+.private-notice {
+  margin-bottom: 24px;
+}
+
+/* The number on the bell */
+.nav-bell {
+  position: relative;
+}
+
+.nav-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--error);
+  color: var(--on-button);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* The smallest phones (320px): a little tighter again, so even the
+   admin's extra button fits on the first row. */
+@media (max-width: 360px) {
+  .site-header {
+    gap: 6px;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .theme-toggle {
+    width: 28px;
+    height: 28px;
+  }
+
+  .site-nav {
+    gap: 4px;
+  }
+
+  .nav-button {
+    padding: 3px;
+  }
+}

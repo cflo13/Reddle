@@ -195,6 +195,67 @@ deleteForm.addEventListener("submit", async function (event) {
 
 // ---------- Start ----------
 
+// ---------- Privacy: private profile ----------
+
+function setUpPrivacy(profile) {
+  const box = document.getElementById("private-input");
+  const message = document.getElementById("private-message");
+  box.checked = !!profile.is_private;
+  box.addEventListener("change", async function () {
+    box.disabled = true;
+    const { error } = await db.from("profiles").update({ is_private: box.checked }).eq("id", profile.id);
+    box.disabled = false;
+    if (error) {
+      box.checked = !box.checked;
+      showStatus(message, "error", friendlyError(error, "Could not save. "));
+      return;
+    }
+    profile.is_private = box.checked;
+    showStatus(message, "ok", box.checked
+      ? "Your profile is private. New followers will send you a request."
+      : "Your profile is public. Anyone can see your books.");
+  });
+}
+
+
+// ---------- Blocked and muted ----------
+
+async function loadBlockedAndMuted() {
+  const list = document.getElementById("blocked-list");
+  const { data, error } = await db.rpc("my_blocks_and_mutes");
+  list.textContent = "";
+  if (error) {
+    list.appendChild(el("p", "status status-error", friendlyError(error, "Couldn't load this list. ")));
+    return;
+  }
+  if (data.length === 0) {
+    list.appendChild(el("p", "muted", "You haven't blocked or muted anyone."));
+    return;
+  }
+  for (const row of data) {
+    const item = el("div", "person-row");
+    item.appendChild(makeAvatar(row, "avatar-small"));
+    item.appendChild(el("span", "person-row-name", "@" + row.username));
+    item.appendChild(el("span", "muted", row.kind === "block" ? "Blocked" : "Muted"));
+    const undo = el("button", "button button-secondary", row.kind === "block" ? "Unblock" : "Unmute");
+    undo.type = "button";
+    undo.addEventListener("click", async function () {
+      undo.disabled = true;
+      try {
+        if (row.kind === "block") await unblockPerson(row.user_id);
+        else await setMuted(row.user_id, false);
+        await loadBlockedAndMuted();
+      } catch (error) {
+        undo.disabled = false;
+        window.alert(friendlyError(error, "Something went wrong. "));
+      }
+    });
+    item.appendChild(undo);
+    list.appendChild(item);
+  }
+}
+
+
 (async function () {
   const { user, profile } = await authReady;
   if (!user || !profile) {
@@ -207,6 +268,9 @@ deleteForm.addEventListener("submit", async function (event) {
   usernameInput.value = profile.username;
   document.getElementById("delete-username").textContent = profile.username;
   showEmails();
+
+  setUpPrivacy(profile);
+  loadBlockedAndMuted();
 
   document.getElementById("loading").hidden = true;
   document.getElementById("settings").hidden = false;

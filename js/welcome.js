@@ -214,7 +214,7 @@ let peopleShown = false;
 async function findActiveReaders(myId) {
   const { data: recent, error } = await db
     .from("logs")
-    .select("user_id, profiles(id, username, avatar_url, bio)")
+    .select("user_id, profiles(id, username, avatar_url, bio, is_private)")
     .neq("user_id", myId)
     .order("created_at", { ascending: false })
     .limit(200);
@@ -232,25 +232,25 @@ async function findActiveReaders(myId) {
     .slice(0, 6);
 }
 
-// A Follow / Following button for one person.
-function makeFollowButton(myId, personId) {
-  const button = el("button", "button", "Follow");
+// A Follow / Following button for one person (a follow request for
+// private profiles).
+function makeFollowButton(person) {
+  const label = person.is_private ? "Request to follow" : "Follow";
+  const button = el("button", "button", label);
   button.type = "button";
-  let following = false;
+  let state = "none";
 
   button.addEventListener("click", async function () {
     button.disabled = true;
-    const result = following
-      ? await db.from("follows").delete().eq("follower_id", myId).eq("following_id", personId)
-      : await db.from("follows").insert({ follower_id: myId, following_id: personId });
-    button.disabled = false;
-    if (result.error) {
-      window.alert(friendlyError(result.error, "Couldn't update. "));
-      return;
+    try {
+      state = state === "none" ? await followPerson(person) : await unfollowPerson(person.id);
+    } catch (error) {
+      window.alert(friendlyError(error, "Couldn't update. "));
+    } finally {
+      button.disabled = false;
     }
-    following = !following;
-    button.textContent = following ? "Following" : "Follow";
-    button.classList.toggle("button-secondary", following);
+    button.textContent = state === "following" ? "Following" : state === "requested" ? "Requested" : label;
+    button.classList.toggle("button-secondary", state !== "none");
   });
   return button;
 }
@@ -276,7 +276,7 @@ async function showSuggestedPeople(myId) {
     text.appendChild(el("strong", "", "@" + reader.profile.username));
     text.appendChild(el("span", "muted", reader.count + (reader.count === 1 ? " book" : " books") + " logged recently"));
     link.appendChild(text);
-    row.append(link, makeFollowButton(myId, reader.profile.id));
+    row.append(link, makeFollowButton(reader.profile));
     peopleBox.appendChild(row);
   }
 }

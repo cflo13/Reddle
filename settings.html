@@ -41,7 +41,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=38">
+  <link rel="stylesheet" href="css/style.css?v=39">
 </head>
 <body>
   <header class="site-header">
@@ -110,6 +110,20 @@
 
       <!-- Reading taste -->
       <section class="card">
+        <h2>Privacy</h2>
+        <label class="check-row"><input id="private-input" type="checkbox"> Private profile</label>
+        <p class="hint">When this is on, only people you approve can see your books, shelves, reading goal and likes. Everyone can still see your username, picture and bio. New followers send a request, which you accept or decline under Notifications (the bell). People who already follow you stay approved.</p>
+        <p id="private-message" class="status" hidden></p>
+      </section>
+
+      <section class="card">
+        <h2>Blocked and muted</h2>
+        <p class="hint">Blocked people can't see you and you can't see them. Muted people's reviews stay out of your feed. Nobody is told.</p>
+        <!-- Filled in by js/settings.js -->
+        <div id="blocked-list" class="people-rows"><p class="muted">Loading...</p></div>
+      </section>
+
+      <section class="card">
         <h2>Reading taste</h2>
         <p>Your favourite genres help us suggest books. Change them, or tap through some popular books again.</p>
         <p><a class="button button-secondary" href="welcome.html?redo=1">Redo the taste questionnaire</a></p>
@@ -143,14 +157,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=38"></script>
+  <script src="js/config.js?v=39"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=38"></script>
+  <script src="js/supabase-client.js?v=39"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=38"></script>
+  <script src="js/auth.js?v=39"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=38"></script>
+  <script src="js/search-suggest.js?v=39"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=38"></script>
+  <script src="js/settings.js?v=39"></script>
 </body>
 </html>

@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=38">
+  <link rel="stylesheet" href="css/style.css?v=39">
 </head>
 <body>
   <header class="site-header">
@@ -116,6 +116,12 @@
         </div>
       </section>
 
+      <!-- Shown on private profiles you aren't approved to see -->
+      <section id="private-notice" class="card private-notice" hidden>
+        <h2>This account is private</h2>
+        <p class="muted">Follow this reader to see their books, shelves and reading goal. They'll get a follow request.</p>
+      </section>
+
       <!-- Reading goal for this year (js/profile.js). Hidden on other
            people's profiles when they haven't set one. -->
       <section id="goal-section" class="card goal-card" hidden>
@@ -147,14 +153,16 @@
         <div id="reading-books" class="cover-row"></div>
       </section>
 
-      <section>
+      <section id="want-section">
         <h2>Want to read</h2>
         <div id="want-books" class="cover-row"></div>
       </section>
 
+      <section id="logs-section">
       <h2>Books</h2>
       <!-- Filled in by js/profile.js -->
       <div id="profile-logs" class="log-list"><div class="skeleton-group" role="status" aria-label="Loading"><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div></div></div>
+      </section>
     </section>
   </main>
 
@@ -171,18 +179,18 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=38"></script>
+  <script src="js/config.js?v=39"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=38"></script>
+  <script src="js/supabase-client.js?v=39"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=38"></script>
+  <script src="js/auth.js?v=39"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=38"></script>
+  <script src="js/search-suggest.js?v=39"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=38"></script>
+  <script src="js/books.js?v=39"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=38"></script>
+  <script src="js/share-card.js?v=39"></script>
   <!-- This page's own code -->
-  <script src="js/profile.js?v=38"></script>
+  <script src="js/profile.js?v=39"></script>
 </body>
 </html>

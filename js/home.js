@@ -32,11 +32,16 @@ function explainError(error) {
   return friendlyError(error, "Could not load. ");
 }
 
+// People you muted: their logs stay out of your feed.
+let mutedPeople = [];
+
+function withoutMuted(query) {
+  return mutedPeople.length ? query.not("user_id", "in", "(" + mutedPeople.join(",") + ")") : query;
+}
+
 // A page of the latest logs from everyone (rows `from` to `to`).
 function everyoneQuery(from, to) {
-  return db
-    .from("logs")
-    .select(LOG_FIELDS)
+  return withoutMuted(db.from("logs").select(LOG_FIELDS))
     .order("created_at", { ascending: false })
     .order("id", { ascending: false }) // keeps the order stable between pages
     .range(from, to);
@@ -55,9 +60,7 @@ async function loadFollowingIds(userId) {
 // A page of the latest logs from the people in `ids`.
 function followingQuery(ids) {
   return (from, to) =>
-    db
-      .from("logs")
-      .select(LOG_FIELDS)
+    withoutMuted(db.from("logs").select(LOG_FIELDS))
       .in("user_id", ids) // "user_id is one of these ids"
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
@@ -421,6 +424,7 @@ function buildRows(profile, myBooks, followingIds) {
 
 async function loadFeed(profile, followingIds) {
   const cardOptions = { showUser: true, showBook: true };
+  mutedPeople = await mutedIds();
 
   if (!profile) {
     feedHeading.textContent = "Recent activity";

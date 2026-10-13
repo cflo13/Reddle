@@ -118,9 +118,20 @@ async function loadPage() {
     await setUpFollowButton(myProfile);
     const report = makeReportButton("user", profile.id, profile.id);
     if (report) actions.appendChild(report);
+    await setUpBlockAndMute(actions);
   } else {
     // Logged out: invite them to log in to follow.
     document.getElementById("follow-login").hidden = false;
+  }
+
+  // Private profile you aren't approved for: just the top part.
+  if (profile.is_private && !isMe) {
+    const { data: allowed } = await db.rpc("can_see_activity", { owner: profile.id });
+    if (!allowed) {
+      showPrivateNotice();
+      await loadStats();
+      return;
+    }
   }
 
   await Promise.all([loadStats(), loadGoal(isMe), loadShelves(isMe), loadProfileLogs()]);
@@ -252,53 +263,93 @@ function setUpGoalEditing() {
 
 async function setUpFollowButton(myProfile) {
   const button = document.getElementById("follow-button");
-  let following = false;
+  // "following", "requested" (private profile, waiting) or "none"
+  let state = await followState(shownProfile.id);
 
   function updateButton() {
-    button.textContent = following ? "Following" : "Follow";
-    button.classList.toggle("button-secondary", following);
+    const words = {
+      following: "Following",
+      requested: "Requested",
+      none: shownProfile.is_private ? "Request to follow" : "Follow",
+    };
+    button.textContent = words[state];
+    button.classList.toggle("button-secondary", state !== "none");
   }
-
-  // Do I already follow this person?
-  const { data, error } = await db
-    .from("follows")
-    .select("follower_id")
-    .eq("follower_id", myProfile.id)
-    .eq("following_id", shownProfile.id)
-    .maybeSingle();
-  if (error) throw error;
-  following = data !== null;
 
   updateButton();
   button.hidden = false;
 
-  // Show "Unfollow" when hovering over "Following", like Letterboxd.
+  // Show "Unfollow" / "Cancel request" when hovering, like Letterboxd.
   button.addEventListener("mouseenter", function () {
-    if (following) button.textContent = "Unfollow";
+    if (state === "following") button.textContent = "Unfollow";
+    if (state === "requested") button.textContent = "Cancel request";
   });
   button.addEventListener("mouseleave", updateButton);
 
   button.addEventListener("click", async function () {
     button.disabled = true;
-    const result = following
-      ? await db
-          .from("follows")
-          .delete()
-          .eq("follower_id", myProfile.id)
-          .eq("following_id", shownProfile.id)
-      : await db
-          .from("follows")
-          .insert({ follower_id: myProfile.id, following_id: shownProfile.id });
-    button.disabled = false;
-
-    if (result.error) {
-      alert(friendlyError(result.error, "Something went wrong. "));
-      return;
+    try {
+      state = state === "none" ? await followPerson(shownProfile) : await unfollowPerson(shownProfile.id);
+    } catch (error) {
+      alert(friendlyError(error, "Something went wrong. "));
+    } finally {
+      button.disabled = false;
     }
-    following = !following;
     updateButton();
     await loadStats();
   });
+}
+
+// Block and Mute, on other people's profiles (when logged in).
+async function setUpBlockAndMute(actions) {
+  const { data: muteRow } = await db.from("mutes").select("muted_id")
+    .eq("muter_id", currentUserId).eq("muted_id", shownProfile.id).maybeSingle();
+  let muted = !!muteRow;
+
+  const mute = el("button", "link-button", muted ? "Unmute" : "Mute");
+  mute.type = "button";
+  mute.title = "Muted people's reviews stay out of your feed. They aren't told.";
+  mute.addEventListener("click", async function () {
+    mute.disabled = true;
+    try {
+      await setMuted(shownProfile.id, !muted);
+      muted = !muted;
+      mute.textContent = muted ? "Unmute" : "Mute";
+    } catch (error) {
+      alert(friendlyError(error, "Something went wrong. "));
+    } finally {
+      mute.disabled = false;
+    }
+  });
+
+  const block = el("button", "link-button", "Block");
+  block.type = "button";
+  block.addEventListener("click", async function () {
+    const name = "@" + shownProfile.username;
+    if (!confirm("Block " + name + "? You won't see each other's profiles, logs or likes, and any follows between you are removed. They aren't told. You can undo this in Settings.")) return;
+    block.disabled = true;
+    try {
+      await blockPerson(shownProfile.id);
+      profileArea.hidden = true;
+      showNotFound("You blocked " + name + ". You can undo this in Settings.");
+    } catch (error) {
+      block.disabled = false;
+      alert(friendlyError(error, "Something went wrong. "));
+    }
+  });
+  actions.append(mute, block);
+}
+
+// A private profile you're not approved for: only the name, picture and
+// bio show. (The database hides the rest anyway.)
+function showPrivateNotice() {
+  document.getElementById("private-notice").hidden = false;
+  ["goal-section", "reading-section", "want-section", "logs-section"].forEach(function (id) {
+    const section = document.getElementById(id);
+    if (section) section.hidden = true;
+  });
+  document.getElementById("stat-books").hidden = true;
+  document.querySelector(".profile-links").hidden = true;
 }
 
 

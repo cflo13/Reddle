@@ -83,6 +83,8 @@ function friendlyError(error, start) {
     plain = "Please confirm your email first: click the link in the email we sent you.";
   } else if (/already registered|already been registered/i.test(text)) {
     plain = "There's already an account with that email. Try logging in instead.";
+  } else if (/going a bit fast|rate.?limit/i.test(text)) {
+    plain = "You're going a bit fast. Please wait a few minutes and try again.";
   } else if (/JWT expired|session.*(missing|expired)|not logged in/i.test(text)) {
     plain = "Your login has expired. Please log in again.";
   } else if (code === "23514") {
@@ -402,6 +404,77 @@ async function signInWithGoogle(showMessage) {
   // If there was no error the browser is now on its way to Google.
   // When the user comes back, auth.js sees they have no username yet and
   // sends them to choose-username.html.
+}
+
+
+// ---------- Following, private profiles, blocks and mutes ----------
+// (supabase/step20-privacy-safety.sql: the database enforces all of it)
+
+// "following", "requested" (asked a private person) or "none".
+async function followState(personId) {
+  const [follow, request] = await Promise.all([
+    db.from("follows").select("follower_id").eq("follower_id", currentUserId).eq("following_id", personId).maybeSingle(),
+    db.from("follow_requests").select("target_id").eq("requester_id", currentUserId).eq("target_id", personId).maybeSingle(),
+  ]);
+  if (follow.data) return "following";
+  if (request.data) return "requested";
+  return "none";
+}
+
+// Follows a public person, or sends a follow request to a private one.
+// `person` needs id and is_private. Returns the new state.
+async function followPerson(person) {
+  if (person.is_private) {
+    const { error } = await db.from("follow_requests").insert({ requester_id: currentUserId, target_id: person.id });
+    if (error && error.code !== "23505") throw error; // 23505 = already asked
+    return "requested";
+  }
+  const { error } = await db.from("follows").insert({ follower_id: currentUserId, following_id: person.id });
+  if (error && error.code !== "23505") throw error;
+  return "following";
+}
+
+// Unfollows, or takes back a follow request.
+async function unfollowPerson(personId) {
+  const [a, b] = await Promise.all([
+    db.from("follows").delete().eq("follower_id", currentUserId).eq("following_id", personId),
+    db.from("follow_requests").delete().eq("requester_id", currentUserId).eq("target_id", personId),
+  ]);
+  if (a.error) throw a.error;
+  if (b.error) throw b.error;
+  return "none";
+}
+
+// Blocks someone: neither of you sees the other any more, and any
+// follows or follow requests between you are removed.
+async function blockPerson(personId) {
+  const { error } = await db.from("blocks").insert({ blocker_id: currentUserId, blocked_id: personId });
+  if (error && error.code !== "23505") throw error;
+  await Promise.all([
+    db.from("follows").delete().eq("follower_id", currentUserId).eq("following_id", personId),
+    db.from("follows").delete().eq("follower_id", personId).eq("following_id", currentUserId),
+    db.from("follow_requests").delete().eq("requester_id", currentUserId).eq("target_id", personId),
+    db.from("follow_requests").delete().eq("requester_id", personId).eq("target_id", currentUserId),
+  ]);
+}
+
+async function unblockPerson(personId) {
+  const { error } = await db.from("blocks").delete().eq("blocker_id", currentUserId).eq("blocked_id", personId);
+  if (error) throw error;
+}
+
+async function setMuted(personId, mute) {
+  const { error } = mute
+    ? await db.from("mutes").insert({ muter_id: currentUserId, muted_id: personId })
+    : await db.from("mutes").delete().eq("muter_id", currentUserId).eq("muted_id", personId);
+  if (error && error.code !== "23505") throw error;
+}
+
+// The people you muted (their reviews stay out of your feed).
+async function mutedIds() {
+  if (!currentUserId) return [];
+  const { data } = await db.from("mutes").select("muted_id").eq("muter_id", currentUserId);
+  return (data || []).map((row) => row.muted_id);
 }
 
 
@@ -784,8 +857,22 @@ const ICON_GEAR =
   '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 const ICON_LOG_OUT =
   '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>';
+const ICON_BELL =
+  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 const ICON_SHIELD =
   '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+
+// A small number on the bell: follow requests waiting for you.
+async function showRequestBadge(bell) {
+  const { count } = await db
+    .from("follow_requests")
+    .select("requester_id", { count: "exact", head: true })
+    .eq("target_id", currentUserId);
+  if (!count) return;
+  const badge = el("span", "nav-badge", count > 9 ? "9+" : String(count));
+  bell.appendChild(badge);
+  bell.setAttribute("aria-label", "Notifications (" + count + " follow " + (count === 1 ? "request" : "requests") + ")");
+}
 
 // One header button: an icon plus a word. On phones only the icon shows,
 // so the word is also the button's accessible name and tooltip.
@@ -849,6 +936,10 @@ async function setupHeader() {
   if (currentIsAdmin) {
     buttons.push(makeNavButton("a", "admin.html", "Admin", ICON_SHIELD));
   }
+  const bell = makeNavButton("a", "notifications.html", "Notifications", ICON_BELL);
+  bell.classList.add("nav-bell");
+  buttons.push(bell);
+  showRequestBadge(bell).catch(() => {}); // the badge is a nice extra; never break the page
   buttons.push(makeNavButton("a", "settings.html", "Settings", ICON_GEAR));
   const logOutButton = makeNavButton("button", null, "Log out", ICON_LOG_OUT);
   logOutButton.classList.add("nav-log-out");
