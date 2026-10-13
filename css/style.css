@@ -1803,3 +1803,41 @@ body > main {
 .footer-links .link-button {
   font-size: inherit;
 }
+
+/* ---------- Likes (heart on log cards) ---------- */
+
+.like-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 2px 6px;
+  margin-left: -6px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.like-button:hover:not(:disabled) {
+  color: var(--error);
+}
+
+.like-button:disabled {
+  cursor: default;
+}
+
+.like-heart {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.like-button[aria-pressed="true"] {
+  color: var(--error);
+}
+
+.log-actions {
+  align-items: center;
+}

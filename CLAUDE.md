@@ -29,6 +29,7 @@ the people they follow are reading.
 - **Feedback:** logged-in people get Feedback and Invite friends in the footer (`addFooterExtras()` in auth.js; there's no account menu any more). Feedback opens a pop-up (`<dialog>`, `makeDialog()`), max 2000 characters, saved to the `feedback` table with the page it was sent from (`step16-feedback.sql`: anyone logged in can send, only admins can read/delete). The admin page lists it under Feedback with a Delete button.
 - **Share and invite:** a Share link on every profile and book page (`makeShareButton()`): the phone's share sheet when there is one, otherwise it copies the clean link and says "Link copied!". Invite friends (footer, and on your own profile) opens a ready-made message with your profile link, editable, with Share / Copy message.
 - **Loading placeholders:** grey shimmer boxes (`.skeleton`, `.sk-*` in style.css, `--skeleton` / `--shimmer` tokens) are written straight into the HTML of the home feed, profile and book tops and their log lists, author, popular and genre grids; the home rows use `.tile-placeholder`. `showPagedLogs()` clears them when the first page arrives. Respects reduced motion.
+- **Likes:** a heart with a count on every log card (`makeLikeButton()`, `fillLikes()`, `toggleLike()` in books.js). One like per person per log (`likes` primary key), press again to unlike; changes on screen at once and goes back if saving fails. Your own logs show the count but can't be liked. Logged out, the heart goes to Log in and comes back. Counts come from the `log_like_counts` view, only for the logs on screen.
 - **Header buttons:** when logged in, the header shows separate, always-visible buttons (no dropdown): Profile (your picture + @username), Admin (shield icon, admins only), Settings (gear icon) and a small Log out. Built by `setupHeader()` / `makeNavButton()` in `js/auth.js`. Below 1000px wide only the icons show (so tablets fit). Logged out: Log in and Sign up. The header also has Genres and Popular links (on phones they sit next to the search box).
 - **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
@@ -69,6 +70,7 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **follows:** follower_id, following_id
 - **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
 - **admins:** user_id. Only the owner (`cflo13`). Users can only see their own row (to show the Admin menu link). In `supabase/step10-reports-admin.sql`, which has a placeholder id; the live project has the owner's real id.
+- **likes:** user_id, log_id (one per user + log), created_at. Everyone can read; you can only add or remove your own. **log_like_counts** (a view): log_id, like_count. In `supabase/step17-likes.sql`.
 - **feedback:** user_id, message (1 to 2000), page, created_at. Anyone logged in can send; only admins can read or delete. In `supabase/step16-feedback.sql`.
 - **reports:** reporter_id, log_id or reported_user_id (exactly one), reason (max 500), status (`open` / `dismissed`). Anyone logged in can send; only admins can read, dismiss or delete. One report per person per review/profile. Admins may also delete any log and any avatar (`is_admin()` in the rules).
 - **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
@@ -120,6 +122,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step14-genres.sql`: `books.genres` (only known slugs allowed), `books_with_stats` view, `fill_book_details()` (fills only empty genres/cover/description/ISBN on a saved book) (batch 2, genres)
 - `supabase/step15-favorite-genres.sql`: `profiles.favorite_genres` (same allowed slugs as books) (batch 2, taste questionnaire)
 - `supabase/step16-feedback.sql`: the `feedback` table (Part C)
+- `supabase/step17-likes.sql`: the `likes` table and `log_like_counts` view (Part D)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -150,7 +153,7 @@ Features after version 1, built one at a time in this order (the owner tests eac
 
 1. Want to read and Currently reading shelves
 2. Password reset ("Forgot password" on the login page)
-3. Likes on reviews, with a like count on each log card
+3. Likes on reviews, with a like count on each log card (done)
 4. Comments on reviews, under the review on the book page
 5. Lists ("Best fantasy", "Books that made me cry"), shown on the profile
 6. Four favourite books pinned at the top of the profile
@@ -215,6 +218,8 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Part A (live search + author pages): built.** Tested: debounce, late answers ignored, sections, no results, keyboard, click outside, phone width, author page (bio cleanup, Read more, Wikipedia, Load more without repeats, no bio, bad id, Open Library down), book page author link, search page Authors.
 - **Part B (day and night mode): built.** Tested: device setting, saved choice wins, toggle, theme-color, script runs before CSS, home/book/profile/settings/search/genres in day mode at 1100 and 375px, header at 320px (tightened below 400px).
 - **Part C (feedback, share/invite, loading placeholders): built.** `step16-feedback.sql` applied; rules checked on the live database in a rolled-back test (admin reads, others see nothing). Tested: send/empty/escaped text, admin list and delete, invite copy, share copy and share sheet, own vs other profile, placeholders in both themes, dialog at 375px. Privacy page updated (feedback, what the browser keeps).
+- **Part D item 1 (likes): built.** `step17-likes.sql` applied (the live database has no logs yet, so the like itself was only tested with stand-ins; the security advisor shows no new warnings). Tested: like, unlike, survives reload, own log not likeable, feed/profile/book, logged out goes to login and back, failed save goes back, 375px. The owner's message was cut off after Part D item 1, so the rest of Part D is still to come.
+- **Connector note:** SQL containing `delete` also times out through the connector, even with a `where` filter.
 - Next: the owner's earlier list: likes on reviews, comments, lists, four favourite books, popular this week page, reading stats, /username links, Google sign in.
 
 ## Waiting on the owner
@@ -228,5 +233,5 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
 - Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
 - Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
-- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), drops anything (policies, functions), or updates every row of a table always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
+- The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), drops anything (policies, functions), deletes anything (even with a `where`), or updates every row of a table always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
 - Security advisor, last check: one remaining warning, "Leaked password protection disabled" (a dashboard setting under Authentication; may need a paid plan).

@@ -530,6 +530,90 @@ function openLibraryToBook(book) {
 
 // ---------- Log cards (feed, book page, profile) ----------
 
+// ---------- Likes (supabase/step17-likes.sql) ----------
+//
+// A heart with a count on every log card. One like per person per log;
+// press again to take it back. Logged out, the heart leads to Log in.
+// You can't like your own log (the heart just shows the count).
+
+function makeLikeButton(log) {
+  const button = el("button", "like-button");
+  button.type = "button";
+  button.dataset.logId = log.id;
+  button.dataset.count = "0";
+  button.setAttribute("aria-pressed", "false");
+  button.appendChild(el("span", "like-heart", "\u2665"));
+  button.appendChild(el("span", "like-count", ""));
+  const isMine = currentUserId && log.user_id === currentUserId;
+  if (isMine) {
+    button.disabled = true;
+    button.title = "Likes on your log";
+  } else {
+    button.title = currentUserId ? "Like" : "Log in to like";
+    button.addEventListener("click", () => toggleLike(button));
+  }
+  updateLikeLabel(button);
+  return button;
+}
+
+function updateLikeLabel(button) {
+  const count = Number(button.dataset.count);
+  const liked = button.getAttribute("aria-pressed") === "true";
+  button.querySelector(".like-count").textContent = count > 0 ? String(count) : "";
+  button.setAttribute("aria-label", (liked ? "Unlike" : "Like") + " (" + count + (count === 1 ? " like)" : " likes)"));
+}
+
+// Fills in the counts (and your own likes) for logs just put on the page.
+async function fillLikes(logIds) {
+  if (!db || logIds.length === 0) return;
+  const [counts, mine] = await Promise.all([
+    db.from("log_like_counts").select("log_id, like_count").in("log_id", logIds),
+    currentUserId
+      ? db.from("likes").select("log_id").eq("user_id", currentUserId).in("log_id", logIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const countFor = {};
+  for (const row of counts.data || []) countFor[row.log_id] = row.like_count;
+  const likedByMe = new Set((mine.data || []).map((row) => row.log_id));
+  for (const id of logIds) {
+    document.querySelectorAll('.like-button[data-log-id="' + id + '"]').forEach(function (button) {
+      button.dataset.count = String(countFor[id] || 0);
+      button.setAttribute("aria-pressed", likedByMe.has(id) ? "true" : "false");
+      updateLikeLabel(button);
+    });
+  }
+}
+
+async function toggleLike(button) {
+  if (!currentUserId) {
+    rememberReturnPage(window.location.href);
+    window.location.href = "login.html";
+    return;
+  }
+  const logId = Number(button.dataset.logId);
+  const wasLiked = button.getAttribute("aria-pressed") === "true";
+  const before = Number(button.dataset.count);
+
+  // Change it on screen straight away; undo if the database says no.
+  button.disabled = true;
+  button.setAttribute("aria-pressed", wasLiked ? "false" : "true");
+  button.dataset.count = String(Math.max(0, before + (wasLiked ? -1 : 1)));
+  updateLikeLabel(button);
+
+  const { error } = wasLiked
+    ? await db.from("likes").delete().eq("user_id", currentUserId).eq("log_id", logId)
+    : await db.from("likes").insert({ log_id: logId });
+  button.disabled = false;
+
+  if (error && error.code !== "23505") { // 23505 = already liked, fine
+    button.setAttribute("aria-pressed", wasLiked ? "true" : "false");
+    button.dataset.count = String(before);
+    updateLikeLabel(button);
+    window.alert(friendlyError(error, "Couldn't save your like. "));
+  }
+}
+
+
 // Turns a date like "2026-10-12" into "12 Oct 2026".
 function formatDate(dateText) {
   if (!dateText) return "";
@@ -584,15 +668,15 @@ function makeLogCard(log, options) {
 
   if (log.review) body.appendChild(el("p", "log-review", log.review));
 
-  // Report button, for reviews by other people (when logged in).
+  // Heart (likes) on every log, and a Report button for reviews by
+  // other people (when logged in).
+  const actions = el("p", "log-actions");
+  actions.appendChild(makeLikeButton(log));
   if (log.review) {
     const report = makeReportButton("log", log.id, log.user_id);
-    if (report) {
-      const actions = el("p", "log-actions");
-      actions.appendChild(report);
-      body.appendChild(actions);
-    }
+    if (report) actions.appendChild(report);
   }
+  body.appendChild(actions);
 
   card.appendChild(body);
   return card;
@@ -606,6 +690,7 @@ function showLogList(container, logs, options, emptyText) {
     return;
   }
   for (const log of logs) container.appendChild(makeLogCard(log, options));
+  fillLikes(logs.map((log) => log.id));
 }
 
 
@@ -646,7 +731,9 @@ async function showPagedLogs(container, makeQuery, options, emptyText) {
       return;
     }
 
-    for (const log of data.slice(0, PAGE_SIZE)) container.appendChild(makeLogCard(log, options));
+    const page = data.slice(0, PAGE_SIZE);
+    for (const log of page) container.appendChild(makeLogCard(log, options));
+    fillLikes(page.map((log) => log.id));
     shown += Math.min(data.length, PAGE_SIZE);
 
     if (data.length > PAGE_SIZE) {
