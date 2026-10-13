@@ -600,8 +600,21 @@ async function loadFeed(profile, followingIds) {
 
 async function loadHome() {
   // Arrived here straight after deleting an account?
-  if (new URLSearchParams(window.location.search).get("deleted")) {
-    document.getElementById("deleted-message").hidden = false;
+  // The goodbye message is shown once: the address is cleaned up straight
+  // away (so reloading or bookmarking the page doesn't bring it back) and
+  // the message goes away by itself after 10 seconds.
+  const arrivedParams = new URLSearchParams(window.location.search);
+  if (arrivedParams.get("deleted")) {
+    const goodbye = document.getElementById("deleted-message");
+    goodbye.hidden = false;
+    setTimeout(function () { goodbye.hidden = true; }, 10000);
+    arrivedParams.delete("deleted");
+    const rest = arrivedParams.toString();
+    try {
+      window.history.replaceState(null, "", window.location.pathname + (rest ? "?" + rest : "") + window.location.hash);
+    } catch (error) {
+      // Not allowed (e.g. a local file): the message just stays until you leave the page.
+    }
   }
 
   const { profile } = await authReady;
