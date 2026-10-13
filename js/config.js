@@ -20,7 +20,7 @@ const SUPABASE_KEY = "sb_publishable_jkAblJfgtqvEBa2hl42_7A_D4Pff0Mm";
 
 // ------------------------------------------------------------
 // Contact email, shown on the About page (the footer's Contact link
-// goes there). Leave it empty ("") until you have an address you're
-// happy to make public, for example a new reddle.contact@gmail.com.
+// goes there). hello@reddle.org forwards to the owner's own inbox
+// through Cloudflare Email Routing. Set it to "" to show "coming soon".
 // ------------------------------------------------------------
-const CONTACT_EMAIL = "";
+const CONTACT_EMAIL = "hello@reddle.org";
