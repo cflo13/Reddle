@@ -27,13 +27,13 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-  <meta name="theme-color" content="#1d1714">
+  <meta name="theme-color" content="#271f1a">
   <!-- Installable app: name, icons and colours (manifest), plus iPhone's own tags -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Reddle">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- The preview shown when a link is shared (WhatsApp, Instagram, iMessage...) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Reddle">
@@ -54,10 +54,10 @@
       var light = saved ? saved === "light" : !!(window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches);
       document.documentElement.setAttribute("data-theme", light ? "light" : "dark");
       var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
+      if (meta) meta.setAttribute("content", light ? "#fbf5e6" : "#271f1a");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=55">
+  <link rel="stylesheet" href="css/style.css?v=56">
 </head>
 <body>
   <header class="site-header">
@@ -104,6 +104,6 @@
   </footer>
 
   <!-- Loads the page for a clean address, or the usual scripts (js/router.js) -->
-  <script src="js/router.js?v=55"></script>
+  <script src="js/router.js?v=56"></script>
 </body>
 </html>

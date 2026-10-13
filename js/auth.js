@@ -928,8 +928,9 @@ function showTheme(theme, fade) {
     showTheme.timer = setTimeout(() => root.classList.remove("theme-fading"), 450);
   }
   root.setAttribute("data-theme", theme);
+  // The phone's status bar matches the header.
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", themeColour("--bg"));
+  if (meta) meta.setAttribute("content", themeColour("--surface"));
   const toggle = document.getElementById("theme-toggle");
   if (toggle) {
     const label = theme === "light" ? "Switch to night mode" : "Switch to day mode";
@@ -979,14 +980,57 @@ if ("serviceWorker" in navigator && window.isSecureContext && window.location.pr
   });
 }
 
-// Already opened as an installed app?
-function isInstalledApp() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+// The footer gets an "Install app" button, and phones get one in the menu
+// and a small card on the home page. Chrome, Edge and Android offer their
+// own install box (installPrompt); everywhere else (iPhone, iPad, other
+// browsers) the button opens a short how-to.
+let installPrompt = null;
+
+function isApple() {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); // iPads say "Mac"
 }
 
-// The footer gets an "Install app" button where the browser allows it
-// (Chrome, Edge, Android), or a short how-to on iPhone and iPad Safari.
-let installPrompt = null;
+// Worth offering? Not inside the app itself, and only on a real web
+// address (installing needs https; localhost is for trying it out).
+function canOfferInstall() {
+  if (isInstalledApp()) return false;
+  return window.location.protocol === "https:" || window.location.hostname === "localhost";
+}
+
+function startInstall() {
+  if (installPrompt) {
+    const prompt = installPrompt;
+    installPrompt = null; // each prompt can only be shown once
+    prompt.prompt();
+    return;
+  }
+  openInstallHelp();
+}
+
+// How to add Reddle to the home screen, for browsers without a button.
+function openInstallHelp() {
+  const { dialog, body } = makeDialog("Put Reddle on your home screen");
+  const steps = el("ol", "install-steps");
+  const lines = isApple()
+    ? ["Tap the Share button (the square with an arrow). In Safari it's at the bottom of the screen on iPhone, at the top on iPad; in Chrome it's at the top.",
+       "Scroll down and tap \u201cAdd to Home Screen\u201d.",
+       "Tap Add. Reddle now opens from its own icon, full screen."]
+    : /Android/.test(navigator.userAgent)
+      ? ["Open your browser's menu (the \u22ee button, usually top right).",
+         "Tap \u201cInstall app\u201d or \u201cAdd to Home screen\u201d.",
+         "Tap Install. Reddle now opens from its own icon, full screen."]
+      : ["In Chrome or Edge, click the install icon at the right end of the address bar (or open the browser menu and choose Install).",
+         "Click Install. Reddle opens in its own window."];
+  lines.forEach((line) => steps.appendChild(el("li", "", line)));
+  body.appendChild(steps);
+  const done = el("button", "button", "Got it");
+  done.type = "button";
+  done.addEventListener("click", () => dialog.close());
+  body.appendChild(done);
+  dialog.addEventListener("close", () => dialog.remove());
+  dialog.showModal();
+}
 
 function installBox() {
   const footer = document.querySelector(".site-footer");
@@ -1000,40 +1044,80 @@ function installBox() {
   return box;
 }
 
-window.addEventListener("beforeinstallprompt", function (event) {
-  event.preventDefault(); // we show our own button instead
-  installPrompt = event;
+function showFooterInstall() {
+  if (!canOfferInstall() || (!installPrompt && !isApple())) return;
   const box = installBox();
-  if (!box) return;
-  box.textContent = "";
+  if (!box || box.firstChild) return;
   const button = el("button", "button button-secondary", "Install app");
   button.type = "button";
-  button.addEventListener("click", async function () {
-    if (!installPrompt) return;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    installPrompt = null;
-    box.remove();
-  });
+  button.addEventListener("click", startInstall);
   box.appendChild(button);
+  box.appendChild(el("span", "", isApple() ? " Adds Reddle to your home screen." : ""));
+}
+
+// Home page on phones: a small card, until it's dismissed (for 60 days)
+// or the app is installed.
+const INSTALL_CARD_KEY = "reddle-install-card-hidden";
+
+function showInstallCard() {
+  const layout = document.querySelector(".page-home .home-layout");
+  if (!layout || document.getElementById("install-card") || !canOfferInstall()) return;
+  if (!window.matchMedia("(max-width: 767px), (max-height: 500px) and (pointer: coarse)").matches) return;
+  if (!installPrompt && !isApple() && !/Android/.test(navigator.userAgent)) return;
+  try {
+    const hiddenAt = Number(localStorage.getItem(INSTALL_CARD_KEY));
+    if (hiddenAt && Date.now() - hiddenAt < 60 * 24 * 3600 * 1000) return;
+  } catch (error) {}
+  const card = el("section", "install-card");
+  card.id = "install-card";
+  const icon = el("img", "install-card-icon");
+  icon.src = "images/icon-192.png";
+  icon.alt = "";
+  icon.width = 48;
+  icon.height = 48;
+  card.appendChild(icon);
+  const words = el("div", "install-card-words");
+  words.appendChild(el("h2", "", "Reddle on your home screen"));
+  words.appendChild(el("p", "", "Opens full screen with one tap, like an app."));
+  const buttons = el("div", "install-card-buttons");
+  const install = el("button", "button", "Install");
+  install.type = "button";
+  install.addEventListener("click", startInstall);
+  const later = el("button", "link-button", "Not now");
+  later.type = "button";
+  later.addEventListener("click", () => {
+    try { localStorage.setItem(INSTALL_CARD_KEY, String(Date.now())); } catch (error) {}
+    card.remove();
+  });
+  buttons.append(install, later);
+  words.appendChild(buttons);
+  card.appendChild(words);
+  layout.before(card);
+}
+
+window.addEventListener("beforeinstallprompt", function (event) {
+  event.preventDefault(); // we show our own buttons instead
+  installPrompt = event;
+  showFooterInstall();
+  showInstallCard();
 });
 
 window.addEventListener("appinstalled", function () {
-  const box = document.getElementById("install-app");
-  if (box) box.remove();
+  installPrompt = null;
+  document.querySelectorAll("#install-app, #install-card").forEach((box) => box.remove());
 });
 
-(function showIphoneHint() {
-  const isApple = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); // iPads say "Mac"
-  if (!isApple || isInstalledApp() || window.location.protocol !== "https:") return;
-  const show = function () {
-    const box = installBox();
-    if (box) box.textContent = "Get the app: tap Share, then \u201cAdd to Home Screen\u201d.";
-  };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", show);
-  else show();
-})();
+function whenPageReady(run) {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run);
+  else run();
+}
+
+whenPageReady(function () {
+  showFooterInstall();
+  showInstallCard();
+  // Inside the installed app: no browser bar, so no bounce at the ends.
+  document.documentElement.classList.toggle("installed-app", isInstalledApp());
+});
 
 
 // ---------- Page-wide problems ----------
@@ -1240,8 +1324,28 @@ function makeNavButton(tag, href, label, icon) {
   return button;
 }
 
+// Inside the installed app iPhones have no browser Back button, so
+// every page but the home page gets one at the left of the header.
+function addAppBackButton() {
+  if (!isInstalledApp() || document.querySelector(".page-home") || document.getElementById("app-back")) return;
+  const logo = document.querySelector(".site-header .logo");
+  if (!logo) return;
+  const back = el("button", "app-back");
+  back.id = "app-back";
+  back.type = "button";
+  back.setAttribute("aria-label", "Back");
+  back.title = "Back";
+  back.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+  back.addEventListener("click", () => {
+    if (window.history.length > 1) window.history.back();
+    else window.location.href = "index.html";
+  });
+  logo.before(back);
+}
+
 async function setupHeader() {
   const nav = document.getElementById("site-nav");
+  addAppBackButton();
 
   // Couldn't connect (no internet, or js/config.js not filled in):
   // say so at the top of the page.
@@ -1445,7 +1549,7 @@ function openPhoneMenu(profile) {
   } else if (!currentUserId) {
     action("Report a bug", () => openFeedbackDialog("bug"));
   }
-  if (installPrompt) action("Install app", () => installPrompt && installPrompt.prompt());
+  if (canOfferInstall()) action("Install app", startInstall);
   divider();
   link("About", "about.html");
   link("Privacy", "privacy.html");

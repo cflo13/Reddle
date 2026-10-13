@@ -24,6 +24,7 @@
   --error: #d27a68;           /* muted brick */
   --on-danger: #1d1714;       /* text on brick buttons */
   --border: #3b3027;          /* very soft lines */
+  --status-bar: #271f1a;      /* behind the clock in the installed iPhone app (white text) */
   --avatar-bg: #5b4a3b;       /* circle behind a missing picture */
   --on-avatar: #eadfcc;
   --want: var(--success);     /* "want to read" outline */
@@ -78,6 +79,7 @@
   --error: #a4473a;
   --on-danger: #fbf5e6;
   --border: #dccdb0;
+  --status-bar: #3a2a20;      /* dark leather, so the iPhone's white clock stays readable */
   --avatar-bg: #b39a7c;
   --on-avatar: #fbf5e6;
   --shadow: rgba(90, 60, 30, 0.14);
@@ -1754,12 +1756,106 @@ body > main {
   }
 }
 
-/* ---------- Install app (footer) ---------- */
+/* ---------- Install app (footer, menu, home page card) ---------- */
 
 .footer-install {
   margin: 0 0 12px;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.install-card {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.install-card-icon {
+  flex: none;
+  border-radius: var(--radius);
+}
+
+.install-card h2 {
+  margin: 0 0 var(--space-1);
+  font-size: 1.1rem;
+}
+
+.install-card p {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+}
+
+.install-card-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.install-steps {
+  margin: 0 0 var(--space-5);
+  padding-left: var(--space-5);
+  line-height: 1.55;
+}
+
+.install-steps li + li {
+  margin-top: var(--space-3);
+}
+
+/* Back button: only inside the installed app (no browser Back there). */
+.app-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--tap);
+  height: var(--tap);
+  margin-left: calc(-1 * var(--space-2));
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.app-back + .logo {
+  margin-left: calc(-1 * var(--space-2));
+}
+
+/* The installed app: no rubber-band bounce or pull-to-refresh at the
+   ends of the page, and no text selection on long-pressed controls. */
+html.installed-app,
+html.installed-app body {
+  overscroll-behavior-y: none;
+}
+
+html.installed-app .bottom-bar,
+html.installed-app .site-header button,
+html.installed-app .tab-button {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iPhone app: the clock sits on top of the page (white text), so a
+   strip in --status-bar stays behind it while the page scrolls.
+   Everywhere else the safe area is 0 and the strip doesn't show. */
+body::before {
+  content: "";
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background: var(--status-bar);
+  pointer-events: none;
 }
 
 /* ---------- Live search suggestions (js/search-suggest.js) ---------- */
