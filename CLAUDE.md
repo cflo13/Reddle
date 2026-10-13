@@ -287,10 +287,12 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 
 ## Waiting on the owner
 
-Only these are left, and each needs the owner's own accounts (Claude only has the Supabase connector):
+Only these are left, and each needs the owner's own accounts (Claude only has the Supabase connector).
 
-- Emails: follow `EMAIL-SETUP.md` (Resend account, its DNS records in Cloudflare, an API key). Then say "the Resend key is ready": Claude calls the connector's secret tool for `RESEND_API_KEY` and `EMAIL_FROM` (`Reddle <notifications@reddle.org>`) and the owner pastes the values into Supabase's own box. Nothing is emailed until then.
-- Google sign in: follow `GOOGLE-SIGNIN.md` (Google Cloud OAuth client with redirect URI `https://trfgztdvecpswcwoakyz.supabase.co/auth/v1/callback`, then the Client ID and secret in Supabase → Authentication → Providers → Google). The site's code needs no change.
+**Postponed by the owner (October 2026): emails and Google sign in are not wanted yet.** Don't ask about them again unprompted; bring them up when they matter, e.g. before the owner invites many people (Supabase's built-in sender only manages a few sign-up/password emails an hour; Resend can also be its SMTP sender), or if people ask for Google sign in. The code for both is already built and waits on these steps:
+
+- Emails (postponed): follow `EMAIL-SETUP.md` (Resend account, its DNS records in Cloudflare, an API key). Then say "the Resend key is ready": Claude calls the connector's secret tool for `RESEND_API_KEY` and `EMAIL_FROM` (`Reddle <notifications@reddle.org>`) and the owner pastes the values into Supabase's own box. Nothing is emailed until then.
+- Google sign in (postponed): follow `GOOGLE-SIGNIN.md` (Google Cloud OAuth client with redirect URI `https://trfgztdvecpswcwoakyz.supabase.co/auth/v1/callback`, then the Client ID and secret in Supabase → Authentication → Providers → Google). The site's code needs no change.
 - Google Search Console: follow `SEARCH-CONSOLE.md` (add reddle.org, verify with a DNS TXT record, submit sitemap.xml).
 - Optional: Supabase → Authentication → "Leaked password protection" (may need a paid plan).
 
