@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=49">
+  <link rel="stylesheet" href="css/style.css?v=50">
 </head>
 <body>
   <header class="site-header">
@@ -61,7 +61,7 @@
     <nav id="site-nav" class="site-nav"></nav>
   </header>
 
-  <main class="page">
+  <main class="page page-home">
     <!-- Only shown when logged out -->
     <section id="welcome" class="welcome" hidden>
       <h1>Track the books you read.</h1>
@@ -77,29 +77,37 @@
 
     <p id="home-status" class="status status-error" hidden></p>
 
-    <!-- Book of the week, chosen on the admin page (js/home.js) -->
-    <div id="pick-spot"></div>
+    <!-- Computers and tablets: books on the left, the community feed on
+         the right. Phones: one column, the feed under the books. -->
+    <div class="home-layout">
+      <div class="home-main">
+        <!-- Book of the week, chosen on the admin page (js/home.js) -->
+        <div id="pick-spot"></div>
 
-    <!-- Rows of books (For you, genres, popular...), built by js/home.js -->
-    <div id="home-rows" class="home-rows"></div>
-
-    <!-- The feed. Loads when you scroll near it. -->
-    <section id="feed-section" class="feed-section">
-      <h2 id="feed-heading" class="visually-hidden">Feed</h2>
-      <!-- This week's question with an answer box (js/home.js) -->
-      <div id="prompt-spot"></div>
-      <!-- "Share a thought" box, logged in only (js/social.js) -->
-      <div id="composer-spot"></div>
-      <!-- Feed tabs: the choice is remembered in this browser -->
-      <div class="feed-tabs" role="tablist" aria-label="Feed">
-        <button type="button" class="feed-tab" role="tab" data-tab="following" aria-selected="false" hidden>Following</button>
-        <button type="button" class="feed-tab" role="tab" data-tab="discover" aria-selected="false">Discover</button>
-        <button type="button" class="feed-tab" role="tab" data-tab="popular" aria-selected="false">Popular<span class="feed-tab-extra"> this week</span></button>
+        <!-- Rows of books (For you, genres, popular...), built by js/home.js -->
+        <div id="home-rows" class="home-rows"></div>
       </div>
-      <p id="feed-note" class="muted feed-note" hidden></p>
-      <!-- Filled in by js/home.js -->
-      <div id="feed" class="log-list" role="tabpanel"><div class="skeleton-group" role="status" aria-label="Loading"><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div></div></div>
-    </section>
+
+      <div class="home-side">
+        <!-- The feed. On phones it loads when you scroll near it. -->
+        <section id="feed-section" class="feed-section">
+          <h2 id="feed-heading" class="visually-hidden">Feed</h2>
+          <!-- This week's question with an answer box (js/home.js) -->
+          <div id="prompt-spot"></div>
+          <!-- "Share a thought" box, logged in only (js/social.js) -->
+          <div id="composer-spot"></div>
+          <!-- Feed tabs: the choice is remembered in this browser -->
+          <div class="feed-tabs" role="tablist" aria-label="Feed">
+            <button type="button" class="feed-tab" role="tab" data-tab="following" aria-selected="false" hidden>Following</button>
+            <button type="button" class="feed-tab" role="tab" data-tab="discover" aria-selected="false">Discover</button>
+            <button type="button" class="feed-tab" role="tab" data-tab="popular" aria-selected="false">Popular<span class="feed-tab-extra"> this week</span></button>
+          </div>
+          <p id="feed-note" class="muted feed-note" hidden></p>
+          <!-- Filled in by js/home.js -->
+          <div id="feed" class="log-list" role="tabpanel"><div class="skeleton-group" role="status" aria-label="Loading"><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div></div></div>
+        </section>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer">
@@ -116,20 +124,20 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=49"></script>
+  <script src="js/config.js?v=50"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=49"></script>
+  <script src="js/supabase-client.js?v=50"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=49"></script>
+  <script src="js/auth.js?v=50"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=49"></script>
+  <script src="js/search-suggest.js?v=50"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=49"></script>
+  <script src="js/books.js?v=50"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=49"></script>
+  <script src="js/share-card.js?v=50"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=49"></script>
+  <script src="js/social.js?v=50"></script>
   <!-- This page's own code -->
-  <script src="js/home.js?v=49"></script>
+  <script src="js/home.js?v=50"></script>
 </body>
 </html>

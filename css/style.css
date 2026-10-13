@@ -3041,3 +3041,58 @@ body > main {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+
+/* ------------------------------------------------------------
+   Home page on computers and tablets (768px and wider): the book
+   rows on the left, the community feed (question, Share a thought,
+   tabs, posts) in a column on the right, so the page uses the width.
+   Phones keep one column with the feed under the books.
+   ------------------------------------------------------------ */
+
+/* The feed column can be narrow, so the tabs size themselves to it. */
+.feed-section {
+  container-type: inline-size;
+}
+
+@container (max-width: 420px) {
+  .feed-tab {
+    padding: 8px 10px;
+  }
+  .feed-tab-extra {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .page-home {
+    max-width: 1280px;
+  }
+
+  .home-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .home-side .feed-section {
+    margin-top: 0;
+  }
+}
+
+/* Tablets: a slimmer feed column and a smaller gap. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--space-5);
+  }
+}
+
+/* Small laptops: a middle-sized feed column. */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: var(--space-6);
+  }
+}
