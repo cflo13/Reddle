@@ -291,7 +291,7 @@ async function forYouCandidates(profile, followingIds, myBooks, genres) {
   if (followingIds.length > 0) {
     const { data } = await db
       .from("logs")
-      .select("rating, profiles(username), books(id, external_id, title, author, cover_url)")
+      .select("rating, profiles!logs_user_id_fkey(username), books(id, external_id, title, author, cover_url)")
       .in("user_id", followingIds)
       .gte("rating", 4)
       .order("rating", { ascending: false })

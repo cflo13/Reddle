@@ -16,7 +16,7 @@ const REPORT_FIELDS =
   "id, reason, created_at, log_id, reported_user_id, " +
   "reporter:profiles!reports_reporter_id_fkey(username), " +
   "reported:profiles!reports_reported_user_id_fkey(id, username, bio, avatar_url), " +
-  "logs(id, rating, review, user_id, profiles(id, username), books(external_id, title))";
+  "logs(id, rating, review, user_id, profiles!logs_user_id_fkey(id, username), books(external_id, title))";
 
 function userLink(username) {
   const link = el("a", "", "@" + username);

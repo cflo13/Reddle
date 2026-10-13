@@ -391,7 +391,7 @@ async function fetchPopularThisWeek(limit) {
 async function fetchRecentlyLoggedBooks(limit) {
   const { data, error } = await db
     .from("logs")
-    .select("created_at, profiles(username), books(id, external_id, title, author, cover_url)")
+    .select("created_at, profiles!logs_user_id_fkey(username), books(id, external_id, title, author, cover_url)")
     .order("created_at", { ascending: false })
     .limit(limit * 4);
   if (error) throw error;
@@ -693,7 +693,7 @@ function formatDate(dateText) {
 // wrote it and the book (Supabase joins them in for us).
 const LOG_FIELDS =
   "id, rating, review, spoiler, reread_count, reread_dates, date_read, created_at, user_id, book_id, " +
-  "profiles(username, avatar_url), " +
+  "profiles!logs_user_id_fkey(username, avatar_url), " +
   "books(external_id, title, author, cover_url)";
 
 // "Read 3 times" (a reread count of 2 means three reads in total).

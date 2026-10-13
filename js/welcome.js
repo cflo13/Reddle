@@ -214,7 +214,7 @@ let peopleShown = false;
 async function findActiveReaders(myId) {
   const { data: recent, error } = await db
     .from("logs")
-    .select("user_id, profiles(id, username, avatar_url, bio, is_private)")
+    .select("user_id, profiles!logs_user_id_fkey(id, username, avatar_url, bio, is_private)")
     .neq("user_id", myId)
     .order("created_at", { ascending: false })
     .limit(200);
