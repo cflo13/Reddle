@@ -128,7 +128,7 @@ function showYear(stats) {
     return;
   }
   heading.textContent = "@" + person.username + "’s " + year + " in books";
-  document.title = "@" + person.username + "’s " + year + " in books · Reddle";
+  setPageInfo("@" + person.username + "\u2019s " + year + " in books \u00b7 Reddle", "@" + person.username + "\u2019s year of reading in " + year + ": books, pages, favourite genres and highest rated.");
   document.getElementById("year-profile").href = profileLink(person.username);
   document.getElementById("year-profile").textContent = "← @" + person.username;
   document.getElementById("year-diary").href = diaryLink(person.username);

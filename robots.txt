@@ -1,0 +1,12 @@
+# Search engines may read the whole site, except these private pages.
+User-agent: *
+Disallow: /settings.html
+Disallow: /admin.html
+Disallow: /forgot-password.html
+Disallow: /reset-password.html
+Disallow: /choose-username.html
+Disallow: /welcome.html
+Disallow: /notifications.html
+Disallow: /unsubscribe.html
+
+Sitemap: https://reddle.org/sitemap.xml

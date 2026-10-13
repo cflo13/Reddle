@@ -98,7 +98,7 @@ async function loadDiaryPage() {
   }
   diaryPerson = person;
   heading.textContent = "@" + person.username + "’s diary";
-  document.title = "@" + person.username + "’s diary · Reddle";
+  setPageInfo("@" + person.username + "\u2019s diary \u00b7 Reddle", "Every book @" + person.username + " has read, by date, on Reddle.");
   const back = document.getElementById("diary-profile");
   back.href = profileLink(person.username);
   back.textContent = "← @" + person.username;

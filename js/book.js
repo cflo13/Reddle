@@ -38,9 +38,48 @@ async function linkAuthorName(externalId, name) {
   line.appendChild(link);
 }
 
+// Structured data for search engines (schema.org "Book"), so they know
+// the title, author, ISBN, cover and rating. Put in with textContent of
+// JSON, so no book text can turn into page code.
+function addBookStructuredData(book, ratings) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: book.title,
+    // book.html?id=: GitHub Pages answers clean addresses with a "not
+    // found" code, which search engines skip.
+    url: fullAddress("book.html?id=" + encodeURIComponent(book.external_id)),
+  };
+  if (book.author) data.author = { "@type": "Person", name: book.author };
+  if (book.isbn) data.isbn = book.isbn;
+  if (book.cover_url) data.image = book.cover_url;
+  if (book.description) data.description = book.description.slice(0, 1000);
+  if (book.page_count) data.numberOfPages = book.page_count;
+  if (ratings && ratings.length > 0) {
+    data.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: (ratings.reduce((total, rating) => total + rating, 0) / ratings.length).toFixed(1),
+      ratingCount: ratings.length,
+      bestRating: 5,
+      worstRating: 0.5,
+    };
+  }
+  let tag = document.getElementById("book-structured-data");
+  if (!tag) {
+    tag = document.createElement("script");
+    tag.type = "application/ld+json";
+    tag.id = "book-structured-data";
+    document.head.appendChild(tag);
+  }
+  tag.textContent = JSON.stringify(data);
+}
+
 function showBook(book) {
   shownBook = book;
-  document.title = book.title + " · Reddle";
+  setPageInfo(
+    book.title + (book.author ? " by " + book.author : "") + " \u00b7 Reddle",
+    book.description || "Ratings and reviews of " + book.title + (book.author ? " by " + book.author : "") + " on Reddle."
+  );
 
   const coverSpot = document.getElementById("book-cover");
   coverSpot.textContent = "";
@@ -80,6 +119,7 @@ async function loadLogs() {
     showLogList(list, [], {}, emptyText);
     average.textContent = "";
     document.getElementById("rating-chart-spot").textContent = "";
+    addBookStructuredData(shownBook, []);
     myLog = null;
     return;
   }
@@ -120,6 +160,7 @@ async function loadLogs() {
   } else {
     average.textContent = "";
   }
+  addBookStructuredData(shownBook, ratings);
 
   // Your own log (if any) fills in the form.
   myLog = myLogResult.data || null;

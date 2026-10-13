@@ -63,7 +63,8 @@ async function loadOpenLibraryBooks() {
     return;
   }
   document.getElementById("genre-name").textContent = genre.name;
-  document.title = genre.name + " books · Reddle";
+  setPageInfo(genre.name + " books \u00b7 Reddle",
+    "The most popular " + genre.name.toLowerCase() + " books on Reddle and Open Library, with ratings and reviews from readers.");
   moreButton.addEventListener("click", loadOpenLibraryBooks);
 
   await authReady;

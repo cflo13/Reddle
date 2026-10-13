@@ -38,7 +38,8 @@ function showProfile(profile) {
     bio.classList.add("muted");
   }
 
-  document.title = "@" + profile.username + " · Reddle";
+  setPageInfo("@" + profile.username + " \u00b7 Reddle",
+    profile.bio || "@" + profile.username + " on Reddle: the books they read, their ratings and reviews.");
   loadingArea.hidden = true;
   profileArea.hidden = false;
 }

@@ -71,7 +71,8 @@ async function fetchAuthorRecord(id) {
 
 function showAuthor(record) {
   authorName = record.name || record.personal_name || "Unknown author";
-  document.title = authorName + " · Reddle";
+  setPageInfo(authorName + " \u00b7 Books and reviews \u00b7 Reddle",
+    cleanBio(record.bio) || "Books by " + authorName + ", with ratings and reviews from Reddle readers.");
   document.getElementById("author-name").textContent = authorName;
   document.getElementById("author-years").textContent = yearsText(record.birth_date, record.death_date);
 

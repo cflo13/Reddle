@@ -255,6 +255,22 @@ function pageParam(name) {
   return at >= 0 && parts[at + 1] ? decodeURIComponent(parts[at + 1]) : null;
 }
 
+// Sets the tab title and the page description (also the share-preview
+// copies, for apps and search engines that run the page's code).
+// `description` is shortened to about 155 characters.
+function setPageInfo(title, description) {
+  document.title = title;
+  const set = function (selector, value) {
+    const tag = document.querySelector(selector);
+    if (tag && value) tag.setAttribute("content", value);
+  };
+  let text = String(description || "").replace(/\s+/g, " ").trim();
+  if (text.length > 155) text = text.slice(0, 152).replace(/\s+\S*$/, "") + "\u2026";
+  set('meta[property="og:title"]', title);
+  set('meta[name="description"]', text);
+  set('meta[property="og:description"]', text);
+}
+
 // Opened with an old-style link? Show the clean address instead, without
 // reloading. `cleanLink` is relative, like "u/maria".
 function useCleanAddress(cleanLink) {
