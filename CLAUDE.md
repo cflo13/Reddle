@@ -295,7 +295,7 @@ Only these are left, and each needs the owner's own accounts (Claude only has th
 - Google Search Console: follow `SEARCH-CONSOLE.md` (add reddle.org, verify with a DNS TXT record, submit sitemap.xml).
 - Optional: Supabase → Authentication → "Leaked password protection" (may need a paid plan).
 
-Done by the owner: Google sign in (October 2026, following `GOOGLE-SIGNIN.md`; Supabase's `/auth/v1/settings` confirms the Google provider is on; no Google sign-in had happened yet when checked, so the first real one is still to be tried), the custom domain (DNS, GitHub verification, Supabase URLs) and `step9` / `step11` (checked on the live database: `delete_my_account` and `admin_delete_user` exist, so Delete account and Remove user work).
+Done by the owner: Google sign in (October 2026, following `GOOGLE-SIGNIN.md`; Supabase's `/auth/v1/settings` confirms the Google provider is on; the owner tested it on the live site and it works), the custom domain (DNS, GitHub verification, Supabase URLs) and `step9` / `step11` (checked on the live database: `delete_my_account` and `admin_delete_user` exist, so Delete account and Remove user work).
 
 ## Notes for later steps
 
