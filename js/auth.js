@@ -1089,13 +1089,55 @@ async function checkAdmin(userId) {
 // Sends a report about a review (kind "log", id = log id) or a profile
 // (kind "user", id = user id). Asks for a reason first, then changes the
 // button to "Reported". Only for logged-in people.
+// Asks why something is being reported, in a pop-up (a sheet from the
+// bottom on phones). Resolves with the reason ("" when they skip it) or
+// null when they close it without sending.
+function askReportReason(what) {
+  return new Promise(function (resolve) {
+    const { dialog, body } = makeDialog("Report this " + what);
+    let answer = null;
+    const form = el("form", "form report-form");
+    form.appendChild(el("p", "muted", "Only the site owner sees reports. Why are you reporting it? (optional)"));
+    const reasons = el("div", "feedback-kinds");
+    const box = el("textarea", "");
+    box.rows = 3;
+    box.maxLength = 500;
+    box.setAttribute("aria-label", "Reason");
+    for (const reason of ["Spam", "Harassment", "Spoilers", "Offensive"]) {
+      const chip = el("button", "genre-choice", reason);
+      chip.type = "button";
+      chip.addEventListener("click", () => {
+        box.value = reason;
+        reasons.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b === chip ? "true" : "false"));
+      });
+      reasons.appendChild(chip);
+    }
+    const buttons = el("div", "form-buttons");
+    const send = el("button", "button", "Send report");
+    send.type = "submit";
+    const cancel = el("button", "button button-secondary", "Cancel");
+    cancel.type = "button";
+    cancel.addEventListener("click", () => dialog.close());
+    buttons.append(send, cancel);
+    form.append(reasons, box, buttons);
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      answer = box.value.trim().slice(0, 500);
+      dialog.close();
+    });
+    body.appendChild(form);
+    dialog.addEventListener("close", () => {
+      dialog.remove();
+      resolve(answer);
+    });
+    dialog.showModal();
+  });
+}
+
 async function sendReport(kind, id, button) {
   const what = kind === "log" ? "review" : "profile";
-  const reason = window.prompt(
-    "Why are you reporting this " + what + "? (optional)\n" +
-      "For example: spam, harassment, spoilers, offensive."
-  );
-  if (reason === null) return; // they pressed Cancel
+  const reason = await askReportReason(what);
+  if (reason === null) return; // they closed it
 
   button.disabled = true;
   const report = { reason: reason.trim().slice(0, 500) || null };
@@ -1449,6 +1491,19 @@ function setUpPhoneMenu(profile, loggedIn) {
       if (!typing(document.activeElement)) document.documentElement.classList.remove("keyboard-open");
     }, 100);
   });
+})();
+
+// How much of the screen the on-screen keyboard covers, as a CSS
+// variable, so pop-up sheets can sit just above it.
+(function trackKeyboardHeight() {
+  const viewport = window.visualViewport;
+  if (!viewport) return;
+  const update = () => {
+    const covered = Math.max(0, Math.round(window.innerHeight - viewport.height - viewport.offsetTop));
+    document.documentElement.style.setProperty("--keyboard-offset", covered + "px");
+  };
+  viewport.addEventListener("resize", update);
+  viewport.addEventListener("scroll", update);
 })();
 
 // Text boxes (reviews, comments, posts, feedback) grow as you type, up

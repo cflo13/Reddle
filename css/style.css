@@ -3519,3 +3519,75 @@ body > main {
     color: var(--muted);
   }
 }
+
+
+/* ------------------------------------------------------------
+   Phones: pop-ups (menu, feedback, report, invite) open as a sheet
+   from the bottom. Close with the X, by tapping outside, or Escape.
+   --keyboard-offset (js/auth.js) lifts it above the keyboard.
+   ------------------------------------------------------------ */
+
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  .dialog[open] {
+    position: fixed;
+    top: auto;
+    bottom: var(--keyboard-offset, 0px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    max-height: min(88vh, calc(100dvh - var(--keyboard-offset, 0px) - 24px));
+    margin: 0;
+    border-radius: var(--radius-large) var(--radius-large) 0 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    animation: sheet-up 0.22s ease-out;
+  }
+
+  .dialog-box {
+    padding: var(--space-2) max(var(--space-4), env(safe-area-inset-right)) calc(var(--space-5) + env(safe-area-inset-bottom)) max(var(--space-4), env(safe-area-inset-left));
+  }
+
+  /* A small handle at the top, so it reads as a sheet. */
+  .dialog-box::before {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 0 auto var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--border);
+  }
+
+  .dialog-head {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--surface);
+  }
+
+  .dialog-close {
+    min-width: var(--tap);
+    min-height: var(--tap);
+    justify-content: center;
+  }
+
+  .form-buttons {
+    flex-wrap: wrap;
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] {
+    animation: none;
+  }
+}

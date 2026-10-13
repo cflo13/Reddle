@@ -56,9 +56,7 @@ function makeLinkButton(text, onClick, className) {
 // ---------- Reports for posts and comments ----------
 
 async function sendContentReport(kind, id, button) {
-  const reason = window.prompt(
-    "Why are you reporting this " + kind + "? (optional)\nFor example: spam, harassment, spoilers, offensive."
-  );
+  const reason = await askReportReason(kind); // js/auth.js
   if (reason === null) return;
   button.disabled = true;
   const report = { reporter_id: currentUserId, reason: reason.trim().slice(0, 500) || null };
