@@ -1,5 +1,6 @@
 // Search page: search.html?q=WORDS
-// Finds books on Open Library, and people on Reddle whose username matches.
+// Finds people on Reddle whose username matches, authors and books on
+// Open Library.
 
 const searchInput = document.getElementById("search-input");
 const peopleSection = document.getElementById("people-results");
@@ -39,6 +40,28 @@ async function searchPeople(query) {
   peopleSection.appendChild(list);
 }
 
+// ---------- Authors ----------
+
+async function searchAuthorsSection(query) {
+  const section = document.getElementById("author-results");
+  section.textContent = "";
+  const authors = await searchAuthors(query, 6);
+  if (authors.length === 0) return;
+  section.appendChild(el("h2", "", "Authors"));
+  const list = el("div", "people-list");
+  for (const author of authors) {
+    const link = el("a", "person");
+    link.href = authorLink(author.id);
+    link.appendChild(makeAuthorAvatar(author.name, authorPhotoUrl(author.id, "S"), "avatar-small"));
+    const text = el("span", "");
+    text.appendChild(el("span", "", author.name));
+    if (author.years) text.appendChild(el("span", "muted person-detail", " " + author.years));
+    link.appendChild(text);
+    list.appendChild(link);
+  }
+  section.appendChild(list);
+}
+
 // ---------- Books ----------
 
 function makeBookResult(book) {
@@ -62,6 +85,7 @@ async function runSearch(query) {
 
   // Search people and books at the same time.
   const peopleDone = searchPeople(query).catch(function () {});
+  const authorsDone = searchAuthorsSection(query).catch(function () {}); // books show the error
 
   try {
     const books = await searchBooks(query);
@@ -71,7 +95,7 @@ async function runSearch(query) {
   } catch (error) {
     showSearchStatus(friendlyError(error, "Search didn't work. "));
   }
-  await peopleDone;
+  await Promise.all([peopleDone, authorsDone]);
 }
 
 // ---------- Start ----------

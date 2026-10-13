@@ -10,9 +10,9 @@
       var root = location.hostname.endsWith("github.io") && parts.length ? "/" + parts[0] + "/" : "/";
       window.SITE_ROOT = root;
       document.write('<base href="' + root + '">');
-      // Clean addresses: u/NAME is a profile, book/ID is a book.
+      // Clean addresses: u/NAME is a profile, book/ID a book, author/ID an author.
       var rest = location.pathname.slice(root.length).split("/");
-      var pages = { u: "profile.html", book: "book.html" };
+      var pages = { u: "profile.html", book: "book.html", author: "author.html" };
       if (pages[rest[0]] && rest[1]) {
         window.CLEAN_ROUTE = pages[rest[0]];
         document.write("<style>body { visibility: hidden; }</style>");
@@ -45,7 +45,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Reddle: track the books you read">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=32">
+  <link rel="stylesheet" href="css/style.css?v=33">
 </head>
 <body>
   <header class="site-header">
@@ -82,6 +82,6 @@
   </footer>
 
   <!-- Loads the page for a clean address, or the usual scripts (js/router.js) -->
-  <script src="js/router.js?v=32"></script>
+  <script src="js/router.js?v=33"></script>
 </body>
 </html>

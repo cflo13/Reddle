@@ -23,6 +23,21 @@ function showBookNotFound(text) {
   document.getElementById("not-found").hidden = false;
 }
 
+// Turns "by Ursula K. Le Guin" into a link to the author page. We only
+// save the author's name, so ask Open Library which author it is (in the
+// background; if it fails, the name just stays plain text).
+async function linkAuthorName(externalId, name) {
+  const work = await fetchJson(OPEN_LIBRARY + "/works/" + externalId + ".json");
+  const first = work && work.authors && work.authors[0] && work.authors[0].author;
+  const id = first ? authorIdFromKey(first.key) : "";
+  if (!isValidAuthorId(id)) return;
+  const line = document.getElementById("book-author");
+  const link = el("a", "", name);
+  link.href = authorLink(id);
+  line.textContent = "by ";
+  line.appendChild(link);
+}
+
 function showBook(book) {
   shownBook = book;
   document.title = book.title + " · Reddle";
@@ -33,6 +48,7 @@ function showBook(book) {
 
   document.getElementById("book-title").textContent = book.title;
   document.getElementById("book-author").textContent = book.author ? "by " + book.author : "";
+  if (book.author) linkAuthorName(book.external_id, book.author);
   document.getElementById("book-isbn").textContent = book.isbn ? "ISBN " + book.isbn : "";
 
   const genres = document.getElementById("book-genres");

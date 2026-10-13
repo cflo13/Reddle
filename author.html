@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <base href="./">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Author · Reddle</title>
+  <meta name="description" content="An author on Reddle: their books, and what readers think of them.">
+  <!-- Icon in the browser tab and on phone home screens -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="images/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <meta name="theme-color" content="#14181c">
+  <!-- Installable app: name, icons and colours (manifest), plus iPhone's own tags -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Reddle">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <!-- The preview shown when a link is shared (WhatsApp, Instagram, iMessage...) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Reddle">
+  <meta property="og:title" content="Author · Reddle">
+  <meta property="og:description" content="An author on Reddle: their books, and what readers think of them.">
+  <meta property="og:url" content="https://reddle.org/author.html">
+  <meta property="og:image" content="https://reddle.org/images/share.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Reddle: track the books you read">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="css/style.css?v=33">
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Reddle</a>
+    <!-- Search box: goes to search.html?q=... -->
+    <form class="header-search" action="search.html" role="search">
+      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+    </form>
+    <!-- Links for everyone -->
+    <a class="header-link" href="genres.html">Genres</a>
+    <a class="header-link" href="popular.html">Popular</a>
+    <!-- Filled in by js/auth.js: log in links, or your Profile / Settings / Log out buttons -->
+    <nav id="site-nav" class="site-nav"></nav>
+  </header>
+
+  <main class="page">
+    <p id="loading" class="muted">Loading author...</p>
+
+    <!-- Shown when the author can't be found or Open Library is down -->
+    <section id="not-found" class="empty-state" hidden>
+      <h1>Hmm.</h1>
+      <p id="not-found-text">We couldn't find that author.</p>
+      <p><a href="search.html">Search for books and authors</a></p>
+    </section>
+
+    <!-- The author, filled in by js/author.js -->
+    <section id="author" hidden>
+      <div class="profile-top">
+        <div id="author-photo"></div>
+        <div>
+          <h1 id="author-name" class="profile-username"></h1>
+          <p id="author-years" class="muted"></p>
+          <p id="author-wikipedia" hidden><a id="author-wikipedia-link" href="#" rel="noopener" target="_blank">Wikipedia</a></p>
+        </div>
+      </div>
+
+      <!-- Hidden when Open Library has no bio -->
+      <section id="author-bio-section" hidden>
+        <h2>About</h2>
+        <p id="author-bio" class="author-bio clamped"></p>
+        <button id="author-bio-more" type="button" class="link-button read-more" hidden>Read more</button>
+      </section>
+
+      <h2>Books by this author</h2>
+      <div id="author-books" class="tile-grid"><p class="muted">Loading...</p></div>
+      <p class="center"><button id="more-author-books" type="button" class="button button-secondary" hidden>Load more</button></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <nav class="footer-links" aria-label="About Reddle">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="about.html#contact">Contact</a>
+    </nav>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+  </footer>
+
+  <!-- 1. Supabase library from a CDN (nothing to install) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <!-- 2. Our project URL and key -->
+  <script src="js/config.js?v=33"></script>
+  <!-- 3. Shared connection, available as `db` -->
+  <script src="js/supabase-client.js?v=33"></script>
+  <!-- 4. Login helpers, the header menu and shared helpers -->
+  <script src="js/auth.js?v=33"></script>
+  <!-- 5. Live suggestions under the header search box -->
+  <script src="js/search-suggest.js?v=33"></script>
+  <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
+  <script src="js/books.js?v=33"></script>
+  <!-- This page's own code -->
+  <script src="js/author.js?v=33"></script>
+</body>
+</html>

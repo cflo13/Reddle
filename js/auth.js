@@ -248,7 +248,8 @@ function pageParam(name) {
   const fromQuery = new URLSearchParams(window.location.search).get(name);
   if (fromQuery) return fromQuery;
   const parts = window.location.pathname.split("/");
-  const at = parts.lastIndexOf(name === "id" ? "book" : "u");
+  // id: book/OL45804W, u: u/maria, a: author/OL23919A
+  const at = parts.lastIndexOf({ id: "book", u: "u", a: "author" }[name]);
   return at >= 0 && parts[at + 1] ? decodeURIComponent(parts[at + 1]) : null;
 }
 
@@ -318,6 +319,20 @@ function profileLink(username) {
   return cleanAddresses
     ? "u/" + encodeURIComponent(username)
     : "profile.html?u=" + encodeURIComponent(username);
+}
+
+// Link to a book page: book/OL45804W (or book.html?id= as a local file).
+function bookLink(externalId) {
+  return cleanAddresses
+    ? "book/" + encodeURIComponent(externalId)
+    : "book.html?id=" + encodeURIComponent(externalId);
+}
+
+// Link to an author page: author/OL23919A (or author.html?a= as a local file).
+function authorLink(authorId) {
+  return cleanAddresses
+    ? "author/" + encodeURIComponent(authorId)
+    : "author.html?a=" + encodeURIComponent(authorId);
 }
 
 

@@ -428,11 +428,9 @@ async function saveBookIfNeeded(book) {
   throw error;
 }
 
-function bookLink(externalId) {
-  return cleanAddresses
-    ? "book/" + encodeURIComponent(externalId)
-    : "book.html?id=" + encodeURIComponent(externalId);
-}
+// bookLink() (the link to a book page) lives in js/auth.js, next to
+// profileLink() and authorLink(), because the header search uses it on
+// every page.
 
 
 // ---------- Stars ----------

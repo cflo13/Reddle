@@ -6,6 +6,7 @@
 // site's main folder (SITE_ROOT) and whether the address is a clean one:
 //   u/USERNAME   -> profile page
 //   book/OL...W  -> book page
+//   author/OL...A -> author page
 // If it is, this file loads that page's HTML and swaps it in, so the
 // address stays clean. Otherwise it's a real "Page not found", and this
 // file loads the usual scripts so the header works.
@@ -58,5 +59,6 @@ async function showCleanRoute(fileName) {
     "js/config.js" + v,
     "js/supabase-client.js" + v,
     "js/auth.js" + v,
+    "js/search-suggest.js" + v,
   ]);
 })();

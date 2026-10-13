@@ -8,6 +8,7 @@
   --accent: #40bcf4;
   --ok: #00c030;
   --error: #ff6b6b;
+  --border: #39424c;
   --radius: 8px;
 }
 
@@ -1431,4 +1432,121 @@ body > main {
   margin: 0 0 12px;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+/* ---------- Live search suggestions (js/search-suggest.js) ---------- */
+
+.suggest-box {
+  position: absolute; /* placed under the search bar by the script */
+  z-index: 50;
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.suggest-heading {
+  margin: 8px 10px 4px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.suggest-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px; /* easy to tap on phones */
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.suggest-option:hover,
+.suggest-option[aria-selected="true"] {
+  background: var(--bg);
+}
+
+.suggest-option[aria-selected="true"] {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.suggest-cover {
+  flex-shrink: 0;
+  width: 28px;
+  height: 42px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.suggest-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.suggest-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.suggest-main,
+.suggest-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggest-detail {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.suggest-message {
+  margin: 0;
+  padding: 12px 10px;
+  color: var(--muted);
+}
+
+.suggest-see-all {
+  justify-content: center;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- Author page ---------- */
+
+.author-bio {
+  margin: 0;
+  white-space: pre-line; /* keep paragraph breaks */
+}
+
+/* First 4 lines only, until "Read more" is pressed */
+.author-bio.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.read-more {
+  margin-top: 6px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.person-detail {
+  font-size: 0.85rem;
 }
