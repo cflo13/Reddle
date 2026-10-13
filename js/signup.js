@@ -17,9 +17,14 @@ function showSignupMessage(kind, text) {
 usernameInput.addEventListener("input", function () {
   usernameInput.value = usernameInput.value.toLowerCase().trim();
   const problem = checkUsernameFormat(usernameInput.value);
-  usernameHint.textContent = problem || "Your profile link: " + profileLink(usernameInput.value);
+  usernameHint.textContent = problem || "Your profile link: " + shortAddress(profileLink(usernameInput.value));
   usernameHint.classList.toggle("hint-error", problem !== "");
 });
+
+// "reddle.org/u/maria" (the full address without https://)
+function shortAddress(link) {
+  return pageAddress(link).replace(/^https?:\/\//, "");
+}
 
 signupForm.addEventListener("submit", async function (event) {
   event.preventDefault(); // stop the browser reloading the page
@@ -62,9 +67,13 @@ signupForm.addEventListener("submit", async function (event) {
       // when they log in.
       showSignupMessage(
         "ok",
-        "Almost done! Check your email and click the confirmation link, then log in."
+        "Almost done! We sent a link to " + email + ". Click it to confirm your account, then log in. (Check your spam folder if it isn't there in a minute.)"
       );
+      // The form is done: hide it so it doesn't look like you have to fill it in again.
       signupForm.reset();
+      signupForm.hidden = true;
+      document.querySelector(".divider").hidden = true;
+      document.getElementById("google-button").hidden = true;
       signupMessage.after(makeResendButton(email, signupMessage));
       return;
     }

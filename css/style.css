@@ -908,7 +908,25 @@ input[type="checkbox"] {
     padding: 12px 16px;
   }
 
-  /* Row 1: logo and your account. Row 2: search box, Genres and Popular. */
+  /* Row 1: logo and your account. Row 2: search box, Genres and Popular.
+     The empty full-width item below always starts row 2, even when row 1
+     has room (e.g. only a Log out button on the choose-username page). */
+  .site-header {
+    row-gap: 0;
+  }
+
+  .site-header::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .header-search,
+  .header-link {
+    margin-top: 12px;
+  }
+
   .header-search {
     order: 3;
     flex: 1 1 120px;
@@ -1902,7 +1920,7 @@ body > main {
    day/night switch and your buttons stay on one row. */
 @media (max-width: 400px) {
   .site-header {
-    gap: 8px;
+    column-gap: 8px;
     padding: 12px;
   }
 
@@ -2041,6 +2059,14 @@ body > main {
   gap: 8px;
   font-weight: normal;
   cursor: pointer;
+}
+
+.check-row input {
+  flex-shrink: 0; /* long labels don't squash the tick box */
+}
+
+#rating-label {
+  white-space: nowrap; /* "4 out of 5" stays on one line */
 }
 
 /* ---------- Rating breakdown (book page) ---------- */
@@ -2459,7 +2485,7 @@ body > main {
    admin's extra button fits on the first row. */
 @media (max-width: 360px) {
   .site-header {
-    gap: 6px;
+    column-gap: 6px;
   }
 
   .logo {

@@ -776,7 +776,10 @@ function makeLogCard(log, options) {
   let thread = null;
   if (log.review && typeof makeCommentArea === "function") {
     const comments = makeCommentArea("log", log.id);
-    actions.appendChild(comments.button);
+    // Right after the heart, like on post cards (Report stays last).
+    const heart = actions.querySelector(".like-button");
+    if (heart) heart.after(comments.button);
+    else actions.appendChild(comments.button);
     thread = comments.thread;
   }
   body.appendChild(actions);

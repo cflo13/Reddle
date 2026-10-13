@@ -982,8 +982,11 @@ async function setupHeader() {
     if (!isOnPage("choose-username.html")) {
       window.location.href = "choose-username.html";
     }
-    nav.innerHTML = '<button type="button" class="link-button">Log out</button>';
-    nav.querySelector("button").addEventListener("click", logOut);
+    const logOutButton = makeNavButton("button", null, "Log out", ICON_LOG_OUT);
+    logOutButton.classList.add("nav-log-out");
+    logOutButton.addEventListener("click", logOut);
+    nav.textContent = "";
+    nav.append(logOutButton);
     return { user: user, profile: null };
   }
 

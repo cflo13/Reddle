@@ -9,5 +9,5 @@ if (CONTACT_EMAIL) {
   contactText.appendChild(link);
   contactText.appendChild(document.createTextNode("."));
 } else {
-  contactText.textContent = "A contact email is coming soon.";
+  contactText.textContent = "Use the Feedback link at the bottom of any page (once you are logged in).";
 }

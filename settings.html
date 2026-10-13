@@ -41,7 +41,7 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=48">
+  <link rel="stylesheet" href="css/style.css?v=49">
 </head>
 <body>
   <header class="site-header">
@@ -116,18 +116,18 @@
         <p id="private-message" class="status" hidden></p>
       </section>
 
-      <section class="card">
+      <section id="email-section" class="card" hidden>
         <h2>Email notifications</h2>
         <p class="hint">Reddle can email you when something happens. Every email has an unsubscribe link.</p>
         <label class="check-row"><input class="email-pref" data-pref="new_followers" type="checkbox" checked> Someone follows me</label>
         <label class="check-row"><input class="email-pref" data-pref="follow_requests" type="checkbox" checked> Someone asks to follow me (private profiles)</label>
-        <label class="check-row"><input class="email-pref" data-pref="comments" type="checkbox" checked> Someone comments on my review (when comments arrive)</label>
+        <label class="check-row"><input class="email-pref" data-pref="comments" type="checkbox" checked> Someone comments on my review or post</label>
         <p id="email-pref-message" class="status" hidden></p>
       </section>
 
       <section class="card">
         <h2>Blocked and muted</h2>
-        <p class="hint">Blocked people can't see you and you can't see them. Muted people's reviews stay out of your feed. Nobody is told.</p>
+        <p class="hint">Blocked people can't see you and you can't see them. Muted people's reviews, posts and comments stay out of your feed. Nobody is told.</p>
         <!-- Filled in by js/settings.js -->
         <div id="blocked-list" class="people-rows"><p class="muted">Loading...</p></div>
       </section>
@@ -142,7 +142,7 @@
       <section class="card card-danger">
         <h2>Delete account</h2>
         <p>This deletes your account for good: your profile, picture, every log and review,
-          your shelves, and who you follow. It can't be undone.</p>
+          your posts, comments and likes, your shelves, and who you follow. It can't be undone.</p>
         <form id="delete-form" class="form">
           <label for="delete-confirm">To confirm, type your username: <strong id="delete-username"></strong></label>
           <input id="delete-confirm" type="text" autocomplete="off" required>
@@ -167,14 +167,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=48"></script>
+  <script src="js/config.js?v=49"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=48"></script>
+  <script src="js/supabase-client.js?v=49"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=48"></script>
+  <script src="js/auth.js?v=49"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=48"></script>
+  <script src="js/search-suggest.js?v=49"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=48"></script>
+  <script src="js/settings.js?v=49"></script>
 </body>
 </html>

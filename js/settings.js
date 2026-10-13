@@ -224,6 +224,9 @@ function setUpPrivacy(profile) {
 // No saved row means everything is on.
 
 async function setUpEmailPrefs(profile) {
+  // Only shown once notification emails are switched on (js/config.js).
+  if (typeof EMAILS_ON === "undefined" || !EMAILS_ON) return;
+  document.getElementById("email-section").hidden = false;
   const boxes = document.querySelectorAll(".email-pref");
   const message = document.getElementById("email-pref-message");
   const { data } = await db.from("email_prefs").select("new_followers, follow_requests, comments").eq("user_id", profile.id).maybeSingle();
