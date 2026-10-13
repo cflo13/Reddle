@@ -15,9 +15,10 @@
 
 const OPEN_LIBRARY = "https://openlibrary.org";
 
-// Open Library work ids look like OL45804W.
+// Book ids: Open Library work ids (OL45804W) or Google Books ids
+// ("GB" + Google's volume id, see js/sources.js).
 function isValidBookId(id) {
-  return /^OL\d+W$/.test(id);
+  return /^OL\d+W$/.test(id) || isGoogleBookId(id);
 }
 
 // "/works/OL45804W" -> "OL45804W"
@@ -41,11 +42,7 @@ function coverUrlFromId(coverId, size) {
 
 const coverLookups = new Map();
 
-// Google's picture links start with http:// and have a page-curl effect;
-// we want https:// (the database only accepts https) and a plain cover.
-function cleanGoogleCover(link) {
-  return link.replace(/^http:/, "https:").replace("&edge=curl", "");
-}
+// (cleanGoogleCover() is in js/sources.js.)
 
 async function askGoogleBooks(query) {
   const url =
@@ -95,29 +92,11 @@ async function fetchOpenLibrary(url) {
   }
 }
 
-// Searches Open Library. Returns a list of
-// { externalId, title, author, coverUrl, year }.
+// Searches the current universe (js/sources.js): Open Library for
+// books, Open Library and Google Books for comics and manga. Returns a
+// list of { externalId, title, author, coverUrl, year, isbns, genres }.
 async function searchBooks(query) {
-  const url =
-    OPEN_LIBRARY + "/search.json?limit=20" +
-    "&fields=key,title,author_name,cover_i,first_publish_year,isbn" +
-    "&q=" + encodeURIComponent(query);
-
-  const response = await fetchOpenLibrary(url);
-  if (!response.ok) throw new Error("Open Library isn't answering right now (error " + response.status + "). Try again in a minute.");
-  const data = await response.json();
-
-  return data.docs.map(function (doc) {
-    return {
-      externalId: workIdFromKey(doc.key),
-      title: doc.title,
-      author: doc.author_name ? doc.author_name.join(", ") : "",
-      coverUrl: doc.cover_i ? coverUrlFromId(doc.cover_i, "M") : null,
-      year: doc.first_publish_year || null,
-      // A few ISBNs, to find a cover elsewhere if Open Library has none.
-      isbns: (doc.isbn || []).slice(0, 3),
-    };
-  });
+  return searchUniverseBooks(query, 20);
 }
 
 // Fetches one book's details from Open Library, in the same shape as a row
@@ -220,89 +199,8 @@ function findIsbn(editions) {
 
 // ---------- Genres ----------
 //
-// Open Library tags each book with many "subjects" ("Dune (Imaginary
-// place)", "Fiction", "Space warfare"...). We turn those into a short list
-// of genres by looking for keywords.
-//
-//   slug:     the short name we save in the database (books.genres)
-//   name:     what people see
-//   subject:  the matching Open Library subject page, used for
-//             "Popular on Open Library" lists
-//   words:    keywords to look for in a book's subjects
-//   nonfiction: only for books that aren't fiction (so a novel set in
-//             WW2 is Historical fiction, not History)
-//
-// If you add or rename a genre here, update the list in
-// supabase/step14-genres.sql too (the database only accepts these slugs).
-const GENRES = [
-  { slug: "fantasy", name: "Fantasy", subject: "fantasy", words: ["fantasy", "fantasy fiction", "magic", "dragons", "wizards", "elves"] },
-  { slug: "science_fiction", name: "Science fiction", subject: "science_fiction", words: ["science fiction", "sci-fi", "space opera", "time travel", "space warfare", "robots"] },
-  { slug: "mystery", name: "Mystery", subject: "mystery_and_detective_stories", words: ["mystery", "mystery fiction", "detective", "detective and mystery stories", "private investigators", "murder"] },
-  { slug: "thriller", name: "Thriller", subject: "thrillers", words: ["thriller", "thrillers", "suspense", "espionage", "spy stories"] },
-  { slug: "romance", name: "Romance", subject: "romance", words: ["romance", "love stories", "romantic"] },
-  { slug: "horror", name: "Horror", subject: "horror", words: ["horror", "ghost stories", "ghosts", "vampires", "haunted houses", "zombies"] },
-  { slug: "historical_fiction", name: "Historical fiction", subject: "historical_fiction", words: ["historical fiction", "history, fiction"] },
-  { slug: "literary_fiction", name: "Literary fiction", subject: "literary_fiction", words: ["literary fiction", "psychological fiction", "domestic fiction", "family life", "coming of age"] },
-  { slug: "classics", name: "Classics", subject: "classic_literature", words: ["classic literature", "classics", "english literature", "american literature"] },
-  { slug: "young_adult", name: "Young adult", subject: "young_adult_fiction", words: ["young adult", "young adult fiction", "teenagers", "high schools"] },
-  { slug: "children", name: "Children's", subject: "juvenile_fiction", words: ["juvenile fiction", "juvenile literature", "children's stories", "picture books", "children's fiction"] },
-  { slug: "dystopian", name: "Dystopian", subject: "dystopias", words: ["dystopia", "dystopias", "dystopian", "totalitarianism"] },
-  { slug: "adventure", name: "Adventure", subject: "adventure", words: ["adventure", "adventure stories", "adventure and adventurers", "voyages and travels"] },
-  { slug: "humour", name: "Humour", subject: "humor", words: ["humor", "humour", "humorous fiction", "humorous stories", "satire"] },
-  { slug: "short_stories", name: "Short stories", subject: "short_stories", words: ["short stories"] },
-  { slug: "poetry", name: "Poetry", subject: "poetry", words: ["poetry", "poems"] },
-  { slug: "graphic_novels", name: "Graphic novels & comics", subject: "comics", words: ["graphic novels", "comic books", "comics", "manga", "comic books, strips"] },
-  { slug: "biography", name: "Biography & memoir", subject: "biography", words: ["biography", "autobiography", "memoir", "memoirs"], nonfiction: true },
-  { slug: "history", name: "History", subject: "history", words: ["history", "world war, 1939-1945", "civilization", "ancient history"], nonfiction: true },
-  { slug: "science", name: "Science & nature", subject: "science", words: ["science", "physics", "biology", "astronomy", "chemistry", "evolution", "natural history", "nature"], nonfiction: true },
-  { slug: "philosophy", name: "Philosophy", subject: "philosophy", words: ["philosophy", "ethics", "stoics"], nonfiction: true },
-  { slug: "psychology", name: "Psychology", subject: "psychology", words: ["psychology", "mental health", "neuroscience"], nonfiction: true },
-  { slug: "self_help", name: "Self-help", subject: "self-help", words: ["self-help", "self help", "personal development", "success", "self-actualization", "habits"], nonfiction: true },
-  { slug: "business", name: "Business & money", subject: "business", words: ["business", "economics", "management", "finance", "entrepreneurship", "leadership"], nonfiction: true },
-  { slug: "true_crime", name: "True crime", subject: "true_crime", words: ["true crime", "criminals", "murder investigation"], nonfiction: true },
-  { slug: "travel", name: "Travel", subject: "travel", words: ["travel", "description and travel"], nonfiction: true },
-  { slug: "food", name: "Food & cooking", subject: "cooking", words: ["cooking", "cookbooks", "recipes", "food"], nonfiction: true },
-  { slug: "religion", name: "Religion & spirituality", subject: "religion", words: ["religion", "spirituality", "christianity", "buddhism", "islam", "judaism", "spiritual life"], nonfiction: true },
-  { slug: "politics", name: "Politics & society", subject: "politics", words: ["politics", "political science", "social science", "sociology"], nonfiction: true },
-  { slug: "art", name: "Art & design", subject: "art", words: ["art", "design", "photography", "architecture", "music"], nonfiction: true },
-];
-
-// The most genres we give one book.
-const MAX_GENRES_PER_BOOK = 4;
-
-function findGenre(slug) {
-  return GENRES.find((genre) => genre.slug === slug) || null;
-}
-
-function genreLink(slug) {
-  return "genre.html?g=" + encodeURIComponent(slug);
-}
-
-// Is this word (or phrase) in the subject? Whole words only, so "art"
-// doesn't match "smart" or "martial".
-function subjectHasWord(subject, word) {
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp("(^|[^a-z])" + escaped + "($|[^a-z])").test(subject);
-}
-
-// Turns a list of Open Library subjects into our genre slugs, for
-// example ["Fiction", "Space warfare", "Dune (Imaginary place)"] gives
-// ["science_fiction"]. Returns [] when nothing matches.
-function genresFromSubjects(subjects) {
-  if (!subjects || subjects.length === 0) return [];
-  const lower = subjects.map((subject) => String(subject).toLowerCase());
-  const isFiction = lower.some((subject) => /fiction|novel|stories/.test(subject));
-
-  // Count how many subjects match each genre, then keep the best ones.
-  const scores = [];
-  for (const genre of GENRES) {
-    if (genre.nonfiction && isFiction) continue;
-    const hits = lower.filter((subject) => genre.words.some((word) => subjectHasWord(subject, word))).length;
-    if (hits > 0) scores.push({ slug: genre.slug, hits: hits });
-  }
-  scores.sort((a, b) => b.hits - a.hits);
-  return scores.slice(0, MAX_GENRES_PER_BOOK).map((score) => score.slug);
-}
+// GENRES, findGenre(), genreLink() and genresFromSubjects() live in
+// js/sources.js (every page needs them for the universes).
 
 // Small genre tags (links) for a book page.
 function makeGenreTags(slugs) {
@@ -322,12 +220,17 @@ function makeGenreTags(slugs) {
 async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
   const genre = findGenre(slug);
   if (!genre) return [];
+  // Comics and manga: that genre within comics or manga (js/sources.js).
+  const universe = currentUniverse();
+  if (genre.universe) return fetchUniverseBooks(genre.universe, null, limit, offset || 0, "popular");
+  if (universe !== "books") return fetchUniverseBooks(universe, slug, limit, offset || 0, "popular");
   const url =
     OPEN_LIBRARY + "/subjects/" + genre.subject + ".json" +
     "?limit=" + (limit || 24) + "&offset=" + (offset || 0);
   const response = await fetchOpenLibrary(url);
   if (!response.ok) throw new Error("Open Library isn't answering right now (error " + response.status + "). Try again in a minute.");
   const data = await response.json();
+  // Books universe: leave out comics, manga and anything adult.
   return (data.works || []).map(function (work) {
     return {
       externalId: workIdFromKey(work.key),
@@ -335,8 +238,10 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
       author: work.authors && work.authors[0] ? work.authors[0].name : "",
       coverUrl: work.cover_id ? coverUrlFromId(work.cover_id, "M") : null,
       coverId: work.cover_id || null,
+      genres: genresFromSubjects(work.subject || []),
+      subjects: work.subject || [],
     };
-  });
+  }).filter((book) => fitsUniverse(book, "books"));
 }
 
 
@@ -347,10 +252,10 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
 // any book whose id is in `excludeIds`.
 async function fetchTopRatedInGenres(genres, excludeIds, limit) {
   if (!genres || genres.length === 0) return [];
-  const { data, error } = await db
+  const { data, error } = await onlyThisUniverse(db
     .from("books_with_stats")
     .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")
-    .overlaps("genres", genres) // shares at least one genre
+    .overlaps("genres", genres)) // shares at least one genre
     .gte("avg_rating", 3.5)
     .order("avg_rating", { ascending: false, nullsFirst: false })
     .order("log_count", { ascending: false })
@@ -360,11 +265,11 @@ async function fetchTopRatedInGenres(genres, excludeIds, limit) {
   return data.filter((book) => !skip.has(book.id)).slice(0, limit);
 }
 
-// The most logged books on Reddle.
+// The most logged books on Reddle (in this universe).
 async function fetchMostLoggedOnReddle(limit) {
-  const { data, error } = await db
+  const { data, error } = await onlyThisUniverse(db
     .from("books_with_stats")
-    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating"))
     .gt("log_count", 0)
     .order("log_count", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
@@ -373,11 +278,12 @@ async function fetchMostLoggedOnReddle(limit) {
   return data;
 }
 
-// The books logged most on Reddle in the last 7 days (then best rated).
+// The books logged most on Reddle in the last 7 days (then best rated),
+// in this universe.
 async function fetchPopularThisWeek(limit) {
-  const { data, error } = await db
+  const { data, error } = await onlyThisUniverse(db
     .from("books_with_stats")
-    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week"))
     .gt("logs_this_week", 0)
     .order("logs_this_week", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
@@ -387,11 +293,11 @@ async function fetchPopularThisWeek(limit) {
 }
 
 // Books someone logged recently, newest first, each book once, with
-// the username of whoever logged it.
+// the username of whoever logged it (in this universe).
 async function fetchRecentlyLoggedBooks(limit) {
-  const { data, error } = await db
+  const { data, error } = await onlyThisUniverse(db
     .from("logs")
-    .select("created_at, profiles!logs_user_id_fkey(username), books(id, external_id, title, author, cover_url)")
+    .select("created_at, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres")
     .order("created_at", { ascending: false })
     .limit(limit * 4);
   if (error) throw error;
@@ -405,17 +311,26 @@ async function fetchRecentlyLoggedBooks(limit) {
   return books.slice(0, limit);
 }
 
-// What's popular on Open Library this week. Returns our tile shape.
+// What's popular on Open Library this week (comics and manga: popular
+// on Open Library and Google Books). Returns our tile shape.
 async function fetchTrendingFromOpenLibrary(limit) {
+  const universe = currentUniverse();
+  if (universe !== "books") {
+    const found = await fetchUniverseBooks(universe, null, limit, 0, "popular");
+    return found.map(openLibraryToBook);
+  }
   const response = await fetchOpenLibrary(OPEN_LIBRARY + "/trending/weekly.json?limit=" + limit);
   if (!response.ok) return [];
   const data = await response.json();
-  return (data.works || []).map((work) => ({
-    external_id: workIdFromKey(work.key),
-    title: work.title,
-    author: work.author_name ? work.author_name[0] : "",
-    cover_url: work.cover_i ? coverUrlFromId(work.cover_i, "M") : null,
-  }));
+  return (data.works || [])
+    .filter((work) => !looksAdult([work.title].concat(work.subject || [])))
+    .filter((work) => !work.subject || bookInUniverse({ genres: genresFromSubjects(work.subject) }, "books"))
+    .map((work) => ({
+      external_id: workIdFromKey(work.key),
+      title: work.title,
+      author: work.author_name ? work.author_name[0] : "",
+      cover_url: work.cover_i ? coverUrlFromId(work.cover_i, "M") : null,
+    }));
 }
 
 
@@ -543,7 +458,7 @@ function statsNote(book) {
 // Turns a book from Open Library lists ({ externalId, title, author,
 // coverUrl }) into the shape our tiles use.
 function openLibraryToBook(book) {
-  return { external_id: book.externalId, title: book.title, author: book.author, cover_url: book.coverUrl, isbns: book.isbns };
+  return { external_id: book.externalId, title: book.title, author: book.author, cover_url: book.coverUrl, isbns: book.isbns, genres: book.genres };
 }
 
 

@@ -2,7 +2,8 @@
 // Live search suggestions under the header search box (every page)
 // ------------------------------------------------------------
 // While you type, a box under the search bar shows:
-//   Books   (up to 5, from Open Library)
+//   Books   (up to 5, from the current universe: Open Library, plus
+//            Google Books for comics and manga; see js/sources.js)
 //   Authors (up to 3, from Open Library's author search)
 //   Readers (up to 4, from our profiles)
 // It starts after 2 characters and waits 250 ms after the last key
@@ -189,11 +190,11 @@ function setUpSearchSuggestions(form, number) {
 
   function bookPicture(book) {
     const picture = el("span", "suggest-cover");
-    if (book.coverId) {
+    if (book.coverId || book.coverUrl) {
       const img = document.createElement("img");
       img.alt = "";
       img.loading = "lazy";
-      img.src = "https://covers.openlibrary.org/b/id/" + book.coverId + "-S.jpg";
+      img.src = book.coverId ? "https://covers.openlibrary.org/b/id/" + book.coverId + "-S.jpg" : book.coverUrl;
       picture.appendChild(img);
     }
     return picture;
@@ -222,7 +223,7 @@ function setUpSearchSuggestions(form, number) {
     const { books, authors, readers } = results;
 
     if (books.length) {
-      box.appendChild(makeSection("Books", books.map((book) =>
+      box.appendChild(makeSection(UNIVERSES[currentUniverse()].name, books.map((book) =>
         makeOption(bookLink(book.id), bookPicture(book), book.title, book.author))));
     }
     if (authors.length) {
@@ -243,18 +244,14 @@ function setUpSearchSuggestions(form, number) {
 
   // The three searches, at the same time. A failed one counts as empty.
   async function findEverything(query, signal) {
-    const bookSearch = fetch(
-      SUGGEST_OPEN_LIBRARY + "/search.json?limit=5&fields=key,title,author_name,cover_i&q=" + encodeURIComponent(query),
-      { signal: signal }
-    ).then((response) => {
-      if (!response.ok) throw new Error("Open Library error " + response.status);
-      return response.json();
-    }).then((data) => (data.docs || []).map((doc) => ({
-      id: String(doc.key || "").split("/").pop(),
-      title: doc.title,
-      author: doc.author_name ? doc.author_name.join(", ") : "",
-      coverId: doc.cover_i || null,
-    })).filter((book) => /^OL\d+W$/.test(book.id)));
+    // Books of the current universe (js/sources.js).
+    const bookSearch = searchUniverseBooks(query, 5, signal).then((books) => books.map((book) => ({
+      id: book.externalId,
+      title: book.title,
+      author: book.author,
+      coverId: book.coverId || null,
+      coverUrl: book.coverUrl,
+    })));
 
     const authorSearch = searchAuthors(query, 3, signal);
 

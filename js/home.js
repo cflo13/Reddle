@@ -72,8 +72,10 @@ function cacheSet(key, value) {
   } catch (error) {}
 }
 
-// Runs `load` unless we already have a recent answer for `key`.
+// Runs `load` unless we already have a recent answer for `key`. Each
+// universe (Books, Comics, Manga) remembers its own answers.
 async function remembered(key, load) {
+  key = currentUniverse() + ":" + key;
   const saved = cacheGet(key);
   if (saved) return saved;
   const value = await load();
@@ -166,6 +168,8 @@ function fillRow(row, candidates) {
   for (const candidate of candidates || []) {
     const id = candidate.book && candidate.book.external_id;
     if (!id || knownBooks.has(id) || shownOnPage.has(id)) continue;
+    // Never a book from another universe (when we know its genres).
+    if (candidate.book.genres && !bookInUniverse(candidate.book)) continue;
     shownOnPage.add(id);
     picked.push(candidate);
     if (picked.length >= ROW_SIZE) break;
@@ -244,16 +248,17 @@ function tasteGenres(profile, myLogs) {
       for (const slug of log.books.genres || []) score[slug] = (score[slug] || 0) + 1;
     }
   }
-  return Object.keys(score).filter(findGenre).sort((a, b) => score[b] - score[a]);
+  // Comics and manga are universes, not taste rows.
+  return Object.keys(score).filter((slug) => findGenre(slug) && !findGenre(slug).universe).sort((a, b) => score[b] - score[a]);
 }
 
 // Genres ranked by how much they're logged on Reddle, then the usual
 // favourites.
 async function popularGenres() {
   return remembered("popular-genres", async function () {
-    const { data } = await db
+    const { data } = await onlyThisUniverse(db
       .from("books_with_stats")
-      .select("genres, log_count")
+      .select("genres, log_count"))
       .gt("log_count", 0)
       .order("log_count", { ascending: false })
       .limit(300);
@@ -261,7 +266,7 @@ async function popularGenres() {
     for (const book of data || []) {
       for (const slug of book.genres || []) score[slug] = (score[slug] || 0) + book.log_count;
     }
-    const ranked = Object.keys(score).sort((a, b) => score[b] - score[a]);
+    const ranked = Object.keys(score).filter((slug) => findGenre(slug) && !findGenre(slug).universe).sort((a, b) => score[b] - score[a]);
     return [...new Set([...ranked, ...FALLBACK_GENRES])];
   });
 }
@@ -271,9 +276,9 @@ async function popularGenres() {
 async function forYouCandidates(profile, followingIds, myBooks, genres) {
   const candidates = [];
   if (followingIds.length > 0) {
-    const { data } = await db
+    const { data } = await onlyThisUniverse(db
       .from("logs")
-      .select("rating, profiles!logs_user_id_fkey(username), books(id, external_id, title, author, cover_url)")
+      .select("rating, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres")
       .in("user_id", followingIds)
       .gte("rating", 4)
       .order("rating", { ascending: false })
@@ -305,11 +310,17 @@ function genreCandidates(slug) {
   });
 }
 
+// " comics" / " manga" after a genre's name in those universes.
+function universeSuffix() {
+  const universe = currentUniverse();
+  return universe === "books" ? "" : " " + UNIVERSES[universe].noun;
+}
+
 function addGenreRow(slug, titleStart, lazy) {
   const genre = findGenre(slug);
-  if (!genre) return; // not one of our genres (never show a broken row)
+  if (!genre || genre.universe) return; // not one of our genres (never show a broken row)
   addRow(
-    { title: titleStart + genre.name, titleLink: genreLink(slug), seeAll: genreLink(slug) },
+    { title: titleStart + genre.name + universeSuffix(), titleLink: genreLink(slug), seeAll: genreLink(slug) },
     () => genreCandidates(slug),
     lazy
   );
@@ -319,8 +330,8 @@ function addGenreRow(slug, titleStart, lazy) {
 // comments in the last 7 days (the trending_books_week view).
 function talkedAboutCandidates() {
   return remembered("talked-about", async function () {
-    const { data, error } = await db.from("trending_books_week")
-      .select("id, external_id, title, author, cover_url, activity")
+    const { data, error } = await onlyThisUniverse(db.from("trending_books_week")
+      .select("id, external_id, title, author, cover_url, activity, genres"))
       .order("activity", { ascending: false }).order("id", { ascending: true }).limit(6);
     if (error) throw error;
     return data.map((book) => ({ book: book, reason: book.activity + (book.activity === 1 ? " mention" : " mentions") + " this week" }));
@@ -336,16 +347,24 @@ function popularThisWeekCandidates() {
     ]);
     return [
       ...reddle.map((book) => ({ book: book, reason: book.logs_this_week + (book.logs_this_week === 1 ? " reader" : " readers") + " this week" })),
-      ...trending.map((book) => ({ book: book, reason: "Trending this week" })),
+      ...trending.map((book) => ({ book: book, reason: currentUniverse() === "books" ? "Trending this week" : "Popular" })),
     ];
   });
 }
 
-// 4. New and noteworthy: books someone logged recently.
+// 4. New and noteworthy: books someone logged recently. Comics and
+//    manga top it up with the newest from Open Library and Google Books.
 function newAndNoteworthyCandidates() {
   return remembered("new", async function () {
-    const recent = await fetchRecentlyLoggedBooks(ROW_SIZE * 2);
-    return recent.map((item) => ({ book: item.book, reason: item.username ? "Logged by @" + item.username : "" }));
+    const universe = currentUniverse();
+    const [recent, newest] = await Promise.all([
+      fetchRecentlyLoggedBooks(ROW_SIZE * 2),
+      universe === "books" ? [] : fetchUniverseBooks(universe, null, ROW_SIZE * 2, 0, "newest").catch(() => []),
+    ]);
+    return [
+      ...recent.map((item) => ({ book: item.book, reason: item.username ? "Logged by @" + item.username : "" })),
+      ...newest.map((book) => ({ book: openLibraryToBook(book), reason: book.year ? "Out " + book.year : "New" })),
+    ];
   });
 }
 
@@ -362,7 +381,7 @@ function addGenreButtons() {
   section.appendChild(head);
 
   const pills = el("div", "genre-pills");
-  for (const genre of GENRES) {
+  for (const genre of listedGenres()) {
     const pill = el("a", "genre-pill", genre.name);
     pill.href = genreLink(genre.slug);
     pills.appendChild(pill);

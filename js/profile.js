@@ -135,6 +135,7 @@ async function loadPage() {
     }
   }
 
+  setUpUniverseFilter();
   await Promise.all([loadStats(), loadGoal(isMe), loadShelves(isMe), loadProfileLogs()]);
 }
 
@@ -414,20 +415,56 @@ async function loadShelves(isMe) {
 
 // ---------- Their books ----------
 
+// All, Books, Comics or Manga: a small filter above the list. Everything
+// shows by default, whichever universe you're in.
+let profileShelf = "all";
+
 async function loadProfileLogs() {
+  const universe = profileShelf;
   await showPagedLogs(
     document.getElementById("profile-logs"),
-    (from, to) =>
-      db
-        .from("logs")
-        .select(LOG_FIELDS)
+    (from, to) => {
+      let query = db.from("logs");
+      if (universe === "all") {
+        query = query.select(LOG_FIELDS);
+      } else {
+        // books!inner: only logs whose book is in that universe.
+        query = onlyThisUniverse(
+          query.select(LOG_FIELDS.replace("books(external_id, title, author, cover_url)", "books!inner(external_id, title, author, cover_url, genres)")),
+          "books.genres",
+          universe
+        );
+      }
+      return query
         .eq("user_id", shownProfile.id)
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
-        .range(from, to),
+        .range(from, to);
+    },
     { showBook: true },
-    "No books logged yet."
+    universe === "all" ? "No books logged yet." : "No " + UNIVERSES[universe].noun + " logged yet."
   );
+}
+
+function setUpUniverseFilter() {
+  const box = document.getElementById("universe-filter");
+  if (!box || box.dataset.ready) return;
+  box.dataset.ready = "yes";
+  box.hidden = false;
+  box.querySelectorAll("button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      if (button.dataset.filter === profileShelf) return;
+      profileShelf = button.dataset.filter;
+      const buttons = box.querySelectorAll("button");
+      buttons.forEach((other) => {
+        other.setAttribute("aria-pressed", String(other === button));
+        other.disabled = true; // one list at a time
+      });
+      loadProfileLogs()
+        .catch((error) => console.error("Logs didn't load:", error))
+        .finally(() => buttons.forEach((other) => (other.disabled = false)));
+    });
+  });
 }
 
 

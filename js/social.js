@@ -423,8 +423,8 @@ function makeBookPicker(onPick) {
 async function savePickedBook(picked) {
   const existing = await getSavedBook(picked.externalId);
   if (existing) return existing;
-  const details = await fetchBookFromOpenLibrary(picked.externalId);
-  if (!details) throw new Error("We couldn't find that book on Open Library.");
+  const details = await fetchBookDetails(picked.externalId); // js/sources.js
+  if (!details) throw new Error("We couldn't find that book.");
   return saveBookIfNeeded(details);
 }
 

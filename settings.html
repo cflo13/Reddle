@@ -48,7 +48,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=58">
+  <link rel="stylesheet" href="css/style.css?v=59">
 </head>
 <body>
   <header class="site-header">
@@ -188,20 +188,22 @@
       <span class="u-away"><button class="link-button" type="button" data-go-universe="comics">Enter Comic Mode</button><button class="link-button" type="button" data-go-universe="manga">Switch to Manga Mode</button></span>
       <span class="u-home"><button class="link-button" type="button" data-go-universe="books">Back to Books</button></span>
     </p>
-    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a>.</p>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a>.</p>
   </footer>
 
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=58"></script>
+  <script src="js/config.js?v=59"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=58"></script>
+  <script src="js/supabase-client.js?v=59"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=58"></script>
+  <script src="js/auth.js?v=59"></script>
+  <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
+  <script src="js/sources.js?v=59"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=58"></script>
+  <script src="js/search-suggest.js?v=59"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=58"></script>
+  <script src="js/settings.js?v=59"></script>
 </body>
 </html>

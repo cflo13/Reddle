@@ -780,7 +780,7 @@ input[type="checkbox"] {
 
 .header-search {
   flex: 1;
-  min-width: 120px;
+  min-width: 96px;
   max-width: 320px;
 }
 
@@ -3695,6 +3695,8 @@ body::before {
   .see-all,
   .shelf-button,
   .theme-toggle,
+  .chip-filter-button,
+  .universe-option,
   select,
   input[type="text"],
   input[type="email"],
@@ -3907,6 +3909,7 @@ summary,
 .menu-item,
 .menu-button,
 .theme-toggle,
+.chip-filter-button,
 .book-tile,
 .pick-tile,
 .book-result {
@@ -3990,6 +3993,42 @@ summary,
     display: none;
   }
 
+}
+
+/* Profile: All / Books / Comics / Manga */
+.chip-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+}
+
+.chip-filter-button {
+  min-height: 36px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.chip-filter-button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.chip-filter-button:disabled {
+  cursor: default;
+}
+
+/* Book page: "View on Google Books" (Google Books books only) */
+.book-source {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 /* ---------- Universes: the switch, and each universe's touches ----------

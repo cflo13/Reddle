@@ -22,9 +22,9 @@ const shownIds = new Set();    // never show the same book twice
 // The next page of Reddle's popular books. Asks for one extra row to
 // know whether there are more.
 async function nextReddlePage(count) {
-  const { data, error } = await db
+  const { data, error } = await onlyThisUniverse(db
     .from("books_with_stats")
-    .select("id, external_id, title, author, cover_url, log_count, avg_rating, logs_this_week")
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week"))
     .gt("logs_this_week", 0)
     .order("logs_this_week", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
@@ -68,12 +68,13 @@ async function loadMorePopular() {
     // 2. Then top up with Open Library's trending books.
     if (reddleFinished && added < POPULAR_PAGE) {
       if (trendingBooks === null) {
-        trendingBooks = await fetchTrendingFromOpenLibrary(100).catch(() => []);
+        // Comics and manga: popular on Open Library and Google Books.
+        trendingBooks = await fetchTrendingFromOpenLibrary(currentUniverse() === "books" ? 100 : 40).catch(() => []);
       }
       if (firstLoad && added === 0) popularBox.textContent = "";
       while (added < POPULAR_PAGE && trendingShown < trendingBooks.length) {
         const book = trendingBooks[trendingShown++];
-        if (addTile(book, "", "Trending on Open Library")) added++;
+        if (addTile(book, "", currentUniverse() === "books" ? "Trending on Open Library" : "Popular")) added++;
       }
     }
 
@@ -94,6 +95,13 @@ async function loadMorePopular() {
 popularMore.addEventListener("click", loadMorePopular);
 
 (async function () {
+  // Comics and manga: say so at the top.
+  const universe = currentUniverse();
+  if (universe !== "books") {
+    const noun = UNIVERSES[universe].noun;
+    document.getElementById("popular-title").textContent = "Popular " + noun + " this week";
+    document.getElementById("popular-hint").textContent = "The " + noun + " Reddle readers logged most in the last 7 days, best rated first. Then popular " + noun + " on Open Library and Google Books.";
+  }
   await authReady;
   loadMorePopular();
 })();

@@ -42,7 +42,7 @@ document.querySelectorAll(".skip-button").forEach((button) => button.addEventLis
 function showGenreChoices() {
   const box = document.getElementById("genre-choices");
   const next = document.getElementById("genres-next");
-  for (const genre of GENRES) {
+  for (const genre of listedGenres()) {
     const button = el("button", "genre-choice", genre.name);
     button.type = "button";
     button.setAttribute("aria-pressed", chosenGenres.has(genre.slug));
@@ -150,8 +150,10 @@ async function savePicks() {
       external_id: book.externalId,
       title: book.title.slice(0, 500),
       author: book.author ? book.author.slice(0, 500) : null,
-      cover_url: book.coverId ? coverUrlFromId(book.coverId, "L") : null,
-      genres: [book.genre],
+      cover_url: book.coverId ? coverUrlFromId(book.coverId, "L") : (book.coverUrl || null),
+      // Its genres (in Comics and Manga that includes comics or manga, so
+      // it stays in its universe), plus the genre it was picked from.
+      genres: [...new Set([...(book.genres || []), book.genre])].slice(0, 6),
     })),
     { onConflict: "external_id", ignoreDuplicates: true }
   );

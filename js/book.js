@@ -27,6 +27,7 @@ function showBookNotFound(text) {
 // save the author's name, so ask Open Library which author it is (in the
 // background; if it fails, the name just stays plain text).
 async function linkAuthorName(externalId, name) {
+  if (!/^OL\d+W$/.test(externalId)) return; // Google Books: the name stays plain
   const work = await fetchJson(OPEN_LIBRARY + "/works/" + externalId + ".json");
   const first = work && work.authors && work.authors[0] && work.authors[0].author;
   const id = first ? authorIdFromKey(first.key) : "";
@@ -97,6 +98,7 @@ function showBook(book) {
   const description = document.getElementById("book-description");
   description.textContent = book.description || "No description available.";
   description.classList.toggle("muted", !book.description);
+  showGoogleDetails(book);
 
   const share = document.getElementById("book-share");
   share.textContent = "";
@@ -104,6 +106,46 @@ function showBook(book) {
 
   document.getElementById("loading").hidden = true;
   document.getElementById("book").hidden = false;
+}
+
+
+// Google Books books: a link to their Google Books page (their terms ask
+// for it), and the description straight from Google (we don't keep a
+// copy of it; see js/sources.js).
+function showGoogleDetails(book) {
+  const isbnLine = document.getElementById("book-isbn");
+  let source = document.getElementById("book-source");
+  if (!isGoogleBookId(book.external_id)) {
+    if (source) source.remove();
+    return;
+  }
+  if (!source) {
+    source = el("p", "book-source");
+    source.id = "book-source";
+    isbnLine.after(source);
+  }
+  source.textContent = "";
+  const link = el("a", "", "View on Google Books");
+  link.href = googleBooksPage(book.external_id);
+  link.target = "_blank";
+  link.rel = "noopener";
+  source.appendChild(link);
+
+  if (book.description) return;
+  fetchGoogleDescription(book.external_id).then(function (text) {
+    if (!text || shownBook.external_id !== book.external_id) return;
+    const description = document.getElementById("book-description");
+    description.textContent = text;
+    description.classList.remove("muted");
+  }).catch(() => {});
+}
+
+// Opened from another universe (a shared link, a post...)? Switch to the
+// book's own universe, without reloading.
+function matchUniverse(book) {
+  if (bookInUniverse(book)) return;
+  showUniverse(bookUniverses(book.genres)[0]);
+  showSearchPlaceholders();
 }
 
 
@@ -246,7 +288,8 @@ async function ensureBookSaved() {
     title: shownBook.title,
     author: shownBook.author,
     cover_url: shownBook.cover_url,
-    description: shownBook.description,
+    // Google Books descriptions are never saved (their terms).
+    description: isGoogleBookId(shownBook.external_id) ? null : shownBook.description,
     isbn: shownBook.isbn,
     genres: shownBook.genres || [],
     page_count: shownBook.page_count || null,
@@ -257,10 +300,11 @@ async function ensureBookSaved() {
 // details from Open Library. We show them straight away, and logged-in
 // visitors also save them, so the next visitor gets them from our table.
 async function fillMissingDetails(book) {
-  const missing = !book.genres || book.genres.length === 0 || !book.cover_url || !book.description;
+  const google = isGoogleBookId(book.external_id);
+  const missing = !book.genres || book.genres.length === 0 || !book.cover_url || (!book.description && !google);
   if (!book.id || !missing) return book;
 
-  const fresh = await fetchBookFromOpenLibrary(book.external_id).catch(() => null);
+  const fresh = await fetchBookDetails(book.external_id).catch(() => null);
   if (!fresh) return book;
 
   const filled = Object.assign({}, book, {
@@ -453,6 +497,7 @@ function setUpProgress() {
 // Books saved before we kept page counts: ask Open Library once when
 // someone is reading it.
 async function fillPageCount() {
+  if (isGoogleBookId(shownBook.external_id)) return; // Google gave it when saved
   if (shownBook.page_count || !shownBook.id || !currentUser) return;
   const pages = await fetchPageCount(shownBook.external_id).catch(() => null);
   if (!pages) return;
@@ -644,7 +689,8 @@ const SIMILAR_SIZE = 12;
 // (3.5+ on average), then popular Open Library books from its first
 // genre to fill up. Never this book itself.
 async function loadSimilarBooks(book) {
-  const genres = book.genres || [];
+  // Its own genres first (fantasy, horror...), then comics or manga.
+  const genres = [...(book.genres || [])].sort((a, b) => (findGenre(a) && findGenre(a).universe ? 1 : 0) - (findGenre(b) && findGenre(b).universe ? 1 : 0));
   if (genres.length === 0) return;
 
   const picks = [];
@@ -690,18 +736,22 @@ async function loadBookPage() {
 
   // Use our saved copy if someone has logged it before, otherwise ask
   // Open Library.
-  const book = (await getSavedBook(id)) || (await fetchBookFromOpenLibrary(id));
+  const book = (await getSavedBook(id)) || (await fetchBookDetails(id));
   if (!book) {
     showBookNotFound("We couldn't find that book.");
     return;
   }
 
+  matchUniverse(book);
   showBook(book);
   useCleanAddress(bookLink(id));
 
   // Fill any gaps (genres, cover, description) from Open Library.
   const filled = await fillMissingDetails(book);
-  if (filled !== book) showBook(filled);
+  if (filled !== book) {
+    matchUniverse(filled);
+    showBook(filled);
+  }
 
   // Suggestions load in the background; the page doesn't wait for them.
   loadSimilarBooks(shownBook).catch((error) => console.error("Suggestions didn't load:", error));

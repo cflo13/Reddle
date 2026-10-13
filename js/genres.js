@@ -4,7 +4,7 @@ const grid = document.getElementById("genre-grid");
 
 function showGenres(counts) {
   grid.textContent = "";
-  for (const genre of GENRES) {
+  for (const genre of listedGenres()) {
     const card = el("a", "genre-card");
     card.href = genreLink(genre.slug);
     card.appendChild(el("span", "genre-card-name", genre.name));
@@ -15,6 +15,8 @@ function showGenres(counts) {
 }
 
 (async function () {
+  const universe = currentUniverse();
+  if (universe !== "books") document.getElementById("genres-title").textContent = "Browse " + UNIVERSES[universe].noun + " by genre";
   // Show the list straight away, then add the counts.
   showGenres({});
   await authReady;
@@ -22,7 +24,8 @@ function showGenres(counts) {
 
   // Count books per genre. (Fine while the site is small; with many
   // thousands of books this would move into a database view.)
-  const { data, error } = await db.from("books").select("genres");
+  // Only books of this universe (Books, Comics or Manga).
+  const { data, error } = await onlyThisUniverse(db.from("books").select("genres"));
   if (error) return; // the list still works without counts
   const counts = {};
   for (const book of data) {

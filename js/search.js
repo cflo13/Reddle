@@ -1,6 +1,6 @@
 // Search page: search.html?q=WORDS
-// Finds people on Reddle whose username matches, authors and books on
-// Open Library.
+// Finds people on Reddle whose username matches, authors, and books of
+// the current universe (Open Library; comics and manga also Google Books).
 
 const searchInput = document.getElementById("search-input");
 const peopleSection = document.getElementById("people-results");
@@ -89,8 +89,9 @@ async function runSearch(query) {
 
   try {
     const books = await searchBooks(query);
-    showSearchStatus(books.length === 0 ? "No books found for “" + query + "”." : "");
-    if (books.length > 0) bookResults.appendChild(el("h2", "", "Books"));
+    const noun = UNIVERSES[currentUniverse()].noun; // books, comics or manga
+    showSearchStatus(books.length === 0 ? "No " + noun + " found for “" + query + "”." : "");
+    if (books.length > 0) bookResults.appendChild(el("h2", "", UNIVERSES[currentUniverse()].name));
     for (const book of books) bookResults.appendChild(makeBookResult(book));
   } catch (error) {
     showSearchStatus(friendlyError(error, "Search didn't work. "));

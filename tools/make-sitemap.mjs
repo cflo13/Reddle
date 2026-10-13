@@ -4,7 +4,7 @@
 // Run by GitHub every day (.github/workflows/sitemap.yml), so nobody has
 // to do anything. It lists:
 //   - the main pages (home, genres, popular, about, privacy, terms)
-//   - all 30 genre pages (from GENRES in js/books.js)
+//   - all 31 genre pages (from GENRES in js/sources.js, including comics and manga)
 //   - up to 500 books readers have logged on Reddle, most logged first
 //     (asked from Supabase with the public key in js/config.js, so it only
 //     sees what any visitor sees; private profiles' books aren't counted)
@@ -23,7 +23,7 @@ const config = readFileSync("js/config.js", "utf8");
 const supabaseUrl = (process.env.SUPABASE_URL || config.match(/SUPABASE_URL\s*=\s*"([^"]+)"/)[1]).replace(/\/$/, "");
 const supabaseKey = config.match(/SUPABASE_KEY\s*=\s*"([^"]+)"/)[1];
 
-const genres = [...readFileSync("js/books.js", "utf8").matchAll(/\{ slug: "([a-z_]+)"/g)].map((m) => m[1]);
+const genres = [...readFileSync("js/sources.js", "utf8").matchAll(/\{ slug: "([a-z_]+)"/g)].map((m) => m[1]);
 
 function escapeXml(text) {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -35,7 +35,7 @@ async function loggedBooks() {
   const response = await fetch(url, { headers: { apikey: supabaseKey, Authorization: "Bearer " + supabaseKey } });
   if (!response.ok) throw new Error("Supabase answered " + response.status);
   const rows = await response.json();
-  return rows.map((row) => row.external_id).filter((id) => /^OL\d+W$/.test(id));
+  return rows.map((row) => row.external_id).filter((id) => /^(OL\d+W|GB[A-Za-z0-9_-]{6,20})$/.test(id));
 }
 
 let books;
@@ -45,7 +45,7 @@ try {
 } catch (error) {
   console.log("Couldn't reach Supabase (" + error.message + "); keeping the books from the old sitemap.");
   const old = existsSync("sitemap.xml") ? readFileSync("sitemap.xml", "utf8") : "";
-  books = [...old.matchAll(/book\.html\?id=(OL\d+W)/g)].map((m) => m[1]);
+  books = [...old.matchAll(/book\.html\?id=(OL\d+W|GB[A-Za-z0-9_-]{6,20})/g)].map((m) => m[1]);
 }
 
 const pages = [
