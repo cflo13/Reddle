@@ -171,7 +171,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/functions/notify-email/` (`index.ts`, `logic.ts`): the email Edge Function, deployed by Claude
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
-All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
+All of these have been applied to the live project (`step9` and `step11` by the owner in the SQL Editor).
 
 - `favicon.svg` (the icon: three book spines), `images/favicon-32.png`, `images/apple-touch-icon.png` (phone home screens) and `images/share.png` (1200 x 630 picture shown when a link is shared). Made by Claude from the SVG with a browser
 - `manifest.webmanifest`, `sw.js`, `offline.html`: the installable app (see Installable app above)
@@ -179,6 +179,7 @@ All of these have been applied to the live project, except `step9-delete-account
 - `SEARCH-CONSOLE.md`: beginner steps to add reddle.org to Google Search Console and submit the sitemap
 - `robots.txt`, `sitemap.xml`, `tools/make-sitemap.mjs`, `.github/workflows/sitemap.yml`: see Findability
 - `EMAIL-SETUP.md`: beginner steps for the owner to switch on emails (Resend account, DNS records in Cloudflare, API key as a Supabase secret)
+- `GOOGLE-SIGNIN.md`: beginner steps for the owner to switch on Continue with Google (Google Cloud OAuth client, then Supabase provider settings)
 - `unsubscribe.html` + `js/unsubscribe.js`: the unsubscribe link in emails
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
@@ -286,13 +287,14 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 
 ## Waiting on the owner
 
-- Google: follow `SEARCH-CONSOLE.md` (add reddle.org, verify with a DNS TXT record, submit sitemap.xml).
+Only these are left, and each needs the owner's own accounts (Claude only has the Supabase connector):
 
-- Emails: follow `EMAIL-SETUP.md` (Resend account, DNS records, `RESEND_API_KEY` and `EMAIL_FROM` secrets in Supabase). Nothing is emailed until then.
+- Emails: follow `EMAIL-SETUP.md` (Resend account, its DNS records in Cloudflare, an API key). Then say "the Resend key is ready": Claude calls the connector's secret tool for `RESEND_API_KEY` and `EMAIL_FROM` (`Reddle <notifications@reddle.org>`) and the owner pastes the values into Supabase's own box. Nothing is emailed until then.
+- Google sign in: follow `GOOGLE-SIGNIN.md` (Google Cloud OAuth client with redirect URI `https://trfgztdvecpswcwoakyz.supabase.co/auth/v1/callback`, then the Client ID and secret in Supabase → Authentication → Providers → Google). The site's code needs no change.
+- Google Search Console: follow `SEARCH-CONSOLE.md` (add reddle.org, verify with a DNS TXT record, submit sitemap.xml).
+- Optional: Supabase → Authentication → "Leaked password protection" (may need a paid plan).
 
-- Custom domain: add the Cloudflare DNS records and Supabase Redirect URLs for reddle.org, then tell Claude (see Feature E part 2 in Progress).
-
-- Run `supabase/step9-delete-account.sql` and `supabase/step11-admin-remove-user.sql` in the Supabase SQL Editor. Claude's connector can't run SQL that touches the login table (`auth.users`): it waits for an approval that never arrives and times out. Until they're run, the Delete account button says deleting isn't switched on yet and deletes nothing, and the admin page's Remove user button says the same.
+Done by the owner: the custom domain (DNS, GitHub verification, Supabase URLs) and `step9` / `step11` (checked on the live database: `delete_my_account` and `admin_delete_user` exist, so Delete account and Remove user work).
 
 ## Notes for later steps
 

@@ -1,7 +1,7 @@
 # Turning on Reddle's notification emails
 
 Reddle can email people when someone follows them, asks to follow them, or
-(later) comments on their review. Everything is built and switched on in the
+comments on their review or post. Everything is built and switched on in the
 database, but **no email is sent until you finish these steps**. Until then the
 site works exactly as before.
 
@@ -32,6 +32,12 @@ It takes about 20 minutes. You only need your browser.
 
 ## Step 3: Add those records in Cloudflare
 
+**Easiest:** if Resend shows an **Auto configure** / **Sign in to Cloudflare**
+button next to the records, press it, log in to Cloudflare and allow it.
+Resend adds the records itself. Then skip to point 4 below.
+
+Otherwise, by hand:
+
 1. Open https://dash.cloudflare.com, click **reddle.org**, then **DNS → Records**.
 2. For **each** record Resend shows, press **Add record** and copy it across
    exactly:
@@ -60,6 +66,15 @@ It takes about 20 minutes. You only need your browser.
 
 ## Step 5: Give the key to Supabase (as a secret)
 
+**Easiest:** tell Claude "the Resend key is ready". Claude asks Supabase to
+store the two secrets, and Supabase shows **you** a box to paste each value
+into, so the key never goes through the chat:
+
+- `RESEND_API_KEY`: the key you copied (starts with `re_`)
+- `EMAIL_FROM`: `Reddle <notifications@reddle.org>`
+
+Or do it yourself in the dashboard:
+
 1. Open https://supabase.com/dashboard and open the Reddle project.
 2. Go to **Edge Functions** (left menu), then **Secrets** (it may be under
    Edge Functions → **Manage secrets**, or **Project Settings → Edge Functions**).
@@ -77,9 +92,11 @@ it's already deployed, so you don't need to touch it.
 2. From the second account, follow your main account.
 3. Within a minute your main email should get "@... started following you on Reddle".
    Check the spam folder the first time.
-4. Turn on **Private profile** in Settings on your main account, and ask to
+4. From the second account, comment on one of your main account's reviews or
+   posts: you should get a "commented on your..." email.
+5. Turn on **Private profile** in Settings on your main account, and ask to
    follow it from the second account: you should get a follow-request email.
-5. Click **Stop emails about new followers** at the bottom of an email, press
+6. Click **Stop emails about new followers** at the bottom of an email, press
    **Yes, unsubscribe**, then check Settings: that switch is now off.
 
 If nothing arrives: in Resend open **Emails** (or **Logs**) to see whether it
@@ -87,8 +104,9 @@ tried, and tell Claude what it says.
 
 ---
 
-**How it works:** when someone follows you (or asks to), the database calls
-the `notify-email` Edge Function. It checks the follow really happened, that
+**How it works:** when someone follows you (or asks to, or comments on your
+review or post), the database calls
+the `notify-email` Edge Function. It checks the follow (or comment) really happened, that
 the email for it is switched on, that it hasn't already emailed you about
 this, and that you've had fewer than 20 emails today. Then it asks Resend to
 send it. People can switch each kind of email off in **Settings → Email
