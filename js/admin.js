@@ -52,7 +52,7 @@ async function removeUser(userId, username) {
   }
   if (!error) {
     await db.storage.from("avatars").remove([userId + "/avatar.jpg"]);
-    await removePostPictures(userId).catch(() => {});
+    await removeUserPictures(userId).catch(() => {});
   }
   finish(error, "@" + username + " removed.");
 }
@@ -139,54 +139,135 @@ async function loadReports() {
 }
 
 
-// ---------- Feedback ----------
+// ---------- Feedback and bug reports ----------
 
 const feedbackList = document.getElementById("feedback-list");
+const kindFilter = document.getElementById("feedback-kind-filter");
+const statusFilter = document.getElementById("feedback-status-filter");
+const FEEDBACK_KIND_NAMES = { bug: "Bug", idea: "Idea", other: "Something else" };
+const FEEDBACK_STATUSES = [["new", "New"], ["looking", "Looking into it"], ["fixed", "Fixed"], ["wont_fix", "Won't fix"]];
 
-async function deleteFeedback(id) {
-  if (!window.confirm("Delete this message?")) return;
-  const { error } = await db.from("feedback").delete().eq("id", id);
+async function deleteFeedback(item) {
+  if (!window.confirm("Delete this report?")) return;
+  const { error } = await db.from("feedback").delete().eq("id", item.id);
   if (error) {
     showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
     return;
   }
-  showStatus(adminMessage, "ok", "Message deleted.");
+  // Its screenshot goes too.
+  if (item.picture_path) await db.storage.from("feedback-pictures").remove([item.picture_path]);
+  showStatus(adminMessage, "ok", "Report deleted.");
   await loadFeedback();
 }
 
+async function changeFeedbackStatus(item, select) {
+  select.disabled = true;
+  const { error } = await db.from("feedback").update({ status: select.value }).eq("id", item.id);
+  select.disabled = false;
+  if (error) {
+    select.value = item.status;
+    showStatus(adminMessage, "error", friendlyError(error, "Couldn't change the status. "));
+    return;
+  }
+  item.status = select.value;
+  select.closest(".report-card").dataset.status = item.status;
+}
+
+// The screenshot is private: ask for a link that works for an hour.
+async function addScreenshot(card, path) {
+  const { data, error } = await db.storage.from("feedback-pictures").createSignedUrl(path, 3600);
+  if (error || !data) {
+    card.appendChild(el("p", "hint", "Screenshot couldn't be loaded."));
+    return;
+  }
+  const link = el("a", "feedback-shot");
+  link.href = data.signedUrl;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.title = "Open the screenshot full size";
+  const img = document.createElement("img");
+  img.src = data.signedUrl;
+  img.alt = "Screenshot sent with the report";
+  img.loading = "lazy";
+  link.appendChild(img);
+  card.querySelector(".feedback-shot-spot").appendChild(link);
+}
+
 function makeFeedbackCard(item) {
-  const card = el("article", "card report-card");
-  const top = el("p", "muted");
-  top.append(
-    "From ",
-    item.profiles ? userLink(item.profiles.username) : "a deleted user",
-    " on " + new Date(item.created_at).toLocaleString(),
-    item.page ? " \u00b7 sent from " + item.page : ""
-  );
-  card.append(top, el("p", "log-review", item.message));
+  const card = el("article", "card report-card feedback-card");
+  card.dataset.status = item.status;
+
+  // Kind, status, when
+  const top = el("div", "feedback-top");
+  top.appendChild(el("span", "feedback-kind feedback-kind-" + item.kind, FEEDBACK_KIND_NAMES[item.kind] || item.kind));
+  const status = el("select", "feedback-status");
+  status.setAttribute("aria-label", "Status");
+  for (const [value, label] of FEEDBACK_STATUSES) {
+    const option = el("option", "", label);
+    option.value = value;
+    status.appendChild(option);
+  }
+  status.value = item.status;
+  status.addEventListener("change", () => changeFeedbackStatus(item, status));
+  top.append(status, el("span", "muted", new Date(item.created_at).toLocaleString()));
+  card.appendChild(top);
+
+  // Who sent it
+  const who = el("p", "muted");
+  if (item.user_id) who.append("From ", item.profiles ? userLink(item.profiles.username) : "a deleted user");
+  else if (item.contact_email) {
+    const mail = el("a", "", item.contact_email);
+    mail.href = "mailto:" + item.contact_email;
+    who.append("From a visitor: ", mail);
+  }
+  card.appendChild(who);
+
+  // What they wrote
+  if (item.steps) {
+    card.appendChild(el("p", "feedback-label", "Trying to do"));
+    card.appendChild(el("p", "log-review", item.steps));
+    card.appendChild(el("p", "feedback-label", "What happened"));
+  }
+  card.appendChild(el("p", "log-review", item.message));
+
+  // Screenshot and device
+  card.appendChild(el("div", "feedback-shot-spot"));
+  if (item.picture_path) addScreenshot(card, item.picture_path);
+  const device = [item.device_info, item.screen_width ? item.screen_width + "px wide" : "", item.installed_app ? "installed app" : "in the browser"]
+    .filter(Boolean).join(" \u00b7 ");
+  const info = el("p", "hint feedback-device", device);
+  if (item.page) info.append(" \u00b7 sent from " + item.page);
+  card.appendChild(info);
+
   const buttons = el("div", "report-buttons");
-  buttons.appendChild(actionButton("Delete", "button-secondary", () => deleteFeedback(item.id)));
+  buttons.appendChild(actionButton("Delete", "button-danger", () => deleteFeedback(item)));
   card.appendChild(buttons);
   return card;
 }
 
 async function loadFeedback() {
-  const { data, error } = await db
+  let query = db
     .from("feedback")
-    .select("id, message, page, created_at, profiles(username)")
+    .select("id, kind, message, steps, page, picture_path, device_info, screen_width, installed_app, status, contact_email, user_id, created_at, profiles(username)")
     .order("created_at", { ascending: false })
     .limit(100);
+  if (kindFilter.value) query = query.eq("kind", kindFilter.value);
+  if (statusFilter.value) query = query.eq("status", statusFilter.value);
+  const { data, error } = await query;
   feedbackList.textContent = "";
   if (error) {
     feedbackList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load feedback. ")));
     return;
   }
   if (data.length === 0) {
-    feedbackList.appendChild(el("p", "muted", "No feedback yet."));
+    feedbackList.appendChild(el("p", "muted", kindFilter.value || statusFilter.value ? "Nothing matches these filters." : "No feedback yet."));
     return;
   }
   for (const item of data) feedbackList.appendChild(makeFeedbackCard(item));
 }
+
+kindFilter.addEventListener("change", loadFeedback);
+statusFilter.addEventListener("change", loadFeedback);
 
 
 // ---------- Reported posts and comments ----------

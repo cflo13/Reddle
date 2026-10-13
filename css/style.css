@@ -3096,3 +3096,107 @@ body > main {
     gap: var(--space-6);
   }
 }
+
+
+/* ------------------------------------------------------------
+   Feedback and bug reports: the pop-up and the admin list
+   ------------------------------------------------------------ */
+
+.feedback-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.feedback-kinds .genre-choice {
+  padding: 6px 14px; /* all three fit on one line on phones */
+}
+
+.feedback-picture {
+  margin: var(--space-1) 0;
+}
+
+.feedback-sent-with {
+  margin-top: var(--space-2);
+}
+
+.feedback-thanks {
+  margin: var(--space-4) 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.feedback-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.feedback-filters label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.feedback-filters select,
+.feedback-status {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+
+.feedback-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.feedback-kind {
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.feedback-kind-bug {
+  color: var(--error);
+}
+
+.feedback-label {
+  margin: var(--space-2) 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.feedback-shot img {
+  display: block;
+  max-width: 220px;
+  max-height: 160px;
+  margin: var(--space-2) 0;
+  border-radius: var(--radius-small);
+  box-shadow: var(--card-shadow);
+  object-fit: cover;
+}
+
+.feedback-device {
+  overflow-wrap: anywhere;
+}
+
+/* Fixed and won't-fix reports fade back a little. */
+.feedback-card[data-status="fixed"],
+.feedback-card[data-status="wont_fix"] {
+  opacity: 0.7;
+}

@@ -487,16 +487,19 @@ async function setMuted(personId, mute) {
 }
 
 // The people you muted (their reviews stay out of your feed).
-// Deletes every picture a person attached to posts (their folder in
-// the post-images bucket). Used when deleting an account (your own) and
-// when the admin removes a user. Pictures live in Storage, so the
+// Deletes every picture a person attached to posts and every screenshot
+// they sent with feedback (their folder in the post-images and
+// feedback-pictures buckets). Used when deleting an account (your own)
+// and when the admin removes a user. Pictures live in Storage, so the
 // database can't delete them itself.
-async function removePostPictures(userId) {
-  for (let round = 0; round < 20; round++) {
-    const { data } = await db.storage.from("post-images").list(userId, { limit: 100 });
-    if (!data || data.length === 0) return;
-    const { error } = await db.storage.from("post-images").remove(data.map((file) => userId + "/" + file.name));
-    if (error) return;
+async function removeUserPictures(userId) {
+  for (const bucket of ["post-images", "feedback-pictures"]) {
+    for (let round = 0; round < 20; round++) {
+      const { data } = await db.storage.from(bucket).list(userId, { limit: 100 });
+      if (!data || data.length === 0) break;
+      const { error } = await db.storage.from(bucket).remove(data.map((file) => userId + "/" + file.name));
+      if (error) break;
+    }
   }
 }
 
@@ -606,61 +609,290 @@ function openInviteDialog(profile) {
   dialog.showModal();
 }
 
-// "Feedback": a message to the site owner (saved in the feedback table,
-// supabase/step16-feedback.sql; only admins can read it).
-const FEEDBACK_MAX = 2000;
+// ---------- Feedback and bug reports ----------
+// The pop-up behind "Feedback" and "Report a bug" in the footer. Saved in
+// the feedback table (supabase/step16-feedback.sql + step23-bug-reports.sql);
+// only admins can read it. Logged-out visitors can send one too, with an
+// email address so we can reply. Logged-in people can add a screenshot
+// (private "feedback-pictures" bucket, their own folder, admins only).
+const FEEDBACK_MAX = 2000;                       // both boxes together
+const FEEDBACK_PICTURE_MAX_BYTES = 5 * 1024 * 1024;
+const FEEDBACK_PICTURE_SIZE = 1600;              // longest side after shrinking
+const FEEDBACK_KINDS = [["bug", "Bug"], ["idea", "Idea"], ["other", "Something else"]];
 
-function openFeedbackDialog() {
-  const { dialog, body } = makeDialog("Send feedback");
-  const form = el("form", "form");
-  const label = el("label", "", "Ideas, problems, anything. Only the site owner reads these.");
-  label.htmlFor = "feedback-text";
+// Shrinks a picture so its longest side is at most `maxSide` pixels and
+// gives it back as a JPEG. Used for post pictures and screenshots.
+function shrinkPicture(file, maxSide) {
+  return new Promise(function (resolve, reject) {
+    const img = new Image();
+    const link = URL.createObjectURL(file);
+    img.onload = function () {
+      const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.naturalWidth * scale);
+      canvas.height = Math.round(img.naturalHeight * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = themeColour("--surface"); // behind see-through parts
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(link);
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("The picture couldn't be read."))), "image/jpeg", 0.85);
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(link);
+      reject(new Error("That file doesn't look like a picture."));
+    };
+    img.src = link;
+  });
+}
+
+// "Chrome 129 on Android": the browser and device in a few words, from
+// the browser's own description of itself (the user agent).
+function deviceSummary() {
+  const ua = navigator.userAgent || "";
+  let browser = "Unknown browser";
+  const browsers = [
+    [/Edg\/(\d+)/, "Edge"], [/OPR\/(\d+)/, "Opera"], [/SamsungBrowser\/(\d+)/, "Samsung Internet"],
+    [/Firefox\/(\d+)/, "Firefox"], [/FxiOS\/(\d+)/, "Firefox"], [/CriOS\/(\d+)/, "Chrome"],
+    [/Chrome\/(\d+)/, "Chrome"], [/Version\/(\d+)[\d.]* .*Safari\//, "Safari"],
+  ];
+  for (const [pattern, name] of browsers) {
+    const match = ua.match(pattern);
+    if (match) {
+      browser = name + " " + match[1];
+      break;
+    }
+  }
+  let device = "unknown device";
+  if (/iPhone/.test(ua)) device = "iPhone";
+  else if (/iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) device = "iPad";
+  else if (/Android/.test(ua)) device = /Mobile/.test(ua) ? "Android phone" : "Android tablet";
+  else if (/Windows/.test(ua)) device = "Windows";
+  else if (/CrOS/.test(ua)) device = "Chromebook";
+  else if (/Macintosh|Mac OS X/.test(ua)) device = "Mac";
+  else if (/Linux/.test(ua)) device = "Linux";
+  return (browser + " on " + device).slice(0, 200);
+}
+
+// Was the site opened as the installed app (from the home screen)?
+function isInstalledApp() {
+  return (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+}
+
+function looksLikeEmail(text) {
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(text) && text.length <= 254;
+}
+
+// startKind: "bug" (from "Report a bug") or "other" (from "Feedback").
+function openFeedbackDialog(startKind) {
+  const loggedIn = !!currentUserId;
+  const { dialog, body } = makeDialog(startKind === "bug" ? "Report a bug" : "Send feedback");
+  const form = el("form", "form feedback-form");
+  form.noValidate = true; // we check it ourselves, with friendlier words
+
+  // 1. What kind
+  const kinds = el("div", "feedback-kinds");
+  kinds.setAttribute("role", "radiogroup");
+  kinds.setAttribute("aria-label", "What kind of message is this?");
+  let kind = startKind === "bug" ? "bug" : "other";
+  const kindButtons = FEEDBACK_KINDS.map(function ([value, label]) {
+    const button = el("button", "genre-choice", label);
+    button.type = "button";
+    button.setAttribute("role", "radio");
+    button.addEventListener("click", function () {
+      kind = value;
+      showKind();
+    });
+    button.dataset.kind = value;
+    kinds.appendChild(button);
+    return button;
+  });
+
+  // 2. The words: one box, or two for a bug
+  const stepsLabel = el("label", "", "What were you trying to do?");
+  stepsLabel.htmlFor = "feedback-steps";
+  const steps = el("textarea", "");
+  steps.id = "feedback-steps";
+  steps.rows = 3;
+  const textLabel = el("label", "");
+  textLabel.htmlFor = "feedback-text";
   const text = el("textarea", "");
   text.id = "feedback-text";
-  text.rows = 6;
-  text.maxLength = FEEDBACK_MAX;
-  text.required = true;
+  text.rows = 5;
   const counter = el("p", "hint", "0 / " + FEEDBACK_MAX);
-  text.addEventListener("input", () => (counter.textContent = text.value.length + " / " + FEEDBACK_MAX));
+
+  function used() {
+    return text.value.length + (kind === "bug" ? steps.value.length : 0);
+  }
+  function updateCounter() {
+    // Both boxes share the 2000 characters.
+    text.maxLength = FEEDBACK_MAX - (kind === "bug" ? steps.value.length : 0);
+    steps.maxLength = FEEDBACK_MAX - text.value.length;
+    counter.textContent = used() + " / " + FEEDBACK_MAX;
+  }
+  text.addEventListener("input", updateCounter);
+  steps.addEventListener("input", updateCounter);
+
+  function showKind() {
+    kindButtons.forEach((button) => {
+      const on = button.dataset.kind === kind;
+      button.setAttribute("aria-checked", on ? "true" : "false");
+      button.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    const bug = kind === "bug";
+    stepsLabel.hidden = !bug;
+    steps.hidden = !bug;
+    textLabel.textContent = bug ? "What happened instead?" : kind === "idea" ? "Your idea" : "Your message";
+    text.placeholder = bug ? "For example: the stars didn't save" : "";
+    updateCounter();
+  }
+
+  // 3. Screenshot (logged in only)
+  let picture = null;
+  const pictureArea = el("div", "feedback-picture");
+  const pictureInput = el("input", "");
+  pictureInput.type = "file";
+  pictureInput.accept = "image/jpeg,image/png,image/webp";
+  pictureInput.hidden = true;
+  const pictureButton = el("button", "link-button", "+ Add a screenshot (optional)");
+  pictureButton.type = "button";
+  pictureButton.addEventListener("click", () => pictureInput.click());
+  const pictureChip = el("div", "composer-chip");
+  pictureChip.hidden = true;
+  function showPicture() {
+    pictureChip.textContent = "";
+    pictureChip.hidden = !picture;
+    pictureButton.hidden = !!picture;
+    if (!picture) return;
+    const preview = document.createElement("img");
+    preview.className = "composer-preview";
+    preview.alt = "";
+    preview.src = URL.createObjectURL(picture);
+    const remove = el("button", "link-button composer-remove", "×");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "Remove the screenshot");
+    remove.addEventListener("click", () => { picture = null; showPicture(); });
+    pictureChip.append(preview, el("span", "muted", picture.name), remove);
+  }
+  pictureInput.addEventListener("change", function () {
+    const file = pictureInput.files[0];
+    pictureInput.value = "";
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) return problem("Screenshots must be JPG, PNG or WEBP.");
+    if (file.size > FEEDBACK_PICTURE_MAX_BYTES) return problem("That picture is bigger than 5 MB.");
+    message.hidden = true;
+    picture = file;
+    showPicture();
+  });
+  pictureArea.append(pictureInput, pictureButton, pictureChip);
+
+  // 4. Reply address (logged out only)
+  const emailLabel = el("label", "", "Your email, so we can reply");
+  emailLabel.htmlFor = "feedback-email";
+  const email = el("input", "");
+  email.id = "feedback-email";
+  email.type = "email";
+  email.autocomplete = "email";
+  email.maxLength = 254;
+  const emailHint = el("p", "hint", "We only use it to answer this report.");
+
+  const sentWith = el("p", "hint feedback-sent-with",
+    "Sent with it: this page's address, your browser and device, your screen width, and whether you're using the installed app.");
   const send = el("button", "button", "Send");
   send.type = "submit";
   const message = el("p", "status");
   message.hidden = true;
-  form.append(label, text, counter, send, message);
+  // An error message, scrolled into view (the pop-up can be taller than a phone screen).
+  function problem(text) {
+    showStatus(message, "error", text);
+    message.scrollIntoView({ block: "nearest" });
+  }
+
+  form.appendChild(kinds);
+  form.append(stepsLabel, steps, textLabel, text, counter);
+  if (loggedIn) form.appendChild(pictureArea);
+  else form.append(emailLabel, email, emailHint);
+  form.append(sentWith, send, message);
   body.appendChild(form);
+  showKind();
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const words = text.value.trim();
-    if (!words) return showStatus(message, "error", "Please write something first.");
+    const stepWords = kind === "bug" ? steps.value.trim() : "";
+    if (kind === "bug" && !stepWords) return problem("Please say what you were trying to do.");
+    if (!words) return problem(kind === "bug" ? "Please say what happened instead." : "Please write something first.");
+    if (words.length + stepWords.length > FEEDBACK_MAX) return problem("That's a bit long: " + FEEDBACK_MAX + " characters at most.");
+    const reply = email.value.trim();
+    if (!loggedIn && !looksLikeEmail(reply)) return problem("Please type an email address we can reply to.");
+
     send.disabled = true;
-    const page = (window.location.pathname + window.location.search).slice(0, 300);
-    const { error } = await db.from("feedback").insert({ message: words, page: page });
-    send.disabled = false;
-    if (error) {
-      showStatus(message, "error", friendlyError(error, "Couldn't send it. "));
+    send.textContent = "Sending...";
+    message.hidden = true;
+    const row = {
+      kind: kind,
+      message: words,
+      steps: stepWords || null,
+      page: (window.location.pathname + window.location.search).slice(0, 300),
+      device_info: deviceSummary(),
+      screen_width: Math.round(window.innerWidth),
+      installed_app: isInstalledApp(),
+    };
+    if (!loggedIn) row.contact_email = reply;
+    let uploaded = null;
+    try {
+      if (picture) {
+        const blob = await shrinkPicture(picture, FEEDBACK_PICTURE_SIZE);
+        uploaded = currentUserId + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg";
+        const { error } = await db.storage.from("feedback-pictures").upload(uploaded, blob, { contentType: "image/jpeg" });
+        if (error) {
+          uploaded = null;
+          throw error;
+        }
+        row.picture_path = uploaded;
+      }
+      const { error } = await db.from("feedback").insert(row);
+      if (error) throw error;
+    } catch (error) {
+      if (uploaded) db.storage.from("feedback-pictures").remove([uploaded]); // don't leave it behind
+      send.disabled = false;
+      send.textContent = "Send";
+      problem(friendlyError(error, "Couldn't send it. "));
       return;
     }
-    text.value = "";
-    showStatus(message, "ok", "Thank you! Your message was sent.");
-    setTimeout(() => dialog.close(), 1500);
+    // Done: just the thank-you.
+    body.textContent = "";
+    body.appendChild(el("p", "feedback-thanks", "Thanks, we've got it"));
+    setTimeout(() => dialog.close(), 2500);
   });
   dialog.addEventListener("close", () => dialog.remove());
   dialog.showModal();
-  text.focus();
+  (kind === "bug" ? steps : text).focus();
 }
 
-// Logged in: Feedback and Invite friends links in the footer.
+// Footer links. Logged in: Feedback, Report a bug and Invite friends.
+// Logged out: Report a bug (with an email box in the pop-up).
+function footerLinkButton(text, className, onClick) {
+  const button = el("button", "link-button " + className, text);
+  button.type = "button";
+  button.addEventListener("click", onClick);
+  return button;
+}
+
 function addFooterExtras(profile) {
   const links = document.querySelector(".footer-links");
   if (!links || links.querySelector(".footer-feedback")) return;
-  const feedback = el("button", "link-button footer-feedback", "Feedback");
-  feedback.type = "button";
-  feedback.addEventListener("click", openFeedbackDialog);
-  const invite = el("button", "link-button", "Invite friends");
-  invite.type = "button";
-  invite.addEventListener("click", () => openInviteDialog(profile));
-  links.append(feedback, invite);
+  links.append(
+    footerLinkButton("Feedback", "footer-feedback", () => openFeedbackDialog("other")),
+    footerLinkButton("Report a bug", "footer-bug", () => openFeedbackDialog("bug")),
+    footerLinkButton("Invite friends", "footer-invite", () => openInviteDialog(profile))
+  );
+}
+
+function addLoggedOutFooter() {
+  const links = document.querySelector(".footer-links");
+  if (!links || links.querySelector(".footer-bug")) return;
+  links.append(footerLinkButton("Report a bug", "footer-bug", () => openFeedbackDialog("bug")));
 }
 
 
@@ -930,6 +1162,14 @@ function markActivitySeen() {
   }
 }
 
+// Admins: how many feedback reports are still "new", on the shield.
+async function showNewFeedbackBadge(button) {
+  const { count } = await db.from("feedback").select("id", { count: "exact", head: true }).eq("status", "new");
+  if (!count) return;
+  button.appendChild(el("span", "nav-badge", count > 9 ? "9+" : String(count)));
+  button.setAttribute("aria-label", "Admin (" + count + " new " + (count === 1 ? "report" : "reports") + ")");
+}
+
 async function showRequestBadge(bell) {
   const onNotificationsPage = /notifications\.html$/.test(window.location.pathname);
   const [requests, activity] = await Promise.all([
@@ -972,6 +1212,7 @@ async function setupHeader() {
     nav.innerHTML =
       '<a href="login.html">Log in</a>' +
       '<a class="button" href="signup.html">Sign up</a>';
+    addLoggedOutFooter();
     return { user: null, profile: null };
   }
 
@@ -1006,7 +1247,10 @@ async function setupHeader() {
 
   const buttons = [profileButton];
   if (currentIsAdmin) {
-    buttons.push(makeNavButton("a", "admin.html", "Admin", ICON_SHIELD));
+    const adminButton = makeNavButton("a", "admin.html", "Admin", ICON_SHIELD);
+    adminButton.classList.add("nav-bell"); // room for the badge
+    buttons.push(adminButton);
+    showNewFeedbackBadge(adminButton).catch(() => {});
   }
   const bell = makeNavButton("a", "notifications.html", "Notifications", ICON_BELL);
   bell.classList.add("nav-bell");

@@ -431,33 +431,8 @@ async function savePickedBook(picked) {
 
 // ---------- Pictures for posts ----------
 
-// Shrinks a picture so its longest side is at most 1600px, as a JPEG.
-function resizePicture(file) {
-  return new Promise(function (resolve, reject) {
-    const img = new Image();
-    const link = URL.createObjectURL(file);
-    img.onload = function () {
-      const scale = Math.min(1, POST_PICTURE_SIZE / Math.max(img.naturalWidth, img.naturalHeight));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.naturalWidth * scale);
-      canvas.height = Math.round(img.naturalHeight * scale);
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = themeColour("--surface"); // behind see-through parts
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(link);
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("The picture couldn't be read."))), "image/jpeg", 0.85);
-    };
-    img.onerror = function () {
-      URL.revokeObjectURL(link);
-      reject(new Error("That file doesn't look like a picture."));
-    };
-    img.src = link;
-  });
-}
-
 async function uploadPostPicture(file) {
-  const blob = await resizePicture(file);
+  const blob = await shrinkPicture(file, POST_PICTURE_SIZE); // js/auth.js
   const path = currentUserId + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg";
   const { error } = await db.storage.from("post-images").upload(path, blob, { contentType: "image/jpeg" });
   if (error) throw error;
