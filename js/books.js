@@ -140,6 +140,7 @@ async function fetchBookFromOpenLibrary(externalId) {
     fetchJson(OPEN_LIBRARY + "/works/" + externalId + "/editions.json?limit=20"),
   ]);
   const isbn = findIsbn(editions);
+  const pageCount = findPageCount(editions);
 
   // The description is sometimes plain text, sometimes { value: "text" }.
   let description = work.description || "";
@@ -164,7 +165,24 @@ async function fetchBookFromOpenLibrary(externalId) {
     description: description.trim() || null,
     isbn: isbn || null,
     genres: genresFromSubjects(work.subjects),
+    page_count: pageCount,
   };
+}
+
+// The usual number of pages across a book's editions (the middle value,
+// so one odd edition doesn't skew it), or null if none say.
+function findPageCount(editions) {
+  if (!editions || !editions.entries) return null;
+  const counts = editions.entries
+    .map((edition) => Number(edition.number_of_pages))
+    .filter((pages) => pages >= 1 && pages <= 50000)
+    .sort((a, b) => a - b);
+  return counts.length ? counts[Math.floor(counts.length / 2)] : null;
+}
+
+// Just the page count, for books saved before we kept it.
+async function fetchPageCount(externalId) {
+  return findPageCount(await fetchJson(OPEN_LIBRARY + "/works/" + externalId + "/editions.json?limit=20"));
 }
 
 // Fetches JSON, or gives null if anything goes wrong.
@@ -528,6 +546,32 @@ function openLibraryToBook(book) {
 }
 
 
+// ---------- Rating breakdown (book page) ----------
+
+// A small bar chart: how many ratings at each half star from 0.5 to 5.
+// `ratings` is a list of numbers.
+function makeRatingChart(ratings) {
+  const steps = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+  const counts = steps.map((step) => ratings.filter((rating) => rating === step).length);
+  const most = Math.max(1, ...counts);
+  const chart = el("div", "rating-chart");
+  chart.setAttribute("role", "img");
+  chart.setAttribute("aria-label", "Ratings: " + steps.map((step, i) => step + " stars, " + counts[i]).join("; "));
+  const bars = el("div", "rating-bars");
+  steps.forEach(function (step, i) {
+    const bar = el("span", "rating-bar");
+    bar.style.height = Math.max(3, Math.round((counts[i] / most) * 100)) + "%";
+    bar.title = step + " \u2605: " + counts[i] + (counts[i] === 1 ? " rating" : " ratings");
+    if (counts[i] === 0) bar.classList.add("rating-bar-empty");
+    bars.appendChild(bar);
+  });
+  const ends = el("div", "rating-ends");
+  ends.append(el("span", "", "\u00bd\u2605"), el("span", "", "5\u2605"));
+  chart.append(bars, ends);
+  return chart;
+}
+
+
 // ---------- Log cards (feed, book page, profile) ----------
 
 // ---------- Likes (supabase/step17-likes.sql) ----------
@@ -624,9 +668,33 @@ function formatDate(dateText) {
 // What every query for log cards asks for: the log, plus the person who
 // wrote it and the book (Supabase joins them in for us).
 const LOG_FIELDS =
-  "id, rating, review, date_read, created_at, user_id, book_id, " +
+  "id, rating, review, spoiler, reread_count, reread_dates, date_read, created_at, user_id, book_id, " +
   "profiles(username, avatar_url), " +
   "books(external_id, title, author, cover_url)";
+
+// "Read 3 times" (a reread count of 2 means three reads in total).
+function rereadText(rereadCount) {
+  return "\u21bb Read " + (rereadCount + 1) + " times";
+}
+
+// The review text. Spoiler reviews stay hidden behind a button.
+function makeReview(log, className) {
+  const text = el("p", className || "log-review", log.review);
+  if (!log.spoiler) return text;
+  const box = el("div", "spoiler-box");
+  const button = el("button", "button button-secondary spoiler-button", "Show spoiler");
+  button.type = "button";
+  button.setAttribute("aria-expanded", "false");
+  text.hidden = true;
+  button.addEventListener("click", function () {
+    const show = text.hidden;
+    text.hidden = !show;
+    button.textContent = show ? "Hide spoiler" : "Show spoiler";
+    button.setAttribute("aria-expanded", String(show));
+  });
+  box.append(el("span", "spoiler-note", "This review contains spoilers."), button, text);
+  return box;
+}
 
 // One log as a card.
 //   showBook: show the cover and title (feed and profile)
@@ -664,9 +732,10 @@ function makeLogCard(log, options) {
   const meta = el("p", "log-meta");
   if (log.rating) meta.appendChild(el("span", "stars", starsText(log.rating)));
   if (log.date_read) meta.appendChild(el("span", "muted", "Read " + formatDate(log.date_read)));
+  if (log.reread_count > 0) meta.appendChild(el("span", "reread-badge", rereadText(log.reread_count)));
   body.appendChild(meta);
 
-  if (log.review) body.appendChild(el("p", "log-review", log.review));
+  if (log.review) body.appendChild(makeReview(log));
 
   // Heart (likes) on every log, and a Report button for reviews by
   // other people (when logged in).

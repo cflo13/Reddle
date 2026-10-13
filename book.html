@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=37">
 </head>
 <body>
   <header class="site-header">
@@ -86,9 +86,27 @@
             <button type="button" class="button button-secondary shelf-button" data-status="currently_reading">Currently reading</button>
           </div>
           <p id="shelf-message" class="hint" hidden></p>
+          <!-- Page progress, only while the book is on your Currently reading shelf -->
+          <form id="progress-form" class="progress-form" hidden>
+            <div class="progress-bar" aria-hidden="true"><span id="progress-fill"></span></div>
+            <p id="progress-text" class="hint"></p>
+            <div class="progress-inputs">
+              <label for="current-page">Page</label>
+              <input id="current-page" type="number" min="0" max="50000" inputmode="numeric">
+              <span id="total-pages-known"></span>
+              <span id="total-pages-ask" hidden>
+                <label for="total-pages">of</label>
+                <input id="total-pages" type="number" min="1" max="50000" inputmode="numeric" placeholder="total">
+              </span>
+              <button type="submit" class="button button-secondary">Save</button>
+            </div>
+            <p id="progress-message" class="hint" hidden></p>
+          </form>
           <!-- Share button, filled in by js/book.js -->
           <p id="book-share" class="log-actions"></p>
           <p id="book-average" class="stars-average"></p>
+          <!-- Rating breakdown bar chart, filled in by js/book.js -->
+          <div id="rating-chart-spot"></div>
           <p id="book-description" class="book-description"></p>
           <p id="book-isbn" class="muted"></p>
         </div>
@@ -122,6 +140,7 @@
           <label for="review-input">Review (optional)</label>
           <textarea id="review-input" rows="5" placeholder="What did you think?"></textarea>
           <p id="review-counter" class="hint">0 / 5000</p>
+          <label class="check-row"><input id="spoiler-input" type="checkbox"> This review contains spoilers</label>
 
           <div class="form-buttons">
             <button type="submit" class="button">Save log</button>
@@ -129,6 +148,17 @@
           </div>
           <p id="log-message" class="status" hidden></p>
         </form>
+
+        <!-- Rereads: only once you have a log -->
+        <div id="reread-area" class="reread-area" hidden>
+          <p id="reread-text" class="muted"></p>
+          <div class="reread-buttons">
+            <label for="reread-date" class="visually-hidden">Date you finished it again</label>
+            <input id="reread-date" type="date">
+            <button id="reread-button" type="button" class="button button-secondary">I read this again</button>
+            <button id="reread-undo" type="button" class="link-button" hidden>Undo last reread</button>
+          </div>
+        </div>
       </section>
 
       <!-- Filled in by js/book.js; hidden if there's nothing to suggest -->
@@ -157,16 +187,16 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=36"></script>
+  <script src="js/config.js?v=37"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=36"></script>
+  <script src="js/supabase-client.js?v=37"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=36"></script>
+  <script src="js/auth.js?v=37"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=36"></script>
+  <script src="js/search-suggest.js?v=37"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=36"></script>
+  <script src="js/books.js?v=37"></script>
   <!-- This page's own code -->
-  <script src="js/book.js?v=36"></script>
+  <script src="js/book.js?v=37"></script>
 </body>
 </html>

@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=37">
 </head>
 <body>
   <header class="site-header">
@@ -70,7 +70,7 @@
     <ul>
       <li><strong>Your account:</strong> your email address and a password. Passwords are scrambled (hashed) by our login provider, so nobody at Reddle can read them.</li>
       <li><strong>Your profile:</strong> your username, bio and profile picture, if you add them.</li>
-      <li><strong>What you do on Reddle:</strong> the books you log, your ratings, reviews and dates read, your Want to read and Currently reading shelves, the reviews you like, and who you follow.</li>
+      <li><strong>What you do on Reddle:</strong> the books you log, your ratings, reviews (and whether they contain spoilers), dates read and rereads, the page you're on in books you're reading, your Want to read and Currently reading shelves, the reviews you like, and who you follow.</li>
       <li><strong>Your reading taste:</strong> the genres you pick in the taste questionnaire, which we use to suggest books.</li>
       <li><strong>Reports:</strong> if you report a review or profile, we keep the report and who sent it, so we can look into it.</li>
       <li><strong>Feedback:</strong> if you send feedback, we keep your message, who sent it and which page you sent it from. Only the site owner can read it.</li>
@@ -78,7 +78,7 @@
     </ul>
 
     <h2>What's public</h2>
-    <p>Reddle is a social site, so your profile is public: your username, bio, picture, logs, ratings, reviews, shelves, likes, and who you follow and who follows you. Anyone can see these, even without an account.</p>
+    <p>Reddle is a social site, so your profile is public: your username, bio, picture, logs, ratings, reviews, rereads, reading progress, shelves, likes, and who you follow and who follows you. Anyone can see these, even without an account.</p>
     <p><strong>Your email address is never shown</strong> to other people.</p>
 
     <h2>Where it's stored</h2>
@@ -124,14 +124,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=36"></script>
+  <script src="js/config.js?v=37"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=36"></script>
+  <script src="js/supabase-client.js?v=37"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=36"></script>
+  <script src="js/auth.js?v=37"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=36"></script>
+  <script src="js/search-suggest.js?v=37"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=36"></script>
+  <script src="js/static-page.js?v=37"></script>
 </body>
 </html>

@@ -1841,3 +1841,167 @@ body > main {
 .log-actions {
   align-items: center;
 }
+
+/* Hidden on screen, still read out by screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* A tick box with its words on one line */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+/* ---------- Rating breakdown (book page) ---------- */
+
+.rating-chart {
+  max-width: 260px;
+  margin: 4px 0 16px;
+}
+
+.rating-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rating-bar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: var(--muted);
+}
+
+.rating-bar-empty {
+  background: var(--border);
+}
+
+.rating-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  color: var(--ok);
+  font-size: 0.75rem;
+}
+
+/* ---------- Spoilers ---------- */
+
+.spoiler-box {
+  margin: 6px 0;
+}
+
+.spoiler-note {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.spoiler-button {
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+/* ---------- Rereads ---------- */
+
+.reread-badge {
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.reread-area {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.reread-area p {
+  margin: 0 0 8px;
+}
+
+.reread-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.reread-buttons input,
+.progress-inputs input {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+/* ---------- Page progress ---------- */
+
+.progress-form {
+  margin: 8px 0 12px;
+  max-width: 360px;
+}
+
+.progress-form p {
+  margin: 4px 0;
+}
+
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--ok);
+}
+
+.progress-bar-small {
+  height: 5px;
+  margin-top: 6px;
+}
+
+.progress-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-inputs input {
+  width: 80px;
+}
+
+.progress-inputs .button {
+  padding: 6px 12px;
+}
+
+.reading-item {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.reading-note {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}

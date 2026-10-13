@@ -30,6 +30,10 @@ the people they follow are reading.
 - **Share and invite:** a Share link on every profile and book page (`makeShareButton()`): the phone's share sheet when there is one, otherwise it copies the clean link and says "Link copied!". Invite friends (footer, and on your own profile) opens a ready-made message with your profile link, editable, with Share / Copy message.
 - **Loading placeholders:** grey shimmer boxes (`.skeleton`, `.sk-*` in style.css, `--skeleton` / `--shimmer` tokens) are written straight into the HTML of the home feed, profile and book tops and their log lists, author, popular and genre grids; the home rows use `.tile-placeholder`. `showPagedLogs()` clears them when the first page arrives. Respects reduced motion.
 - **Likes:** a heart with a count on every log card (`makeLikeButton()`, `fillLikes()`, `toggleLike()` in books.js). One like per person per log (`likes` primary key), press again to unlike; changes on screen at once and goes back if saving fails. Your own logs show the count but can't be liked. Logged out, the heart goes to Log in and comes back. Counts come from the `log_like_counts` view, only for the logs on screen.
+- **Rating breakdown:** under the book page average, a 10-bar chart (0.5 to 5) from the same all-ratings query (`makeRatingChart()` in books.js). Not clickable.
+- **Spoilers:** `logs.spoiler`, a tick box under the review. Spoiler reviews show "This review contains spoilers." and a Show spoiler button everywhere log cards appear (`makeReview()` in books.js).
+- **Rereads:** `logs.reread_count` + `logs.reread_dates`. On the book page, under your log: a date box, "I read this again" and "Undo last reread" (plain `update` by log id, so the log upsert never touches or resets them). Cards show "↻ Read N times" (N = rereads + 1).
+- **Page progress:** `books.page_count` (median `number_of_pages` of the first 20 Open Library editions, saved with new books; older books get it when someone has them Currently reading, via `fill_book_pages()`, which only fills an empty count) and `shelves.current_page`. Book page: Page [ ] of N with a bar while the book is Currently reading; when the total is unknown it asks once and saves it for everyone. Profile Currently reading covers show a bar and %.
 - **Header buttons:** when logged in, the header shows separate, always-visible buttons (no dropdown): Profile (your picture + @username), Admin (shield icon, admins only), Settings (gear icon) and a small Log out. Built by `setupHeader()` / `makeNavButton()` in `js/auth.js`. Below 1000px wide only the icons show (so tablets fit). Logged out: Log in and Sign up. The header also has Genres and Popular links (on phones they sit next to the search box).
 - **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
@@ -64,16 +68,16 @@ the people they follow are reading.
 Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 
 - **profiles:** id (same as the login user id), username, bio, avatar_url, onboarded (has seen the welcome page; `step13-onboarding.sql`), favorite_genres (from the taste questionnaire; `step15-favorite-genres.sql`)
-- **books:** id, external_id (unique), title, author, cover_url, description, isbn, genres (list of genre slugs; `step14-genres.sql`)
+- **books:** id, external_id (unique), title, author, cover_url, description, isbn, genres (list of genre slugs; `step14-genres.sql`), page_count (`step18`)
 - **books_with_stats** (a view, not a table): each book plus log_count, avg_rating, rating_count and logs_this_week. Use it for anything ranked (genre pages, recommendations, popular).
-- **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book)
+- **logs:** id, user_id, book_id, rating, review, date_read (unique per user + book), spoiler, reread_count, reread_dates (`step18`)
 - **follows:** follower_id, following_id
 - **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
 - **admins:** user_id. Only the owner (`cflo13`). Users can only see their own row (to show the Admin menu link). In `supabase/step10-reports-admin.sql`, which has a placeholder id; the live project has the owner's real id.
 - **likes:** user_id, log_id (one per user + log), created_at. Everyone can read; you can only add or remove your own. **log_like_counts** (a view): log_id, like_count. In `supabase/step17-likes.sql`.
 - **feedback:** user_id, message (1 to 2000), page, created_at. Anyone logged in can send; only admins can read or delete. In `supabase/step16-feedback.sql`.
 - **reports:** reporter_id, log_id or reported_user_id (exactly one), reason (max 500), status (`open` / `dismissed`). Anyone logged in can send; only admins can read, dismiss or delete. One report per person per review/profile. Admins may also delete any log and any avatar (`is_admin()` in the rules).
-- **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book. In `supabase/step7-shelves.sql`.
+- **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book, current_page (`step18`). In `supabase/step7-shelves.sql`.
 
 Everyone can read everything (except reports and admins). Users can only change their own profile, logs, follows and shelves.
 
@@ -123,6 +127,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step15-favorite-genres.sql`: `profiles.favorite_genres` (same allowed slugs as books) (batch 2, taste questionnaire)
 - `supabase/step16-feedback.sql`: the `feedback` table (Part C)
 - `supabase/step17-likes.sql`: the `likes` table and `log_like_counts` view (Part D)
+- `supabase/step18-book-review-features.sql`: spoiler, rereads, page counts, reading progress, `fill_book_pages()` (Part H)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -219,6 +224,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Part B (day and night mode): built.** Tested: device setting, saved choice wins, toggle, theme-color, script runs before CSS, home/book/profile/settings/search/genres in day mode at 1100 and 375px, header at 320px (tightened below 400px).
 - **Part C (feedback, share/invite, loading placeholders): built.** `step16-feedback.sql` applied; rules checked on the live database in a rolled-back test (admin reads, others see nothing). Tested: send/empty/escaped text, admin list and delete, invite copy, share copy and share sheet, own vs other profile, placeholders in both themes, dialog at 375px. Privacy page updated (feedback, what the browser keeps).
 - **Part D item 1 (likes): built.** `step17-likes.sql` applied (the live database has no logs yet, so the like itself was only tested with stand-ins; the security advisor shows no new warnings). Tested: like, unlike, survives reload, own log not likeable, feed/profile/book, logged out goes to login and back, failed save goes back, 375px. The owner's message was cut off after Part D item 1, so the rest of Part D is still to come.
+- **Part H (rating chart, spoilers, rereads, page progress): built.** `step18` applied. Tested with stand-ins: chart counts, spoiler hidden on book/feed and shown on click, spoiler saved, rereads add/undo with dates, updating the log keeps rereads, page count from editions (median, ignores a 9999 outlier), typed total when unknown, progress bar on book and profile, 375px.
 - **Connector note:** SQL containing `delete` also times out through the connector, even with a `where` filter.
 - Next: the owner's earlier list: likes on reviews, comments, lists, four favourite books, popular this week page, reading stats, /username links, Google sign in.
 

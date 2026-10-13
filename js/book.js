@@ -79,6 +79,7 @@ async function loadLogs() {
   if (!shownBook.id) {
     showLogList(list, [], {}, emptyText);
     average.textContent = "";
+    document.getElementById("rating-chart-spot").textContent = "";
     myLog = null;
     return;
   }
@@ -105,13 +106,17 @@ async function loadLogs() {
     ),
   ]);
 
-  // Average of everyone's ratings.
+  // Average of everyone's ratings, and the bar chart of how many gave
+  // each rating.
   const ratings = (ratingsResult.data || []).map((row) => Number(row.rating));
+  const chartSpot = document.getElementById("rating-chart-spot");
+  chartSpot.textContent = "";
   if (ratings.length > 0) {
     const sum = ratings.reduce((total, rating) => total + rating, 0);
     average.textContent =
       "Average " + (sum / ratings.length).toFixed(1) + " ★ from " +
       ratings.length + (ratings.length === 1 ? " rating" : " ratings");
+    chartSpot.appendChild(makeRatingChart(ratings));
   } else {
     average.textContent = "";
   }
@@ -183,6 +188,7 @@ async function ensureBookSaved() {
     description: shownBook.description,
     isbn: shownBook.isbn,
     genres: shownBook.genres || [],
+    page_count: shownBook.page_count || null,
   });
 }
 
@@ -239,12 +245,13 @@ async function loadMyShelf() {
   if (!shownBook.id) return; // not saved yet, so it can't be on a shelf
   const { data, error } = await db
     .from("shelves")
-    .select("status")
+    .select("status, current_page")
     .eq("user_id", currentUser.id)
     .eq("book_id", shownBook.id)
     .maybeSingle();
   if (error) throw error;
   myShelf = data ? data.status : null;
+  myCurrentPage = data ? data.current_page : null;
 }
 
 // Puts the book on a shelf, or takes it off when `status` is null.
@@ -268,12 +275,16 @@ async function setShelf(status) {
     if (error) throw error;
   }
   myShelf = status;
+  if (status !== "currently_reading") myCurrentPage = null;
   updateShelfButtons();
+  showProgress();
+  if (status === "currently_reading") fillPageCount().catch(() => {});
 }
 
 async function setUpShelfButtons() {
   await loadMyShelf();
   updateShelfButtons();
+  setUpProgress();
   document.getElementById("shelf-buttons").hidden = false;
 
   shelfButtons.forEach(function (button) {
@@ -296,6 +307,100 @@ async function setUpShelfButtons() {
 }
 
 
+// ---------- Page progress (Currently reading) ----------
+//
+// While the book is on your Currently reading shelf you can save the page
+// you're on. The total comes from Open Library (saved on the book); if
+// it doesn't know, we ask you once and save it for everyone.
+
+let myCurrentPage = null;
+const progressForm = document.getElementById("progress-form");
+const currentPageInput = document.getElementById("current-page");
+const totalPagesInput = document.getElementById("total-pages");
+const progressMessage = document.getElementById("progress-message");
+
+// "45%" bar and "Page 120 of 412 (29%)". Also used on profiles.
+function progressPercent(page, total) {
+  if (!total || page == null) return 0;
+  return Math.max(0, Math.min(100, Math.round((page / total) * 100)));
+}
+
+function showProgress() {
+  const reading = myShelf === "currently_reading";
+  progressForm.hidden = !reading;
+  if (!reading) return;
+  const total = shownBook.page_count;
+  document.getElementById("total-pages-known").textContent = total ? "of " + total : "";
+  document.getElementById("total-pages-ask").hidden = !!total;
+  currentPageInput.value = myCurrentPage == null ? "" : myCurrentPage;
+  if (total) currentPageInput.max = total;
+  const percent = progressPercent(myCurrentPage, total);
+  document.getElementById("progress-fill").style.width = percent + "%";
+  document.getElementById("progress-text").textContent =
+    myCurrentPage == null ? "Where are you up to?"
+      : total ? "Page " + myCurrentPage + " of " + total + " (" + percent + "%)"
+      : "Page " + myCurrentPage;
+}
+
+function showProgressMessage(text, isError) {
+  progressMessage.textContent = text;
+  progressMessage.classList.toggle("hint-error", !!isError);
+  progressMessage.hidden = !text;
+}
+
+async function saveProgress(event) {
+  event.preventDefault();
+  const page = currentPageInput.value === "" ? null : Number(currentPageInput.value);
+  const typedTotal = totalPagesInput.value === "" ? null : Number(totalPagesInput.value);
+  const total = shownBook.page_count || typedTotal;
+  if (page !== null && (!Number.isInteger(page) || page < 0)) return showProgressMessage("Pages are whole numbers.", true);
+  if (typedTotal !== null && (!Number.isInteger(typedTotal) || typedTotal < 1 || typedTotal > 50000)) {
+    return showProgressMessage("The total should be between 1 and 50000.", true);
+  }
+  if (page !== null && total && page > total) return showProgressMessage("That's more than " + total + " pages.", true);
+
+  const button = progressForm.querySelector("button");
+  button.disabled = true;
+  try {
+    if (!shownBook.page_count && typedTotal) {
+      // Only fills an empty page count (supabase/step18).
+      const { error } = await db.rpc("fill_book_pages", { p_book_id: shownBook.id, p_pages: typedTotal });
+      if (error) throw error;
+      shownBook.page_count = typedTotal;
+    }
+    const { error } = await db
+      .from("shelves")
+      .update({ current_page: page })
+      .eq("user_id", currentUser.id)
+      .eq("book_id", shownBook.id);
+    if (error) throw error;
+    myCurrentPage = page;
+    showProgress();
+    showProgressMessage("Saved.");
+  } catch (error) {
+    showProgressMessage(friendlyError(error, "Could not save. "), true);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function setUpProgress() {
+  progressForm.addEventListener("submit", saveProgress);
+  showProgress();
+}
+
+// Books saved before we kept page counts: ask Open Library once when
+// someone is reading it.
+async function fillPageCount() {
+  if (shownBook.page_count || !shownBook.id || !currentUser) return;
+  const pages = await fetchPageCount(shownBook.external_id).catch(() => null);
+  if (!pages) return;
+  shownBook.page_count = pages;
+  await db.rpc("fill_book_pages", { p_book_id: shownBook.id, p_pages: pages });
+  showProgress();
+}
+
+
 // ---------- Your log form ----------
 
 const logForm = document.getElementById("log-form");
@@ -303,6 +408,7 @@ const reviewInput = document.getElementById("review-input");
 const dateInput = document.getElementById("date-input");
 const logMessage = document.getElementById("log-message");
 const deleteButton = document.getElementById("delete-log");
+const spoilerInput = document.getElementById("spoiler-input");
 
 function showLogMessage(kind, text) {
   logMessage.className = "status status-" + kind;
@@ -324,6 +430,7 @@ function fillLogForm() {
     document.getElementById("log-heading").textContent = "Your log";
     setRating(myLog.rating ? Number(myLog.rating) : null);
     reviewInput.value = myLog.review || "";
+    spoilerInput.checked = !!myLog.spoiler;
     dateInput.value = myLog.date_read || "";
     logForm.querySelector("button[type=submit]").textContent = "Update log";
     deleteButton.hidden = false;
@@ -331,11 +438,13 @@ function fillLogForm() {
     document.getElementById("log-heading").textContent = "Log this book";
     setRating(null);
     reviewInput.value = "";
+    spoilerInput.checked = false;
     dateInput.value = todayText();
     logForm.querySelector("button[type=submit]").textContent = "Save log";
     deleteButton.hidden = true;
   }
   updateReviewCounter();
+  showRereads();
 }
 
 function updateReviewCounter() {
@@ -361,7 +470,9 @@ async function saveLog(event) {
         book_id: shownBook.id,
         rating: currentRating,
         review: reviewInput.value.trim() || null,
+        spoiler: spoilerInput.checked,
         date_read: dateInput.value || null,
+        // Rereads aren't sent here, so saving never resets them.
       },
       { onConflict: "user_id,book_id" }
     );
@@ -399,10 +510,64 @@ function setUpLogForm() {
   dateInput.max = todayText(); // no reading dates in the future
   reviewInput.maxLength = MAX_REVIEW_LENGTH;
   setUpStars();
+  setUpRereads();
   fillLogForm();
   reviewInput.addEventListener("input", updateReviewCounter);
   logForm.addEventListener("submit", saveLog);
   deleteButton.addEventListener("click", deleteLog);
+}
+
+
+// ---------- Rereads ----------
+//
+// "I read this again" adds one to your log's reread count and remembers
+// the date. Still one log per book.
+
+const rereadArea = document.getElementById("reread-area");
+const rereadDate = document.getElementById("reread-date");
+
+function showRereads() {
+  rereadArea.hidden = !myLog;
+  if (!myLog) return;
+  const count = myLog.reread_count || 0;
+  const dates = (myLog.reread_dates || []).map(formatDate);
+  document.getElementById("reread-text").textContent = count === 0
+    ? "Read it more than once? Add each time you finish it again."
+    : rereadText(count).replace("\u21bb ", "") + (dates.length ? ". Again on " + dates.join(", ") + "." : ".");
+  document.getElementById("reread-undo").hidden = count === 0;
+  rereadDate.max = todayText();
+  if (!rereadDate.value) rereadDate.value = todayText();
+}
+
+async function changeRereads(add) {
+  const dates = (myLog.reread_dates || []).slice();
+  let count = myLog.reread_count || 0;
+  if (add) {
+    count += 1;
+    if (rereadDate.value) dates.push(rereadDate.value);
+    dates.sort();
+  } else {
+    count = Math.max(0, count - 1);
+    dates.pop();
+  }
+  const { data, error } = await db
+    .from("logs")
+    .update({ reread_count: count, reread_dates: dates })
+    .eq("id", myLog.id)
+    .select(LOG_FIELDS)
+    .single();
+  if (error) {
+    showLogMessage("error", friendlyError(error, "Could not save. "));
+    return;
+  }
+  myLog = data;
+  showRereads();
+  await loadLogs();
+}
+
+function setUpRereads() {
+  document.getElementById("reread-button").addEventListener("click", () => changeRereads(true));
+  document.getElementById("reread-undo").addEventListener("click", () => changeRereads(false));
 }
 
 
@@ -480,6 +645,7 @@ async function loadBookPage() {
 
   if (currentProfile) {
     await setUpShelfButtons();
+    if (myShelf === "currently_reading") fillPageCount().catch(() => {});
     setUpLogForm();
   } else {
     document.getElementById("log-login").hidden = false;
