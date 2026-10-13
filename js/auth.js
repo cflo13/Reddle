@@ -966,6 +966,110 @@ if (window.matchMedia) {
 }
 
 
+// ---------- Universes: Books, Comics, Manga ----------
+//
+// Three "universes" share one site. Books is the cosy default; Comics and
+// Manga look different and (from part b on) only show their own world.
+// The choice is kept in local storage (reddle-universe) and the little
+// script at the top of every page puts data-universe on <html> before
+// the CSS loads, so there's no flash. Works logged out too.
+
+const UNIVERSE_KEY = "reddle-universe";
+const UNIVERSES = {
+  books: { name: "Books", noun: "books" },
+  comics: { name: "Comics", noun: "comics" },
+  manga: { name: "Manga", noun: "manga" },
+};
+
+function currentUniverse() {
+  const universe = document.documentElement.getAttribute("data-universe");
+  return UNIVERSES[universe] ? universe : "books";
+}
+
+function saveUniverse(universe) {
+  try {
+    localStorage.setItem(UNIVERSE_KEY, universe);
+  } catch (error) {
+    // can't remember it (private mode); it still switches for this page
+  }
+}
+
+// Switch the colours in place (no reload), e.g. when a link from another
+// universe opens a book that belongs there.
+function showUniverse(universe) {
+  if (!UNIVERSES[universe]) universe = "books";
+  saveUniverse(universe);
+  document.documentElement.setAttribute("data-universe", universe);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", themeColour("--surface"));
+}
+
+// The switch buttons: save the choice and reload, so every row, search
+// and feed on the page comes from the new universe.
+function goToUniverse(universe) {
+  if (!UNIVERSES[universe] || universe === currentUniverse()) return;
+  saveUniverse(universe);
+  const root = document.documentElement;
+  const reload = () => window.location.reload();
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return reload();
+  root.classList.add("universe-leaving");
+  setTimeout(reload, 170);
+}
+
+function setUpUniverseSwitch() {
+  const button = document.getElementById("universe-button");
+  const menu = document.getElementById("universe-menu");
+  if (!button || button.dataset.ready) return;
+  button.dataset.ready = "yes";
+  const name = () => currentUniverse() === "books" ? "Comics and Manga modes" : "Back to Books";
+  button.title = name();
+
+  function closeMenu(focusButton) {
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
+    button.setAttribute("aria-expanded", "false");
+    if (focusButton) button.focus();
+  }
+
+  button.addEventListener("click", function () {
+    // Comics and Manga: straight back to Books. Books: the little menu.
+    if (currentUniverse() !== "books") return goToUniverse("books");
+    if (!menu) return;
+    if (!menu.hidden) return closeMenu(false);
+    menu.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    const first = menu.querySelector("button");
+    if (first) first.focus();
+  });
+
+  if (menu) {
+    menu.addEventListener("keydown", function (event) {
+      const options = [...menu.querySelectorAll("button")];
+      const at = options.indexOf(document.activeElement);
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        options[(at + step + options.length) % options.length].focus();
+      } else if (event.key === "Escape") {
+        closeMenu(true);
+      }
+    });
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".universe-switch")) closeMenu(false);
+    });
+  }
+}
+
+// Any button with data-go-universe="comics" (header menu, footer, phone
+// menu) switches.
+document.addEventListener("click", function (event) {
+  const target = event.target.closest("[data-go-universe]");
+  if (target) goToUniverse(target.getAttribute("data-go-universe"));
+});
+
+setUpUniverseSwitch();
+
+
 // ---------- Installable app ----------
 //
 // sw.js (the service worker) lets the site be installed like an app and
@@ -1532,6 +1636,14 @@ function openPhoneMenu(profile) {
     list.appendChild(el("hr", "menu-divider"));
   }
 
+  // Books, Comics, Manga
+  if (currentUniverse() === "books") {
+    action("Enter Comic Mode", () => goToUniverse("comics"), "menu-universe");
+    action("Switch to Manga Mode", () => goToUniverse("manga"), "menu-universe");
+  } else {
+    action("Back to Books", () => goToUniverse("books"), "menu-universe");
+  }
+  divider();
   link("Genres", "genres.html");
   link("Popular this week", "popular.html");
   link("Books of the week", "picks.html");

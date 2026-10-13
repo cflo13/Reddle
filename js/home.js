@@ -307,6 +307,7 @@ function genreCandidates(slug) {
 
 function addGenreRow(slug, titleStart, lazy) {
   const genre = findGenre(slug);
+  if (!genre) return; // not one of our genres (never show a broken row)
   addRow(
     { title: titleStart + genre.name, titleLink: genreLink(slug), seeAll: genreLink(slug) },
     () => genreCandidates(slug),

@@ -41,6 +41,20 @@
      Both are fonts people already have (nothing to download). */
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Headings, the logo and big numbers (the Comics and Manga universes
+     swap this for their own display font) and reading text (reviews,
+     descriptions, bios: the same calm serif in every universe). */
+  --font-display: var(--font-serif);
+  --display-weight: 600;
+  --display-transform: none;
+  --display-spacing: -0.005em;
+  --font-reading: var(--font-serif);
+
+  /* Universe extras: Books has none of these (see "Universes" below). */
+  --page-pattern: none;        /* dots or tones behind the page */
+  --page-pattern-size: auto;
+  --button-shadow: none;       /* outline on filled buttons */
+  --heading-shadow: none;
 
   /* Spacing steps: use these instead of random numbers */
   --space-1: 4px;
@@ -89,6 +103,156 @@
   --skeleton: #e9ddc5;
 }
 
+/* ---------- Universes: Books (above), Comics and Manga ----------
+   The little script at the top of every page puts data-universe="books",
+   "comics" or "manga" on <html> (saved in local storage as
+   reddle-universe), so the right colours load straight away. Each
+   universe has a night and a day version. Reading text (reviews,
+   descriptions) keeps the calm serif at the same size everywhere. */
+
+/* The Comics heading font: a heavy, condensed face the device already
+   has (Impact on computers, Helvetica Neue Condensed Black / Avenir Next
+   Condensed Heavy / Futura Condensed on iPhones and Macs). local() only
+   looks on the device, so nothing is downloaded. */
+@font-face {
+  font-family: "Reddle Comic";
+  src: local("Impact"), local("Impact Regular"),
+    local("HelveticaNeue-CondensedBlack"), local("Helvetica Neue Condensed Black"),
+    local("AvenirNextCondensed-Heavy"), local("Avenir Next Condensed Heavy"),
+    local("Futura-CondensedExtraBold"), local("Futura Condensed ExtraBold"),
+    local("Arial Black"), local("Arial-BlackMT"),
+    local("Roboto Condensed Black"), local("RobotoCondensed-Black");
+  font-weight: 100 900; /* it IS the heavy face: never make it bolder */
+}
+
+/* Comics, night: ink-blue page, punchy yellow, bold black outlines,
+   halftone dots. */
+:root[data-universe="comics"] {
+  --bg: #161a2e;
+  --surface: #222845;
+  --panel: #2e3558;
+  --text: #fff7e3;
+  --muted: #bcc3e0;
+  --accent: #ffd23f;
+  --accent-hover: #ffe27a;
+  --on-accent: #161a2e;
+  --success: #6fdc7c;
+  --error: #ff7f7f;
+  --on-danger: #161a2e;
+  --border: #3d4573;
+  --status-bar: #222845;
+  --avatar-bg: #4b5596;
+  --on-avatar: #fff7e3;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --ink: #05060d;
+  --heading-shadow: 3px 3px 0 var(--ink);
+  --dot: rgba(255, 210, 63, 0.07);
+  --card-shadow: 0 0 0 3px var(--ink), 6px 6px 0 var(--ink);
+  --button-shadow: 0 0 0 2px var(--ink), 3px 3px 0 var(--ink);
+  --overlay: rgba(10, 12, 26, 0.78);
+  --overlay-light: rgba(10, 12, 26, 0.5);
+  --on-overlay: #fff7e3;
+  --backdrop: rgba(5, 6, 13, 0.65);
+  --shimmer: rgba(255, 247, 227, 0.07);
+  --skeleton: #2a3152;
+  --page-pattern: radial-gradient(var(--dot) 1.4px, transparent 1.8px);
+  --page-pattern-size: 12px 12px;
+  --font-display: "Reddle Comic", Impact, Haettenschweiler, "Arial Black", sans-serif;
+  --display-weight: 800;       /* the heavy local face, or a bold fallback (Android) */
+  --display-spacing: 0.02em;
+  --radius-large: 20px;
+}
+
+/* Comics, day: newsprint cream, red dots, comic-book blue. */
+:root[data-universe="comics"][data-theme="light"] {
+  --bg: #fff3d1;
+  --surface: #ffffff;
+  --panel: #ffe7a6;
+  --text: #15172a;
+  --muted: #4b4f69;
+  --accent: #1d4ed8;
+  --accent-hover: #1740b0;
+  --on-accent: #ffffff;
+  --success: #1a6e32;
+  --error: #c81e3a;
+  --on-danger: #ffffff;
+  --border: #e8cf8c;
+  --status-bar: #15172a;
+  --avatar-bg: #6b7bd6;
+  --on-avatar: #ffffff;
+  --shadow: rgba(21, 23, 42, 0.18);
+  --ink: #15172a;
+  --heading-shadow: 3px 3px 0 var(--panel);
+  --dot: rgba(214, 40, 57, 0.13);
+  --backdrop: rgba(21, 23, 42, 0.5);
+  --shimmer: rgba(255, 255, 255, 0.7);
+  --skeleton: #f6e3b0;
+}
+
+/* Manga, night: black and white, one red, screentone, sharp panels. */
+:root[data-universe="manga"] {
+  --bg: #0e0e0e;
+  --surface: #171717;
+  --panel: #242424;
+  --text: #f2f2f2;
+  --muted: #a8a8a8;
+  --accent: #f55a67;
+  --accent-hover: #ff6b77;
+  --on-accent: #0e0e0e;
+  --success: #b5b5b5;
+  --error: #f55a67;
+  --on-danger: #0e0e0e;
+  --border: #3a3a3a;
+  --status-bar: #171717;
+  --avatar-bg: #4a4a4a;
+  --on-avatar: #f2f2f2;
+  --shadow: rgba(0, 0, 0, 0.5);
+  --ink: #d9d9d9;
+  --dot: rgba(255, 255, 255, 0.06);
+  --card-shadow: 0 0 0 2px var(--ink);
+  --button-shadow: none;
+  --overlay: rgba(0, 0, 0, 0.75);
+  --overlay-light: rgba(0, 0, 0, 0.5);
+  --on-overlay: #ffffff;
+  --backdrop: rgba(0, 0, 0, 0.7);
+  --shimmer: rgba(255, 255, 255, 0.06);
+  --skeleton: #222222;
+  --page-pattern: radial-gradient(var(--dot) 0.9px, transparent 1.2px);
+  --page-pattern-size: 5px 5px;
+  --font-display: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", "Arial Black", "Helvetica Neue", Arial, sans-serif;
+  --display-weight: 800;
+  --display-spacing: -0.01em;
+  --radius-small: 0;
+  --radius: 0;
+  --radius-large: 0;
+  --radius-pill: 2px;
+}
+
+/* Manga, day: white paper, black ink, the same single red. */
+:root[data-universe="manga"][data-theme="light"] {
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --panel: #ebebea;
+  --text: #111111;
+  --muted: #545454;
+  --accent: #c1121f;
+  --accent-hover: #9b0e19;
+  --on-accent: #ffffff;
+  --success: #3d3d3d;
+  --error: #c1121f;
+  --on-danger: #ffffff;
+  --border: #cfcfcf;
+  --status-bar: #111111;
+  --avatar-bg: #8a8a8a;
+  --on-avatar: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.15);
+  --ink: #111111;
+  --dot: rgba(0, 0, 0, 0.09);
+  --backdrop: rgba(0, 0, 0, 0.45);
+  --shimmer: rgba(255, 255, 255, 0.7);
+  --skeleton: #e4e4e2;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -101,7 +265,9 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--page-pattern);
+  background-size: var(--page-pattern-size);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -113,10 +279,11 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-serif);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
   line-height: 1.25;
-  letter-spacing: -0.005em;
+  letter-spacing: var(--display-spacing);
+  text-transform: var(--display-transform);
 }
 
 h1 {
@@ -170,9 +337,9 @@ a:hover {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: var(--display-weight);
   color: var(--text);
   text-decoration: none;
 }
@@ -327,6 +494,7 @@ a:hover {
   line-height: 1.4;
   text-decoration: none;
   cursor: pointer;
+  box-shadow: var(--button-shadow);
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -700,7 +868,7 @@ input[type="checkbox"] {
   background: var(--panel);
   box-shadow: inset 3px 0 0 var(--border), 0 1px 2px var(--shadow), 0 6px 14px var(--shadow);
   color: var(--muted);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 0.8rem;
   line-height: 1.3;
   text-align: center;
@@ -883,7 +1051,7 @@ input[type="checkbox"] {
 .book-description,
 .author-bio,
 .diary-snippet {
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
   font-size: 1.05rem;
   line-height: 1.65;
 }
@@ -1262,7 +1430,7 @@ body > main {
   background: var(--surface);
   box-shadow: var(--card-shadow);
   color: var(--text);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.05rem;
   text-decoration: none;
   transition: background-color 0.15s ease, transform 0.15s ease;
@@ -2474,7 +2642,7 @@ body::before {
 
 .year-number {
   color: var(--accent);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 600;
   overflow-wrap: anywhere;
@@ -2722,7 +2890,7 @@ body::before {
 
 .post-text {
   margin: var(--space-3) 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
   font-size: 1.05rem;
   line-height: 1.65;
   white-space: pre-wrap;
@@ -2772,7 +2940,7 @@ body::before {
 }
 
 .post-book-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
@@ -2881,7 +3049,7 @@ body::before {
   border: none;
   background: transparent;
   padding: var(--space-1) 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
   font-size: 1.05rem;
   resize: none;
 }
@@ -2954,7 +3122,7 @@ body::before {
 .empty-note p {
   margin: var(--space-2) auto 0;
   max-width: 420px;
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
   font-size: 1.05rem;
 }
 
@@ -3011,7 +3179,7 @@ body::before {
 
 .pick-title {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.5rem;
   line-height: 1.25;
   overflow-wrap: anywhere;
@@ -3033,7 +3201,7 @@ body::before {
 
 .pick-note {
   margin: var(--space-3) 0 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
   font-size: 1.05rem;
   line-height: 1.65;
   white-space: pre-wrap;
@@ -3089,7 +3257,7 @@ body::before {
 
 .prompt-question {
   margin: 0 0 var(--space-4);
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.35rem;
   line-height: 1.35;
   overflow-wrap: anywhere;
@@ -3121,7 +3289,7 @@ body::before {
   display: block;
   margin-top: 2px;
   color: var(--muted);
-  font-family: var(--font-serif);
+  font-family: var(--font-reading);
 }
 
 .activity-time {
@@ -3242,7 +3410,7 @@ body::before {
 
 .feedback-thanks {
   margin: var(--space-4) 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.2rem;
   text-align: center;
 }
@@ -3473,6 +3641,11 @@ body::before {
 .menu-item .nav-badge {
   position: static;
   margin-left: var(--space-2);
+}
+
+.menu-universe {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .menu-log-out {
@@ -3817,4 +3990,283 @@ summary,
     display: none;
   }
 
+}
+
+/* ---------- Universes: the switch, and each universe's touches ----------
+   The button in the header (and the links in the footer) switch between
+   Books, Comics and Manga (js/auth.js). Which label shows is decided by
+   data-universe on <html>, so the right one is there from the start. */
+
+.universe-switch {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.universe-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transform: rotate(-2deg);
+  transition: transform 0.2s ease, background-color 0.15s ease;
+}
+
+.universe-button[aria-expanded="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  transform: rotate(2deg) scale(1.05);
+}
+
+.universe-button svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.universe-button[aria-expanded="true"] svg {
+  color: var(--on-accent);
+}
+
+/* Only with a mouse (on touch screens hover "sticks" after a tap). */
+@media (hover: hover) {
+  .universe-button:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+    transform: rotate(2deg) scale(1.05);
+  }
+
+  .universe-button:hover svg {
+    color: var(--on-accent);
+  }
+}
+
+/* Which label: Books shows the way out, the others the way home. */
+.u-away,
+.u-home {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.u-home,
+:root[data-universe="comics"] .u-away,
+:root[data-universe="manga"] .u-away {
+  display: none;
+}
+
+:root[data-universe="comics"] .u-home,
+:root[data-universe="manga"] .u-home {
+  display: inline-flex;
+}
+
+/* The little menu under the button (Books only). */
+.universe-menu {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 230px;
+  padding: var(--space-2);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.universe-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.universe-option:hover,
+.universe-option:focus-visible {
+  background: var(--panel);
+}
+
+.universe-option small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.universe-option svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Footer: the same switch as plain links. */
+.footer-universe {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+}
+
+.footer-universe .link-button {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* Switching: a quick squash before the page reloads in the new universe. */
+html.universe-leaving body {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+/* The universe's name next to the logo */
+:root[data-universe="comics"] .logo::after,
+:root[data-universe="manga"] .logo::after {
+  padding: 2px 8px;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+:root[data-universe="comics"] .logo::after {
+  content: "Comics";
+  border-radius: var(--radius-small);
+  background: var(--accent);
+  color: var(--on-accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transform: rotate(-4deg);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+:root[data-universe="manga"] .logo::after {
+  content: "Manga";
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 800;
+}
+
+/* Comics: bold outlines on buttons, cards like speech bubbles (a tail
+   at the bottom left), headings in heavy capitals. */
+:root[data-universe="comics"] h1,
+:root[data-universe="comics"] h2 {
+  text-transform: uppercase;
+}
+
+:root[data-universe="comics"] h1 {
+  text-shadow: var(--heading-shadow);
+}
+
+:root[data-universe="comics"] .card,
+:root[data-universe="comics"] .pick-card,
+:root[data-universe="comics"] .prompt-card,
+:root[data-universe="comics"] .install-card,
+:root[data-universe="comics"] .spotlight-card {
+  position: relative;
+}
+
+:root[data-universe="comics"] .card::after,
+:root[data-universe="comics"] .pick-card::after,
+:root[data-universe="comics"] .prompt-card::after,
+:root[data-universe="comics"] .install-card::after,
+:root[data-universe="comics"] .spotlight-card::after {
+  content: "";
+  position: absolute;
+  left: 32px;
+  bottom: -19px;
+  width: 26px;
+  height: 18px;
+  background: var(--ink);
+  clip-path: polygon(0 0, 100% 0, 10% 100%);
+  pointer-events: none;
+}
+
+:root[data-universe="comics"] .button:active {
+  box-shadow: 0 0 0 2px var(--ink);
+  transform: translate(2px, 2px);
+}
+
+/* Manga: sharp panels, headings with a red ink stroke. */
+:root[data-universe="manga"] h2 {
+  padding-left: var(--space-3);
+  border-left: 4px solid var(--accent);
+}
+
+:root[data-universe="manga"] .site-header {
+  border-bottom: 2px solid var(--ink);
+}
+
+:root[data-universe="manga"] .cover {
+  border-radius: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .universe-button,
+  .universe-button:hover,
+  .universe-button[aria-expanded="true"] {
+    transition: none;
+    transform: none;
+  }
+
+  html.universe-leaving body {
+    transition: none;
+  }
+}
+
+/* Phones: only the icon shows in the header (the words are in its label
+   and in the menu). */
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  .universe-switch {
+    margin-left: auto;
+  }
+
+  .universe-switch + .theme-toggle {
+    margin-left: 0;
+  }
+
+  .universe-button {
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
+  }
+
+  .universe-button .u-words {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .universe-menu {
+    position: fixed;
+    top: calc(56px + env(safe-area-inset-top));
+    left: var(--space-2);
+    right: var(--space-2);
+  }
+
+  :root[data-universe="comics"] .logo::after,
+  :root[data-universe="manga"] .logo::after {
+    font-size: 0.7rem;
+  }
 }
