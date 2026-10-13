@@ -25,7 +25,7 @@ const POST_FIELDS =
   "books!posts_book_id_fkey(id, external_id, title, author, cover_url), " +
   "weekly_prompts!posts_prompt_id_fkey(id, question)";
 const COMMENT_FIELDS = "id, user_id, body, created_at, profiles!comments_user_id_fkey(username, avatar_url)";
-const COMMENT_COLUMNS = { log: "log_id", post: "post_id", pick: "pick_id" };
+const COMMENT_COLUMNS = { log: "log_id", post: "post_id", pick: "pick_id", spotlight: "spotlight_id" };
 
 // "5 min ago", "3 hours ago", "12 Oct"
 function ago(dateText) {
@@ -653,6 +653,93 @@ function makeEmptyState(text) {
   box.appendChild(el("span", "empty-note-icon", "❧"));
   box.appendChild(el("p", "", text));
   return box;
+}
+
+
+// ---------- Spotlight cards (admin news for one universe) ----------
+// A title, a short note, up to 6 books, maybe an outside link, and a
+// comment thread like Book of the week. The newest one of the current
+// universe shows at the top of the home page; spotlight.html?id= shows
+// one with its comments open.
+
+const SPOTLIGHT_FIELDS =
+  "id, title, note, link_url, universe, created_at, " +
+  "spotlight_books(position, books(id, external_id, title, author, cover_url, isbn, genres))";
+
+async function fetchLatestSpotlight() {
+  const { data, error } = await db.from("spotlights").select(SPOTLIGHT_FIELDS)
+    .eq("universe", currentUniverse())
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1);
+  if (error) throw error;
+  return data[0] || null;
+}
+
+// The books of a spotlight, in the admin's order.
+function spotlightBooks(spotlight) {
+  return (spotlight.spotlight_books || [])
+    .filter((row) => row.books)
+    .sort((a, b) => a.position - b.position)
+    .map((row) => row.books);
+}
+
+// "example.com" from a link, for "Read more on example.com".
+function linkSite(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch (error) {
+    return "";
+  }
+}
+
+// options: { open } (comments open straight away)
+function makeSpotlightCard(spotlight, options) {
+  const settings = options || {};
+  const card = el("article", "spotlight-card");
+  card.dataset.spotlightId = spotlight.id;
+
+  card.appendChild(el("p", "pick-label", "Spotlight \u00b7 " + weekOf(spotlight.created_at)));
+  const title = el("h2", "spotlight-title");
+  const titleLink = el("a", "", spotlight.title);
+  titleLink.href = "spotlight.html?id=" + spotlight.id;
+  title.appendChild(titleLink);
+  card.appendChild(title);
+  if (spotlight.note) card.appendChild(el("p", "pick-note spotlight-note", spotlight.note));
+
+  const books = spotlightBooks(spotlight);
+  if (books.length) {
+    const row = el("div", "tile-row spotlight-books");
+    for (const book of books) row.appendChild(makeBookTile(book));
+    card.appendChild(row);
+  }
+
+  // An outside link: shown as a plain link (we never copy the article).
+  // The database only accepts https:// links.
+  if (spotlight.link_url && /^https:\/\//.test(spotlight.link_url)) {
+    const site = linkSite(spotlight.link_url);
+    const line = el("p", "spotlight-link");
+    const link = el("a", "", "Read more" + (site ? " on " + site : "") + " \u2197");
+    link.href = spotlight.link_url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer nofollow";
+    line.appendChild(link);
+    card.appendChild(line);
+  }
+
+  const comments = makeCommentArea("spotlight", spotlight.id, { open: settings.open });
+  const buttons = el("div", "pick-buttons");
+  const join = el("button", "button", "Join the discussion");
+  join.type = "button";
+  join.addEventListener("click", function () {
+    if (comments.thread.hidden) comments.button.click();
+    setTimeout(function () {
+      const box = comments.thread.querySelector("textarea, a");
+      if (box) box.focus();
+    }, 300);
+  });
+  buttons.append(join, comments.button);
+  card.appendChild(buttons);
+  card.appendChild(comments.thread);
+  return card;
 }
 
 

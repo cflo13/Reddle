@@ -654,6 +654,13 @@ async function loadHome() {
     : [{ logs: [], knownIds: [], known: new Set() }, []];
   knownBooks = myBooks.known;
 
+  // Spotlight (admin news for this universe) at the very top.
+  fetchLatestSpotlight().then(function (spotlight) {
+    if (!spotlight) return;
+    document.getElementById("spotlight-spot").appendChild(makeSpotlightCard(spotlight));
+    fillCommentCounts("spotlight", [spotlight.id]);
+  }).catch(() => {}); // a nice extra: never break the page
+
   // Book of the week at the top, if the admin chose one.
   fetchLatestPick().then(function (pick) {
     if (pick && pick.books) {

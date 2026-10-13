@@ -476,6 +476,118 @@ async function loadPrompts() {
   });
 }
 
+// ---------- Spotlight ----------
+
+const spotlightList = document.getElementById("spotlight-list");
+const SPOTLIGHT_MAX_BOOKS = 6;
+let spotlightPicked = []; // search results chosen for the spotlight, in order
+
+async function loadSpotlights() {
+  const { data, error } = await db.from("spotlights").select("id, title, universe, created_at")
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(10);
+  spotlightList.textContent = "";
+  if (error) {
+    spotlightList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load the spotlights. ")));
+    return;
+  }
+  data.forEach(function (spotlight) {
+    const row = el("div", "admin-row");
+    const text = el("p", "");
+    const link = el("a", "", spotlight.title);
+    link.href = "spotlight.html?id=" + spotlight.id;
+    text.append(universeTag(spotlight.universe), link, el("span", "muted", " · " + weekOf(spotlight.created_at)));
+    row.append(text, actionButton("Delete", "button-secondary", async function () {
+      if (!window.confirm("Delete this spotlight and its discussion?")) return;
+      const { error } = await db.from("spotlights").delete().eq("id", spotlight.id);
+      if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+      showStatus(adminMessage, "ok", "Spotlight deleted.");
+      loadSpotlights();
+    }));
+    spotlightList.appendChild(row);
+  });
+}
+
+// The chosen books as small chips with a remove button.
+function showSpotlightChosen() {
+  const box = document.getElementById("spotlight-chosen");
+  box.textContent = "";
+  spotlightPicked.forEach(function (book, index) {
+    const chip = el("span", "composer-chip");
+    chip.appendChild(el("span", "", book.title));
+    const remove = el("button", "link-button", "\u00d7");
+    remove.type = "button";
+    remove.setAttribute("aria-label", "Remove " + book.title);
+    remove.addEventListener("click", function () {
+      spotlightPicked.splice(index, 1);
+      showSpotlightChosen();
+    });
+    chip.appendChild(remove);
+    box.appendChild(chip);
+  });
+  if (spotlightPicked.length === 0) box.appendChild(el("p", "muted", "No books chosen."));
+}
+
+function setUpSpotlightForm() {
+  const form = document.getElementById("spotlight-form");
+  const universeSelect = document.getElementById("spotlight-universe");
+  const titleInput = document.getElementById("spotlight-title");
+  const noteInput = document.getElementById("spotlight-note");
+  const noteCount = document.getElementById("spotlight-note-count");
+  const linkInput = document.getElementById("spotlight-link");
+  universeSelect.value = currentUniverse();
+
+  const picker = makeBookPicker(function (book) {
+    if (spotlightPicked.length >= SPOTLIGHT_MAX_BOOKS) return showStatus(adminMessage, "error", "A spotlight can have up to 6 books.");
+    if (spotlightPicked.some((other) => other.externalId === book.externalId)) return;
+    spotlightPicked.push(book);
+    showSpotlightChosen();
+  }, { universe: () => universeSelect.value });
+  document.getElementById("spotlight-picker").appendChild(picker.element);
+  showSpotlightChosen();
+  noteInput.addEventListener("input", () => (noteCount.textContent = noteInput.value.length + " / 600"));
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const title = titleInput.value.trim();
+    const note = noteInput.value.trim();
+    const link = linkInput.value.trim();
+    if (!title) return showStatus(adminMessage, "error", "Give the spotlight a title.");
+    if (link && !/^https:\/\/\S+$/.test(link)) return showStatus(adminMessage, "error", "The link must start with https://");
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+    let spotlightId = null;
+    try {
+      // Save the books first (like logging does), then the spotlight.
+      const books = [];
+      for (const picked of spotlightPicked) books.push(await savePickedBook(picked));
+      const { data, error } = await db.from("spotlights")
+        .insert({ title: title, note: note || null, link_url: link || null, universe: universeSelect.value })
+        .select("id").single();
+      if (error) throw error;
+      spotlightId = data.id;
+      if (books.length) {
+        const { error: booksError } = await db.from("spotlight_books")
+          .insert(books.map((book, index) => ({ spotlight_id: spotlightId, book_id: book.id, position: index + 1 })));
+        if (booksError) throw booksError;
+      }
+      showStatus(adminMessage, "ok", "The spotlight is live in " + UNIVERSES[universeSelect.value].name + ".");
+      form.reset();
+      universeSelect.value = currentUniverse();
+      noteCount.textContent = "0 / 600";
+      spotlightPicked = [];
+      showSpotlightChosen();
+      loadSpotlights();
+    } catch (error) {
+      // Half-saved? Take the spotlight down again.
+      if (spotlightId) await db.from("spotlights").delete().eq("id", spotlightId);
+      showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+
 function setUpPromptForm() {
   const form = document.getElementById("prompt-form");
   const input = document.getElementById("prompt-question");
@@ -511,5 +623,6 @@ function setUpPromptForm() {
   document.getElementById("admin-area").hidden = false;
   setUpPickForm();
   setUpPromptForm();
-  await Promise.all([loadReports(), loadContentReports(), loadPicks(), loadPrompts(), loadFeedback()]);
+  setUpSpotlightForm();
+  await Promise.all([loadReports(), loadContentReports(), loadPicks(), loadPrompts(), loadSpotlights(), loadFeedback()]);
 })();

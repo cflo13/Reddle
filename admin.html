@@ -48,7 +48,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=60">
+  <link rel="stylesheet" href="css/style.css?v=61">
 </head>
 <body>
   <header class="site-header">
@@ -132,6 +132,29 @@
       </form>
       <div id="prompt-list" class="report-list"></div>
 
+      <h2>Spotlight</h2>
+      <p class="hint">News and themes for one universe ("The new film is coming: here are the comics it was based on"). The newest spotlight of each universe shows at the top of that universe's home page, with its own discussion. Link to an article instead of copying it.</p>
+      <form id="spotlight-form" class="card form admin-form">
+        <label for="spotlight-universe">Universe</label>
+        <select id="spotlight-universe">
+          <option value="books">Books</option>
+          <option value="comics">Comics</option>
+          <option value="manga">Manga</option>
+        </select>
+        <label for="spotlight-title">Title (up to 120 characters)</label>
+        <input id="spotlight-title" type="text" maxlength="120" autocapitalize="sentences" placeholder="The new Avengers film is coming" required>
+        <label for="spotlight-note">Note (optional, up to 600 characters)</label>
+        <textarea id="spotlight-note" rows="3" maxlength="600" placeholder="Here are the comics it was inspired by."></textarea>
+        <p id="spotlight-note-count" class="hint">0 / 600</p>
+        <label for="spotlight-link">Link to an article (optional, https://...)</label>
+        <input id="spotlight-link" type="url" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="500" placeholder="https://">
+        <p class="hint">Books (optional, up to 6):</p>
+        <div id="spotlight-picker"></div>
+        <div id="spotlight-chosen" class="spotlight-chosen"></div>
+        <p><button type="submit" class="button">Publish the spotlight</button></p>
+      </form>
+      <div id="spotlight-list" class="report-list"></div>
+
       <h2>Feedback and bug reports</h2>
       <p class="hint">Sent with Feedback and Report a bug in the footer, newest first.</p>
       <div class="feedback-filters">
@@ -176,22 +199,22 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=60"></script>
+  <script src="js/config.js?v=61"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=60"></script>
+  <script src="js/supabase-client.js?v=61"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=60"></script>
+  <script src="js/auth.js?v=61"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=60"></script>
+  <script src="js/sources.js?v=61"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=60"></script>
+  <script src="js/search-suggest.js?v=61"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=60"></script>
+  <script src="js/books.js?v=61"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=60"></script>
+  <script src="js/share-card.js?v=61"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=60"></script>
+  <script src="js/social.js?v=61"></script>
   <!-- This page's own code -->
-  <script src="js/admin.js?v=60"></script>
+  <script src="js/admin.js?v=61"></script>
 </body>
 </html>

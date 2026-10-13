@@ -3247,6 +3247,71 @@ body::before {
   }
 }
 
+/* Spotlight: admin news for one universe (js/social.js) */
+.spotlight-card {
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.spotlight-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.spotlight-title a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.spotlight-title a:hover {
+  color: var(--accent);
+}
+
+.spotlight-note {
+  max-width: 68ch;
+}
+
+.spotlight-books {
+  margin-top: var(--space-4);
+}
+
+.spotlight-link {
+  margin: var(--space-4) 0 0;
+  font-weight: 600;
+}
+
+.spotlight-link a {
+  overflow-wrap: anywhere;
+}
+
+/* Admin form: the books chosen for a spotlight */
+.spotlight-chosen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.spotlight-chosen .composer-chip {
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .spotlight-card {
+    padding: var(--space-4);
+  }
+
+  .spotlight-title {
+    font-size: 1.3rem;
+  }
+}
+
 /* This week's question */
 .prompt-card {
   margin-bottom: var(--space-5);
