@@ -2479,3 +2479,342 @@ body > main {
     padding: 3px;
   }
 }
+
+/* ---------- The feed: tabs, posts, comments (js/social.js) ---------- */
+
+.feed-section {
+  margin-top: var(--space-6);
+}
+
+.feed-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin: var(--space-5) 0 var(--space-3);
+  padding: var(--space-1);
+  overflow-x: auto;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  scrollbar-width: none;
+}
+
+.feed-tab {
+  flex: 1 0 auto;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.feed-tab:hover {
+  color: var(--text);
+}
+
+/* Phones: "Popular this week" becomes "Popular" so all three tabs fit. */
+@media (max-width: 480px) {
+  .feed-tab {
+    padding: 8px 10px;
+  }
+  .feed-tab-extra {
+    display: none;
+  }
+}
+
+.feed-tab-active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.feed-note {
+  margin: 0 0 var(--space-3);
+}
+
+.feed-more-link {
+  margin-top: var(--space-5);
+}
+
+/* A post in the feed */
+.post-card {
+  padding: var(--space-5) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.post-card:last-child {
+  border-bottom: none;
+}
+
+.post-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.post-time {
+  font-size: 0.85rem;
+}
+
+.post-prompt {
+  display: inline-block;
+  margin-top: var(--space-2);
+  padding: 2px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.post-prompt:hover {
+  color: var(--accent);
+}
+
+.post-text {
+  margin: var(--space-3) 0;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.post-picture {
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  margin: var(--space-3) 0;
+  border-radius: var(--radius);
+  object-fit: contain;
+  background: var(--panel);
+}
+
+/* A book attached to a post (or picked in the composer) */
+.post-book,
+.book-picker-option,
+.composer-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.post-book {
+  width: fit-content;
+  margin: var(--space-2) 0;
+}
+
+.post-book:hover,
+.book-picker-option:hover {
+  color: var(--accent);
+}
+
+.post-book-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+.post-book-title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.cover-tiny {
+  width: 36px;
+  height: 54px;
+  font-size: 0.55rem;
+}
+
+/* Comments */
+.comment-thread {
+  margin-top: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border);
+}
+
+.comment {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+.comment .avatar {
+  margin-top: 3px;
+}
+
+.comment-body {
+  min-width: 0;
+}
+
+.comment-top,
+.comment-actions {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.comment-name {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.comment-name:hover {
+  color: var(--accent);
+}
+
+.comment-text {
+  margin: 2px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment-actions .link-button {
+  font-size: 0.85rem;
+}
+
+.comment-empty,
+.comment-loading,
+.comment-login {
+  margin: var(--space-2) 0;
+  font-size: 0.9rem;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.comment-input,
+.composer-input,
+.book-picker-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.comment-form-bottom,
+.composer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.comment-form .button {
+  padding: 6px 18px;
+}
+
+/* "Share a thought" */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.composer-input {
+  border: none;
+  background: transparent;
+  padding: var(--space-1) 0;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  resize: none;
+}
+
+.composer-input:focus {
+  box-shadow: none;
+}
+
+.composer-attached {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.composer-attached:empty {
+  display: none;
+}
+
+.composer-preview {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-small);
+  object-fit: cover;
+}
+
+.composer-remove {
+  margin-left: auto;
+  padding: 0 var(--space-1);
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.composer-tools {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.composer-send {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.book-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.book-picker-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.book-picker-option {
+  width: 100%;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* A friendly empty message */
+.empty-note {
+  padding: var(--space-6) var(--space-4);
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty-note p {
+  margin: var(--space-2) auto 0;
+  max-width: 420px;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.empty-note-icon {
+  color: var(--accent);
+  font-size: 1.6rem;
+  opacity: 0.7;
+}

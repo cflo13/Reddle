@@ -8,14 +8,14 @@
 //   4. New and noteworthy
 //   5. Browse by genre             (genre buttons)
 //   6. 3 more genre rows           (popular genres you don't already have a row for)
-//   7. The feed: people you follow, or everyone
+//   7. The feed: tabs Following / Discover / Popular this week, with
+//      "Share a thought" for logged-in people (posts: js/social.js)
 // Only the first 2 rows load straight away; the rest load when you
 // scroll near them. A book never shows twice on the page, and never one
 // you've logged or shelved. A row that's empty or fails just hides.
 // ------------------------------------------------------------
 
 const homeStatus = document.getElementById("home-status");
-const feedHeading = document.getElementById("feed-heading");
 const feedNote = document.getElementById("feed-note");
 const feedList = document.getElementById("feed");
 
@@ -39,14 +39,6 @@ function withoutMuted(query) {
   return mutedPeople.length ? query.not("user_id", "in", "(" + mutedPeople.join(",") + ")") : query;
 }
 
-// A page of the latest logs from everyone (rows `from` to `to`).
-function everyoneQuery(from, to) {
-  return withoutMuted(db.from("logs").select(LOG_FIELDS))
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: false }) // keeps the order stable between pages
-    .range(from, to);
-}
-
 // Who does `userId` follow? Returns a list of user ids.
 async function loadFollowingIds(userId) {
   const { data: follows, error } = await db
@@ -55,16 +47,6 @@ async function loadFollowingIds(userId) {
     .eq("follower_id", userId);
   if (error) throw error;
   return follows.map((row) => row.following_id);
-}
-
-// A page of the latest logs from the people in `ids`.
-function followingQuery(ids) {
-  return (from, to) =>
-    withoutMuted(db.from("logs").select(LOG_FIELDS))
-      .in("user_id", ids) // "user_id is one of these ids"
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
-      .range(from, to);
 }
 
 // ------------------------------------------------------------
@@ -422,30 +404,171 @@ function buildRows(profile, myBooks, followingIds) {
 // The feed (below the rows)
 // ------------------------------------------------------------
 
-async function loadFeed(profile, followingIds) {
+// ------------------------------------------------------------
+// The feed has three tabs (the choice is remembered in this browser):
+//   Following: logs and posts from people you follow, and your own
+//   Discover:  everyone's logs and posts, except private profiles
+//   Popular this week: the most liked and talked about of the last 7 days
+// Blocked people and private profiles you aren't approved for are left
+// out by the database; muted people are left out here.
+// ------------------------------------------------------------
+
+const FEED_TAB_KEY = "reddle-feed-tab";
+const FEED_EMPTY_SKELETON = feedList.innerHTML; // the grey loading boxes
+let feedFollowingIds = [];
+let feedProfile = null;
+let feedTab = "discover";
+
+function rememberedTab() {
+  try {
+    return localStorage.getItem(FEED_TAB_KEY);
+  } catch (error) {
+    return null;
+  }
+}
+
+// One kind of thing for showMixedFeed (js/social.js): logs or posts,
+// newest first, older than `before`.
+function feedSource(table, select, narrow) {
+  return {
+    kind: table === "logs" ? "log" : "post",
+    fetch: function (before, count) {
+      let query = withoutMuted(db.from(table).select(select));
+      query = narrow(query);
+      if (before) query = query.lt("created_at", before);
+      return query.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(count);
+    },
+  };
+}
+
+function followingSources() {
+  const ids = feedFollowingIds.concat(feedProfile ? [feedProfile.id] : []);
+  return [
+    feedSource("logs", LOG_FIELDS, (query) => query.in("user_id", ids)),
+    feedSource("posts", POST_FIELDS, (query) => query.in("user_id", ids)),
+  ];
+}
+
+// Discover leaves out private profiles even when you follow them.
+function discoverSources() {
+  const logFields = LOG_FIELDS.replace("profiles!logs_user_id_fkey(username, avatar_url)", "profiles!logs_user_id_fkey!inner(username, avatar_url, is_private)");
+  const postFields = POST_FIELDS.replace("profiles!posts_user_id_fkey(username, avatar_url)", "profiles!posts_user_id_fkey!inner(username, avatar_url, is_private)");
+  return [
+    feedSource("logs", logFields, (query) => query.eq("profiles.is_private", false)),
+    feedSource("posts", postFields, (query) => query.eq("profiles.is_private", false)),
+  ];
+}
+
+// The most liked and commented logs (with reviews) and posts of the week.
+async function showPopularThisWeekFeed() {
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const [logs, posts] = await Promise.all([
+    withoutMuted(db.from("logs").select(LOG_FIELDS)).not("review", "is", null).gte("created_at", since)
+      .order("created_at", { ascending: false }).limit(150),
+    withoutMuted(db.from("posts").select(POST_FIELDS)).gte("created_at", since)
+      .order("created_at", { ascending: false }).limit(150),
+  ]);
+  if (logs.error) throw logs.error;
+  if (posts.error) throw posts.error;
+  const logIds = logs.data.map((log) => log.id);
+  const postIds = posts.data.map((post) => post.id);
+  const [logLikes, postLikes, logComments, postComments] = await Promise.all([
+    logIds.length ? db.from("log_like_counts").select("log_id, like_count").in("log_id", logIds) : { data: [] },
+    postIds.length ? db.from("post_like_counts").select("post_id, like_count").in("post_id", postIds) : { data: [] },
+    logIds.length ? db.from("comment_counts").select("log_id, comment_count").in("log_id", logIds) : { data: [] },
+    postIds.length ? db.from("comment_counts").select("post_id, comment_count").in("post_id", postIds) : { data: [] },
+  ]);
+  const score = {};
+  for (const row of logLikes.data || []) score["log" + row.log_id] = (score["log" + row.log_id] || 0) + row.like_count;
+  for (const row of postLikes.data || []) score["post" + row.post_id] = (score["post" + row.post_id] || 0) + row.like_count;
+  for (const row of logComments.data || []) score["log" + row.log_id] = (score["log" + row.log_id] || 0) + 2 * row.comment_count;
+  for (const row of postComments.data || []) score["post" + row.post_id] = (score["post" + row.post_id] || 0) + 2 * row.comment_count;
+
+  const items = logs.data.map((row) => ({ kind: "log", row: row, score: score["log" + row.id] || 0 }))
+    .concat(posts.data.map((row) => ({ kind: "post", row: row, score: score["post" + row.id] || 0 })))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || (a.row.created_at < b.row.created_at ? 1 : -1))
+    .slice(0, PAGE_SIZE);
+
+  feedList.textContent = "";
+  if (items.length === 0) {
+    feedList.appendChild(makeEmptyState("Nothing has been liked or talked about this week yet. Like a review or start a conversation!"));
+  }
+  for (const item of items) {
+    feedList.appendChild(item.kind === "log" ? makeLogCard(item.row, { showUser: true, showBook: true }) : makePostCard(item.row));
+  }
+  const shownLogs = items.filter((item) => item.kind === "log").map((item) => item.row.id);
+  const shownPosts = items.filter((item) => item.kind === "post").map((item) => item.row.id);
+  fillLikes(shownLogs);
+  fillPostLikes(shownPosts);
+  fillCommentCounts("log", shownLogs);
+  fillCommentCounts("post", shownPosts);
+  const more = el("p", "center feed-more-link");
+  const link = el("a", "", "See the most popular books this week \u2192");
+  link.href = "popular.html";
+  more.appendChild(link);
+  feedList.appendChild(more);
+}
+
+async function showFeedTab(tab) {
+  feedTab = tab;
+  try {
+    localStorage.setItem(FEED_TAB_KEY, tab);
+  } catch (error) {
+    // not remembered, that's fine
+  }
+  document.querySelectorAll(".feed-tab").forEach(function (button) {
+    const active = button.dataset.tab === tab;
+    button.setAttribute("aria-selected", active ? "true" : "false");
+    button.classList.toggle("feed-tab-active", active);
+  });
+  feedNote.hidden = true;
+  feedList.innerHTML = FEED_EMPTY_SKELETON; // our own markup, not user text
   const cardOptions = { showUser: true, showBook: true };
+
+  if (tab === "popular") return showPopularThisWeekFeed();
+  if (tab === "following") {
+    if (feedFollowingIds.length === 0) {
+      feedNote.textContent = "You're not following anyone yet. Have a look in Discover and follow some readers.";
+      feedNote.hidden = false;
+    }
+    return showMixedFeed(feedList, followingSources(), "Nothing here yet. Share a thought, or follow some readers from Discover.", cardOptions);
+  }
+  return showMixedFeed(feedList, discoverSources(), "Nothing logged or shared yet. Search for a book you've read and log it!", cardOptions);
+}
+
+async function loadFeed(profile, followingIds) {
+  feedProfile = profile;
+  feedFollowingIds = followingIds;
   mutedPeople = await mutedIds();
 
-  if (!profile) {
-    feedHeading.textContent = "Recent activity";
-    await showPagedLogs(feedList, everyoneQuery, cardOptions, "Nothing logged yet.");
-    return;
+  const followingTab = document.querySelector('.feed-tab[data-tab="following"]');
+  followingTab.hidden = !profile;
+  document.querySelectorAll(".feed-tab").forEach(function (button) {
+    button.addEventListener("click", function () {
+      showFeedTab(button.dataset.tab).catch((error) => showHomeStatus(explainError(error)));
+    });
+  });
+
+  // "Share a thought" (logged in). A new post shows at the top straight away.
+  if (profile) {
+    document.getElementById("composer-spot").appendChild(makePostComposer({
+      onPosted: function (post) {
+        if (feedTab === "popular") return;
+        const empty = feedList.querySelector(".empty-note");
+        if (empty) empty.remove();
+        feedList.prepend(makePostCard(post));
+      },
+    }));
   }
 
-  if (followingIds.length === 0) {
-    feedHeading.textContent = "Recent activity from everyone";
-    feedNote.innerHTML =
-      "You're not following anyone yet. Click a name below, or " +
-      '<a href="search.html">search</a> for people and books.';
-    feedNote.hidden = false;
-    await showPagedLogs(feedList, everyoneQuery, cardOptions,
-      "Nothing logged yet. Search for a book you've read and log it!");
-    return;
+  // Which tab: the one you chose last time, else Following if you follow
+  // anyone, else Discover.
+  let tab = rememberedTab();
+  if (!["following", "discover", "popular"].includes(tab) || (tab === "following" && !profile)) {
+    tab = profile && followingIds.length ? "following" : "discover";
   }
-
-  feedHeading.textContent = "From people you follow";
-  await showPagedLogs(feedList, followingQuery(followingIds), cardOptions,
-    "The people you follow haven't logged anything yet.");
+  await showFeedTab(tab);
 }
 
 

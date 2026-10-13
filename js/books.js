@@ -772,7 +772,15 @@ function makeLogCard(log, options) {
       actions.appendChild(makeReviewImageButton(log));
     }
   }
+  // Comments on the review (js/social.js), when there's a review.
+  let thread = null;
+  if (log.review && typeof makeCommentArea === "function") {
+    const comments = makeCommentArea("log", log.id);
+    actions.appendChild(comments.button);
+    thread = comments.thread;
+  }
   body.appendChild(actions);
+  if (thread) body.appendChild(thread);
 
   card.appendChild(body);
   return card;
@@ -787,6 +795,7 @@ function showLogList(container, logs, options, emptyText) {
   }
   for (const log of logs) container.appendChild(makeLogCard(log, options));
   fillLikes(logs.map((log) => log.id));
+  if (typeof fillCommentCounts === "function") fillCommentCounts("log", logs.map((log) => log.id));
 }
 
 
@@ -830,6 +839,7 @@ async function showPagedLogs(container, makeQuery, options, emptyText) {
     const page = data.slice(0, PAGE_SIZE);
     for (const log of page) container.appendChild(makeLogCard(log, options));
     fillLikes(page.map((log) => log.id));
+    if (typeof fillCommentCounts === "function") fillCommentCounts("log", page.map((log) => log.id));
     shown += Math.min(data.length, PAGE_SIZE);
 
     if (data.length > PAGE_SIZE) {

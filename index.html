@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=45">
+  <link rel="stylesheet" href="css/style.css?v=46">
 </head>
 <body>
   <header class="site-header">
@@ -81,11 +81,19 @@
     <div id="home-rows" class="home-rows"></div>
 
     <!-- The feed. Loads when you scroll near it. -->
-    <section id="feed-section">
-      <h2 id="feed-heading">Recent activity</h2>
-      <p id="feed-note" class="muted" hidden></p>
+    <section id="feed-section" class="feed-section">
+      <h2 id="feed-heading" class="visually-hidden">Feed</h2>
+      <!-- "Share a thought" box, logged in only (js/social.js) -->
+      <div id="composer-spot"></div>
+      <!-- Feed tabs: the choice is remembered in this browser -->
+      <div class="feed-tabs" role="tablist" aria-label="Feed">
+        <button type="button" class="feed-tab" role="tab" data-tab="following" aria-selected="false" hidden>Following</button>
+        <button type="button" class="feed-tab" role="tab" data-tab="discover" aria-selected="false">Discover</button>
+        <button type="button" class="feed-tab" role="tab" data-tab="popular" aria-selected="false">Popular<span class="feed-tab-extra"> this week</span></button>
+      </div>
+      <p id="feed-note" class="muted feed-note" hidden></p>
       <!-- Filled in by js/home.js -->
-      <div id="feed" class="log-list"><div class="skeleton-group" role="status" aria-label="Loading"><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div></div></div>
+      <div id="feed" class="log-list" role="tabpanel"><div class="skeleton-group" role="status" aria-label="Loading"><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div><div class="skeleton-log" aria-hidden="true"><span class="skeleton sk-cover"></span><span class="sk-lines"><span class="skeleton sk-line sk-short"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span></span></div></div></div>
     </section>
   </main>
 
@@ -102,18 +110,20 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=45"></script>
+  <script src="js/config.js?v=46"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=45"></script>
+  <script src="js/supabase-client.js?v=46"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=45"></script>
+  <script src="js/auth.js?v=46"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=45"></script>
+  <script src="js/search-suggest.js?v=46"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=45"></script>
+  <script src="js/books.js?v=46"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=45"></script>
+  <script src="js/share-card.js?v=46"></script>
+  <!-- 8. Posts, comments and likes on posts -->
+  <script src="js/social.js?v=46"></script>
   <!-- This page's own code -->
-  <script src="js/home.js?v=45"></script>
+  <script src="js/home.js?v=46"></script>
 </body>
 </html>
