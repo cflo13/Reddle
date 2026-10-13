@@ -11,7 +11,8 @@
 //
 // Sources:
 //   Open Library (openlibrary.org): free, no key. Ids like OL45804W.
-//   Google Books (googleapis.com/books): free, no key, used for comics
+//   Google Books (googleapis.com/books): free, optional key in config.js
+//     (without one Google often refuses; see googleJson), used for comics
 //     and manga (category "Comics & Graphic Novels"). Ids are "GB" +
 //     Google's volume id, like GBzyTCAlFPjgYC. Their terms ask us to
 //     credit Google (footer) and link each book to its Google Books page
@@ -113,30 +114,74 @@ function subjectHasWord(subject, word) {
   return new RegExp("(^|[^a-zà-ɏ])" + escaped + "($|[^a-zà-ɏ])").test(subject);
 }
 
-// Comics or manga? Manga words (manga, manhwa, webtoon, shonen...) or
-// "comic books ... Japan" make it manga. Comics words make it comics,
-// unless it's manga; it's both only when there's also a clearly
-// Western-comics sign (superheroes, American or European comics).
-function universeGenresFromSubjects(lower) {
-  const has = (slug) => lower.some((subject) => findGenre(slug).words.some((word) => subjectHasWord(subject, word)));
-  const comicsWords = (subject) => /comic|graphic novel|cartoon/.test(subject);
-  const asian = (subject) => /japan|korea|china|chinese/.test(subject);
-  // "Comic books, strips, etc., Japan", or comics plus a plain "Japan" subject
-  const japaneseComics = lower.some((subject) => comicsWords(subject) && asian(subject)) ||
-    (lower.some(comicsWords) && lower.some((subject) => /^(japan|japanese|korea|korean)$/.test(subject.trim())));
-  const manga = has("manga") || japaneseComics;
-  const comics = has("comics");
-  const western = lower.some((subject) => /superhero|american comic|european comic|british comic|bandes dessin/.test(subject));
-  const found = [];
-  if (comics && (!manga || western)) found.push("comics");
-  if (manga) found.push("manga");
-  return found;
+// ---------- Comics or manga? (strict rules) ----------
+//
+// Open Library gives a "work" the subjects of ALL its editions, so a
+// classic with one comic adaptation (Hamlet, The Hobbit, 1984...) also
+// has "Graphic novels" among its 100+ subjects. So a book only counts as
+// comics or manga when comic subjects are a real part of its list:
+//   - comic format subjects: comic books/strips, comics & graphic novels,
+//     graphic novels, cartoons and comics, webcomics, bandes dessinées,
+//     Japanese/Korean/Chinese comics,
+//     manga, manhwa, manhua, webtoons, "form:graphic novel"/"form:manga",
+//     and the New York Times graphic books lists ("nyt:...graphic...");
+//     NOT "comic novels" or "comic fiction" (funny prose);
+//   - it's a comic when: an Open Library "form:" tag says so, OR at least
+//     2 comic subjects that make up at least 12% of all its subjects, OR
+//     1 comic subject when it has 4 subjects or fewer;
+//   - manga also needs manga-specific subjects (manga, manhwa, manhua,
+//     webtoon, shonen/shojo/seinen/josei, "east asian style", Japanese
+//     comics): an Open Library "form:manga" tag, or 2+ of them, or 1 that
+//     is at least 30% of its comic subjects, or 1 plus a creator written
+//     in Japanese, Korean or Chinese script. NYT list tags
+//     ("graphic-books-and-manga") never count for manga. Light novels need
+//     2 manga subjects. Western comics (Tintin, Dog Man) stay comics;
+//   - a manga is also comics only with 2+ Western signs (superheroes,
+//     American or European comics).
+// Google Books: comics = the category "Comics & Graphic Novels"; manga =
+// that plus "Manga" (or manhwa/manhua/webtoon) in the category.
+
+const COMIC_FORMAT = /comic books?,? strips|comic strips?|(japanese|korean|chinese) comics?|comics? (&|and) graphic|graphic novels?|graphic books?|cartoons and comics|comic and graphic|bandes dessin|webcomics?|webtoons?|manhwa|manhua|\bmangas?\b|superhero comic|^form:(graphic novel|manga|comic)|^comics?$|^comic books?$|\(comic strip\)/;
+const MANGA_SIGNAL = /\bmangas?\b|manhwa|manhua|webtoons?|sh[oō]u?nen|sh[oō]u?jo|seinen|josei|east asian style|japanese (comic|graphic)|comic books?,? strips,? etc\.?,? japan|^form:manga/;
+const WESTERN_SIGNAL = /superhero|american comic|european comic|british comic|bandes dessin|franco-belgian/;
+const ASIAN_SCRIPT = /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/;
+
+// `lower`: lower-case subjects; `authors`: creator names (may be empty).
+function universeGenresFromSubjects(lower, authors) {
+  const total = lower.length;
+  const comicHits = lower.filter((subject) => COMIC_FORMAT.test(subject) || /^nyt:.*graphic/.test(subject)).length;
+  const formTag = lower.some((subject) => /^form:(graphic novel|manga|comic)/.test(subject));
+  const isComic = formTag || (comicHits >= 2 && comicHits / total >= 0.12) || (comicHits >= 1 && total <= 4);
+  if (!isComic) return [];
+
+  const mangaHits = lower.filter((subject) => !subject.startsWith("nyt:") && MANGA_SIGNAL.test(subject)).length;
+  const lightNovel = lower.some((subject) => /light novels?/.test(subject));
+  const asianCreator = (authors || []).some((name) => ASIAN_SCRIPT.test(String(name)));
+  const enoughManga = lower.some((subject) => /^form:manga/.test(subject)) || mangaHits >= 2 ||
+    mangaHits / Math.max(comicHits, 1) >= 0.3 || asianCreator;
+  const manga = mangaHits >= (lightNovel ? 2 : 1) && enoughManga;
+  const western = lower.filter((subject) => WESTERN_SIGNAL.test(subject)).length;
+
+  if (!manga) return ["comics"];
+  return western >= 2 ? ["comics", "manga"] : ["manga"];
+}
+
+// Google Books categories, like "Comics & Graphic Novels / Manga / Fantasy".
+// Only a comics category itself counts ("Comics & Graphic Novels / ...",
+// or the young adult and juvenile ones), not a book ABOUT comics
+// ("Literary Criticism / Comics & Graphic Novels", "Art / Cartooning").
+function googleUniverseGenres(categories) {
+  const comics = (categories || []).map((category) => String(category).toLowerCase())
+    .filter((category) => /^((young adult|juvenile) (fiction|nonfiction) \/ )?comics (&|and) graphic novels/.test(category));
+  if (comics.length === 0) return [];
+  return comics.some((category) => /manga|manhwa|manhua|webtoon/.test(category)) ? ["manga"] : ["comics"];
 }
 
 // Turns a list of Open Library subjects (or Google categories) into our
 // genre slugs, for example ["Fiction", "Space warfare"] gives
 // ["science_fiction"]. Returns [] when nothing matches.
-function genresFromSubjects(subjects) {
+// `authors` (optional): creator names, a hint for manga.
+function genresFromSubjects(subjects, authors) {
   if (!subjects || subjects.length === 0) return [];
   const lower = subjects.map((subject) => String(subject).toLowerCase());
   // ("graphic novels" are comics, not a sign of fiction: Maus is a memoir)
@@ -152,7 +197,7 @@ function genresFromSubjects(subjects) {
   }
   scores.sort((a, b) => b.hits - a.hits);
   return [
-    ...universeGenresFromSubjects(lower),
+    ...universeGenresFromSubjects(lower, authors),
     ...scores.slice(0, MAX_GENRES_PER_BOOK).map((score) => score.slug),
   ];
 }
@@ -216,6 +261,35 @@ function cleanGoogleCover(link) {
   return link.replace(/^http:/, "https:").replace("&edge=curl", "");
 }
 
+// Adds our Google Books key (js/config.js), when there is one.
+function googleUrl(url) {
+  const key = typeof GOOGLE_BOOKS_KEY === "string" ? GOOGLE_BOOKS_KEY.trim() : "";
+  return key ? url + (url.includes("?") ? "&" : "?") + "key=" + encodeURIComponent(key) : url;
+}
+
+// Google Books JSON, or null. Without a key Google often answers "quota
+// exceeded" (429/403) for everyone; after that we stop asking for the
+// rest of the visit, so pages don't wait on requests that can't work.
+const GOOGLE_OFF_KEY = "reddle:google-off";
+
+async function googleJson(url, signal) {
+  const hasKey = typeof GOOGLE_BOOKS_KEY === "string" && GOOGLE_BOOKS_KEY.trim() !== "";
+  try {
+    if (!hasKey && sessionStorage.getItem(GOOGLE_OFF_KEY)) return null;
+  } catch (error) {}
+  let response;
+  try {
+    response = await fetch(googleUrl(url), { signal: signal });
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
+    return null;
+  }
+  if ((response.status === 429 || response.status === 403) && !hasKey) {
+    try { sessionStorage.setItem(GOOGLE_OFF_KEY, "1"); } catch (error) {}
+  }
+  return response.ok ? response.json().catch(() => null) : null;
+}
+
 // A Google Books id ("GBzyTCAlFPjgYC") -> Google's own volume id.
 function googleVolumeId(externalId) {
   return String(externalId || "").replace(/^GB/, "");
@@ -255,7 +329,7 @@ function takeTurns(a, b) {
 
 // ---------- Open Library, by universe ----------
 
-const OPEN_LIBRARY_FIELDS = "key,title,author_name,cover_i,first_publish_year,isbn,subject";
+const OPEN_LIBRARY_FIELDS = "key,title,author_name,author_alternative_name,cover_i,first_publish_year,isbn,subject";
 
 // One Open Library search result in our usual shape:
 // { externalId, title, author, coverUrl, year, isbns, genres }.
@@ -270,7 +344,7 @@ function openLibraryDocToBook(doc) {
     coverId: doc.cover_i || doc.cover_id || null,
     year: doc.first_publish_year || null,
     isbns: (doc.isbn || []).slice(0, 3),
-    genres: genresFromSubjects(doc.subject || []),
+    genres: genresFromSubjects(doc.subject || [], (doc.author_name || []).concat(doc.author_alternative_name || [])),
     subjects: doc.subject || null,
   };
 }
@@ -329,11 +403,12 @@ function googleVolumeToBook(item, universe) {
   // "Comics & Graphic Novels / Manga / Fantasy" -> its parts
   const parts = categories.flatMap((category) => category.split("/").map((part) => part.trim()));
   if (looksAdult([info.title, info.subtitle].concat(parts))) return null;
-  let genres = genresFromSubjects(parts);
-  // Searched as comics or manga, so it is one, even if Google's category
-  // is only the general "Comics & Graphic Novels".
-  if (universe === "manga" && !genres.includes("manga")) genres = ["manga"].concat(genres.filter((slug) => slug !== "comics"));
-  if (universe === "comics" && !genres.includes("comics") && !genres.includes("manga")) genres = ["comics"].concat(genres);
+  // Comics or manga only from Google's own category (never from what we
+  // searched for), plus our other genres from the category's parts.
+  const genres = [
+    ...googleUniverseGenres(categories),
+    ...genresFromSubjects(parts).filter((slug) => !findGenre(slug).universe),
+  ];
   const isbns = (info.industryIdentifiers || [])
     .filter((id) => id.type === "ISBN_13" || id.type === "ISBN_10")
     .sort((a) => (a.type === "ISBN_13" ? -1 : 1))
@@ -365,7 +440,7 @@ async function searchGoogleBooksIn(words, universe, limit, options) {
     "&orderBy=" + (options.orderBy || "relevance") +
     "&fields=items(id,volumeInfo(title,subtitle,authors,publishedDate,categories,imageLinks,industryIdentifiers,maturityRating,pageCount))" +
     "&q=" + encodeURIComponent(((words || "") + " " + subject).trim());
-  const data = await sourceJson(url, options.signal);
+  const data = await googleJson(url, options.signal);
   return ((data && data.items) || [])
     .map((item) => googleVolumeToBook(item, universe))
     .filter((book) => book && bookInUniverse(book, universe))
@@ -376,7 +451,7 @@ async function searchGoogleBooksIn(words, universe, limit, options) {
 // The description is NOT included (Google's terms; see the top of this
 // file): fetchGoogleDescription() gets it for the book page.
 async function fetchBookFromGoogle(externalId) {
-  const data = await sourceJson(GOOGLE_BOOKS + "/" + encodeURIComponent(googleVolumeId(externalId)));
+  const data = await googleJson(GOOGLE_BOOKS + "/" + encodeURIComponent(googleVolumeId(externalId)));
   if (!data) return null;
   const universe = /manga/i.test(((data.volumeInfo || {}).categories || []).join(" ")) ? "manga" : "comics";
   const book = googleVolumeToBook(data, universe);
@@ -396,7 +471,7 @@ async function fetchBookFromGoogle(externalId) {
 // The description of a Google Books volume as plain text (Google sends
 // a little HTML, which we only read, never put on the page).
 async function fetchGoogleDescription(externalId) {
-  const data = await sourceJson(GOOGLE_BOOKS + "/" + encodeURIComponent(googleVolumeId(externalId)) + "?fields=volumeInfo(description)");
+  const data = await googleJson(GOOGLE_BOOKS + "/" + encodeURIComponent(googleVolumeId(externalId)) + "?fields=volumeInfo(description)");
   const html = data && data.volumeInfo && data.volumeInfo.description;
   if (!html) return null;
   const text = new DOMParser().parseFromString(html.replace(/<br\s*\/?>|<\/p>/gi, "\n"), "text/html").body.textContent || "";

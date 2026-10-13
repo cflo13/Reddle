@@ -704,6 +704,14 @@ async function loadSimilarBooks(book) {
   const topRated = await fetchTopRatedInGenres(genres, book.id ? [book.id] : [], SIMILAR_SIZE);
   for (const candidate of topRated) add(candidate, statsNote(candidate));
 
+  // Comics and manga: well-known titles of the same genre first.
+  const universe = currentUniverse();
+  if (picks.length < SIMILAR_SIZE && universe !== "books") {
+    const first = findGenre(genres[0]);
+    const seeds = await makeSeedStream(universe, first && !first.universe ? first.slug : null).next(SIMILAR_SIZE).catch(() => []);
+    for (const candidate of seeds) add(openLibraryToBook(candidate), "");
+  }
+
   if (picks.length < SIMILAR_SIZE) {
     const popular = await fetchGenreBooksFromOpenLibrary(genres[0], SIMILAR_SIZE + 1, 0).catch(() => []);
     for (const candidate of popular) add(openLibraryToBook(candidate), "");

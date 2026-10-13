@@ -4090,6 +4090,15 @@ summary,
   cursor: default;
 }
 
+/* An empty Comics or Manga feed: a few titles to start with */
+.seed-suggestions {
+  margin-top: var(--space-4);
+}
+
+.seed-suggestions .hint {
+  margin-bottom: var(--space-2);
+}
+
 /* Admin page: which universe a pick or question is for */
 .admin-universe {
   display: inline-block;

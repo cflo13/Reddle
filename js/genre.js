@@ -43,18 +43,32 @@ async function loadReddleBooks() {
   for (const book of data) reddleBox.appendChild(makeBookTile(book, statsNote(book)));
 }
 
+// Comics and manga: first the curated seed titles of this genre
+// (js/universe-seeds.js), then the open Open Library search, which only
+// keeps books our strict rules call comics or manga.
+const genreSeeds = genre && currentUniverse() !== "books" ? makeSeedStream(currentUniverse(), genre.universe ? null : genre.slug) : null;
+const genreShown = new Set();
+
 async function loadOpenLibraryBooks() {
   moreButton.disabled = true;
   try {
-    const books = await fetchGenreBooksFromOpenLibrary(slug, OPEN_LIBRARY_PAGE, openLibraryShown);
-    if (openLibraryShown === 0) openLibraryBox.textContent = "";
-    for (const book of books) openLibraryBox.appendChild(makeBookTile(openLibraryToBook(book)));
-    openLibraryShown += books.length;
-    // A full page probably means there's more.
-    moreButton.hidden = books.length < OPEN_LIBRARY_PAGE;
-    if (openLibraryShown === 0) openLibraryBox.appendChild(el("p", "muted", "Nothing here right now."));
+    let books = [];
+    if (genreSeeds && !genreSeeds.finished()) books = await genreSeeds.next(OPEN_LIBRARY_PAGE);
+    let openPage = [];
+    if (books.length < OPEN_LIBRARY_PAGE) {
+      openPage = await fetchGenreBooksFromOpenLibrary(slug, OPEN_LIBRARY_PAGE, openLibraryShown);
+      openLibraryShown += openPage.length;
+    }
+    if (genreShown.size === 0) openLibraryBox.textContent = "";
+    for (const book of books.concat(openPage)) {
+      if (genreShown.has(book.externalId)) continue;
+      genreShown.add(book.externalId);
+      openLibraryBox.appendChild(makeBookTile(openLibraryToBook(book)));
+    }
+    moreButton.hidden = (!genreSeeds || genreSeeds.finished()) && openPage.length < OPEN_LIBRARY_PAGE;
+    if (genreShown.size === 0) openLibraryBox.appendChild(el("p", "muted", "Nothing here right now."));
   } catch (error) {
-    if (openLibraryShown === 0) openLibraryBox.textContent = "";
+    if (genreShown.size === 0) openLibraryBox.textContent = "";
     openLibraryBox.appendChild(el("p", "status status-error", friendlyError(error)));
   } finally {
     moreButton.disabled = false;

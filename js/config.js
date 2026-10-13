@@ -29,3 +29,12 @@ const CONTACT_EMAIL = "hello@reddle.org";
 // code is ready but nothing is sent until Resend is set up (EMAIL-SETUP.md).
 // Change this to true at the same time, so Settings shows the email switches.
 const EMAILS_ON = false;
+
+// ------------------------------------------------------------
+// Google Books key (optional). Google now often refuses Google Books
+// requests that come without a key, so comics and manga searches and
+// some covers only use Open Library until one is added here. A browser
+// key restricted to reddle.org and the Books API is safe to be public
+// (steps in GOOGLE-BOOKS-KEY.md). Leave it "" to use Open Library only.
+// ------------------------------------------------------------
+const GOOGLE_BOOKS_KEY = "";

@@ -49,7 +49,7 @@ async function askGoogleBooks(query) {
     "https://www.googleapis.com/books/v1/volumes?maxResults=3" +
     "&fields=items(volumeInfo(title,imageLinks))" +
     "&q=" + encodeURIComponent(query);
-  const data = await fetchJson(url);
+  const data = await googleJson(url); // js/sources.js (adds the key, if any)
   const items = (data && data.items) || [];
   for (const item of items) {
     const links = item.volumeInfo && item.volumeInfo.imageLinks;
@@ -114,10 +114,13 @@ async function fetchBookFromOpenLibrary(externalId) {
       ? work.authors[0].author.key
       : null;
 
-  const [author, editions] = await Promise.all([
-    authorKey ? fetchJson(OPEN_LIBRARY + authorKey + ".json").then((a) => a && a.name) : null,
+  // (The author's other names, e.g. in Japanese, help spot manga.)
+  const [authorRecord, editions] = await Promise.all([
+    authorKey ? fetchJson(OPEN_LIBRARY + authorKey + ".json") : null,
     fetchJson(OPEN_LIBRARY + "/works/" + externalId + "/editions.json?limit=20"),
   ]);
+  const author = authorRecord && authorRecord.name;
+  const authorNames = authorRecord ? [authorRecord.name].concat(authorRecord.alternate_names || []) : [];
   const isbn = findIsbn(editions);
   const pageCount = findPageCount(editions);
 
@@ -143,7 +146,7 @@ async function fetchBookFromOpenLibrary(externalId) {
     cover_url: coverUrl || null,
     description: description.trim() || null,
     isbn: isbn || null,
-    genres: genresFromSubjects(work.subjects),
+    genres: genresFromSubjects(work.subjects, authorNames),
     page_count: pageCount,
   };
 }
@@ -238,7 +241,7 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
       author: work.authors && work.authors[0] ? work.authors[0].name : "",
       coverUrl: work.cover_id ? coverUrlFromId(work.cover_id, "M") : null,
       coverId: work.cover_id || null,
-      genres: genresFromSubjects(work.subject || []),
+      genres: genresFromSubjects(work.subject || [], (work.authors || []).map((person) => person.name)),
       subjects: work.subject || [],
     };
   }).filter((book) => fitsUniverse(book, "books"));
@@ -311,12 +314,23 @@ async function fetchRecentlyLoggedBooks(limit) {
   return books.slice(0, limit);
 }
 
-// What's popular on Open Library this week (comics and manga: popular
-// on Open Library and Google Books). Returns our tile shape.
+// How many books of this universe Reddle readers have logged (comics
+// and manga lists lean on the curated seed lists until there are 24).
+const SEED_UNTIL = 24;
+
+async function universeLoggedCount() {
+  const { count } = await onlyThisUniverse(db.from("books_with_stats").select("id", { count: "exact", head: true })).gt("log_count", 0);
+  return count || 0;
+}
+
+// What's popular on Open Library this week. Comics and manga: the
+// curated seed list instead (js/universe-seeds.js), because Open
+// Library's "popular comics" are mostly classics with one comic edition.
+// Returns our tile shape.
 async function fetchTrendingFromOpenLibrary(limit) {
   const universe = currentUniverse();
   if (universe !== "books") {
-    const found = await fetchUniverseBooks(universe, null, limit, 0, "popular");
+    const found = await makeSeedStream(universe).next(limit);
     return found.map(openLibraryToBook);
   }
   const response = await fetchOpenLibrary(OPEN_LIBRARY + "/trending/weekly.json?limit=" + limit);

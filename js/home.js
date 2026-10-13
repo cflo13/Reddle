@@ -73,9 +73,13 @@ function cacheSet(key, value) {
 }
 
 // Runs `load` unless we already have a recent answer for `key`. Each
-// universe (Books, Comics, Manga) remembers its own answers.
+// universe (Books, Comics, Manga) remembers its own answers. ROWS_VERSION
+// changes when the way rows are filled changes, so nobody keeps seeing
+// rows filled the old way.
+const ROWS_VERSION = 2;
+
 async function remembered(key, load) {
-  key = currentUniverse() + ":" + key;
+  key = "v" + ROWS_VERSION + ":" + currentUniverse() + ":" + key;
   const saved = cacheGet(key);
   if (saved) return saved;
   const value = await load();
@@ -297,14 +301,19 @@ async function forYouCandidates(profile, followingIds, myBooks, genres) {
 }
 
 // 2 and 6. A genre: top rated on Reddle, then popular on Open Library.
+// Comics and manga: the seed titles of that genre come before the open
+// Open Library search (which only keeps books our strict rules accept).
 function genreCandidates(slug) {
   return remembered("genre:" + slug, async function () {
-    const [topRated, popular] = await Promise.all([
+    const universe = currentUniverse();
+    const [topRated, seeds, popular] = await Promise.all([
       fetchTopRatedInGenres([slug], [], ROW_SIZE * 2).catch(() => []),
+      universe === "books" ? [] : makeSeedStream(universe, slug).next(ROW_SIZE).catch(() => []),
       fetchGenreBooksFromOpenLibrary(slug, ROW_SIZE * 2, 0).catch(() => []),
     ]);
     return [
       ...topRated.map((book) => ({ book: book, note: statsNote(book) })),
+      ...seeds.map((book) => ({ book: openLibraryToBook(book) })),
       ...popular.map((book) => ({ book: openLibraryToBook(book) })),
     ];
   });
@@ -338,16 +347,22 @@ function talkedAboutCandidates() {
   });
 }
 
-// 3. Popular this week, topped up with Open Library's trending list.
+// 3. Popular this week, topped up with Open Library's trending list
+//    (comics and manga: the curated seed list; with 24+ logged books in
+//    the universe, Reddle's most logged come before it).
 function popularThisWeekCandidates() {
   return remembered("this-week", async function () {
-    const [reddle, trending] = await Promise.all([
+    const universe = currentUniverse();
+    const enough = universe !== "books" && (await universeLoggedCount().catch(() => 0)) >= SEED_UNTIL;
+    const [reddle, mostLogged, trending] = await Promise.all([
       fetchPopularThisWeek(ROW_SIZE * 2).catch(() => []),
-      fetchTrendingFromOpenLibrary(ROW_SIZE * 2).catch(() => []),
+      enough ? fetchMostLoggedOnReddle(ROW_SIZE * 2).catch(() => []) : [],
+      fetchTrendingFromOpenLibrary(universe === "books" ? ROW_SIZE * 2 : ROW_SIZE + 4).catch(() => []),
     ]);
+    reddle.push(...mostLogged.map((book) => Object.assign({ logs_this_week: 0 }, book)));
     return [
-      ...reddle.map((book) => ({ book: book, reason: book.logs_this_week + (book.logs_this_week === 1 ? " reader" : " readers") + " this week" })),
-      ...trending.map((book) => ({ book: book, reason: currentUniverse() === "books" ? "Trending this week" : "Popular" })),
+      ...reddle.map((book) => ({ book: book, reason: book.logs_this_week ? book.logs_this_week + (book.logs_this_week === 1 ? " reader" : " readers") + " this week" : statsNote(book) })),
+      ...trending.map((book) => ({ book: book, reason: universe === "books" ? "Trending this week" : "A favourite" })),
     ];
   });
 }
@@ -567,15 +582,33 @@ async function showFeedTab(tab) {
   feedList.innerHTML = FEED_EMPTY_SKELETON; // our own markup, not user text
   const cardOptions = { showUser: true, showBook: true };
 
-  if (tab === "popular") return showPopularThisWeekFeed();
-  if (tab === "following") {
+  if (tab === "popular") {
+    await showPopularThisWeekFeed();
+  } else if (tab === "following") {
     if (feedFollowingIds.length === 0) {
       feedNote.textContent = "You're not following anyone yet. Have a look in Discover and follow some readers.";
       feedNote.hidden = false;
     }
-    return showMixedFeed(feedList, followingSources(), "Nothing here yet. Share a thought, or follow some readers from Discover.", cardOptions);
+    await showMixedFeed(feedList, followingSources(), "Nothing here yet. Share a thought, or follow some readers from Discover.", cardOptions);
+  } else {
+    await showMixedFeed(feedList, discoverSources(), "Nothing logged or shared yet. Search for a book you've read and log it!", cardOptions);
   }
-  return showMixedFeed(feedList, discoverSources(), "Nothing logged or shared yet. Search for a book you've read and log it!", cardOptions);
+  if (feedTab === tab) addSeedSuggestions(tab).catch(() => {});
+}
+
+// An empty Comics or Manga feed suggests a few well-known titles from
+// the curated seed list (js/universe-seeds.js) to start with.
+async function addSeedSuggestions(tab) {
+  const universe = currentUniverse();
+  if (universe === "books" || !feedList.querySelector(".empty-note")) return;
+  const books = await makeSeedStream(universe).next(6);
+  if (books.length === 0 || feedTab !== tab || !feedList.querySelector(".empty-note") || feedList.querySelector(".seed-suggestions")) return;
+  const box = el("div", "seed-suggestions");
+  box.appendChild(el("p", "hint", "Start with these " + UNIVERSES[universe].noun + ":"));
+  const row = el("div", "tile-row");
+  for (const book of books) row.appendChild(makeBookTile(openLibraryToBook(book)));
+  box.appendChild(row);
+  feedList.appendChild(box);
 }
 
 async function loadFeed(profile, followingIds) {
@@ -597,6 +630,8 @@ async function loadFeed(profile, followingIds) {
     if (feedTab === "popular") return;
     const empty = feedList.querySelector(".empty-note");
     if (empty) empty.remove();
+    const seeds = feedList.querySelector(".seed-suggestions");
+    if (seeds) seeds.remove();
     feedList.prepend(makePostCard(post));
   }
 
