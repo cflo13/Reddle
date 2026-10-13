@@ -289,19 +289,18 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 
 Only these are left, and each needs the owner's own accounts (Claude only has the Supabase connector).
 
-**Postponed by the owner (October 2026): emails and Google sign in are not wanted yet.** Don't ask about them again unprompted; bring them up when they matter, e.g. before the owner invites many people (Supabase's built-in sender only manages a few sign-up/password emails an hour; Resend can also be its SMTP sender), or if people ask for Google sign in. The code for both is already built and waits on these steps:
+**Postponed by the owner (October 2026): emails are not wanted yet.** Don't ask about them again unprompted; bring them up when they matter, e.g. before the owner invites many people (Supabase's built-in sender only manages a few sign-up/password emails an hour; Resend can also be its SMTP sender). The code is already built and waits on this step:
 
 - Emails (postponed): follow `EMAIL-SETUP.md` (Resend account, its DNS records in Cloudflare, an API key). Then say "the Resend key is ready": Claude calls the connector's secret tool for `RESEND_API_KEY` and `EMAIL_FROM` (`Reddle <notifications@reddle.org>`) and the owner pastes the values into Supabase's own box. Nothing is emailed until then.
-- Google sign in (postponed): follow `GOOGLE-SIGNIN.md` (Google Cloud OAuth client with redirect URI `https://trfgztdvecpswcwoakyz.supabase.co/auth/v1/callback`, then the Client ID and secret in Supabase → Authentication → Providers → Google). The site's code needs no change.
 - Google Search Console: follow `SEARCH-CONSOLE.md` (add reddle.org, verify with a DNS TXT record, submit sitemap.xml).
 - Optional: Supabase → Authentication → "Leaked password protection" (may need a paid plan).
 
-Done by the owner: the custom domain (DNS, GitHub verification, Supabase URLs) and `step9` / `step11` (checked on the live database: `delete_my_account` and `admin_delete_user` exist, so Delete account and Remove user work).
+Done by the owner: Google sign in (October 2026, following `GOOGLE-SIGNIN.md`; Supabase's `/auth/v1/settings` confirms the Google provider is on; no Google sign-in had happened yet when checked, so the first real one is still to be tried), the custom domain (DNS, GitHub verification, Supabase URLs) and `step9` / `step11` (checked on the live database: `delete_my_account` and `admin_delete_user` exist, so Delete account and Remove user work).
 
 ## Notes for later steps
 
 - Supabase sends a confirmation email on sign up by default. The link in it goes to the Site URL, now the live site. To skip it while testing: Authentication -> Sign In / Providers -> Email -> turn off "Confirm email".
-- Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. The button already exists; what's missing is the Google Cloud OAuth client and turning on the Google provider in Supabase.
+- Google sign in only works on the live site, not from a `file://` path, because Google sends the user back to a web address. It's switched on (Google Cloud OAuth client + Supabase provider, set up by the owner). If it fails, check the redirect URI in Google Cloud is exactly `https://trfgztdvecpswcwoakyz.supabase.co/auth/v1/callback` and that the app is published (not "Testing").
 - Claude's cloud environment can't open github.io, supabase.co or openlibrary.org, so it checks deploys through GitHub's "pages build and deployment" runs and tests code with stand-ins.
 - The **Supabase connector** is connected (project id `trfgztdvecpswcwoakyz`), so Claude can inspect the database, apply SQL and run Supabase's security advisor. SQL that changes or deletes from `auth.users` (the login table), drops anything (policies, functions), deletes anything (even with a `where`), or updates every row of a table always times out through the connector, probably because it needs an approval the owner never sees; give that SQL to the owner to run instead.
 - Security advisor, last check: one remaining warning, "Leaked password protection disabled" (a dashboard setting under Authentication; may need a paid plan).
