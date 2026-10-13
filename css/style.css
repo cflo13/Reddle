@@ -1,47 +1,85 @@
-/* ---------- Colours and basics ---------- */
+/* ---------- Colours, fonts and spacing (the design tokens) ---------- */
 
-/* Every colour on the site comes from these tokens.
-   Night mode is the default; day mode (cream and brown, like paper and
-   leather books) is set by the little script at the top of every page,
-   which puts data-theme="light" or "dark" on <html> (saved choice, or
-   the device setting). The sun/moon button in the header switches. */
+/* The look: a quiet reading nook. Paper, leather, lamplight, wood
+   shelves. Warm, calm, lots of breathing room, soft edges, few borders,
+   few colours. EVERY colour on the site comes from these tokens (no hex
+   or rgb anywhere else in this file or in the JS files).
+   Night mode (warm lamplight) is the default; day mode (cream and
+   leather) is set by the little script at the top of every page, which
+   puts data-theme="light" or "dark" on <html> (saved choice, or the
+   device setting). The sun/moon button in the header switches. */
 :root {
   color-scheme: dark;
-  --bg: #14181c;
-  --surface: #1f262d;
-  --text: #e6e9ec;
-  --muted: #9aa5b1;
-  --accent: #40bcf4;
-  --ok: #00c030;
-  --error: #ff6b6b;
-  --border: #39424c;          /* lines around boxes, empty stars */
-  --on-button: #ffffff;       /* text on green buttons */
-  --on-danger: #1a0000;       /* text on red buttons */
-  --avatar-bg: #6b7682;       /* circle behind a missing picture */
-  --want: #e2b23a;            /* "want to read" outline */
-  --shadow: rgba(0, 0, 0, 0.4);
-  --shimmer: rgba(255, 255, 255, 0.06);
-  --skeleton: #1f262d;        /* loading boxes */
-  --radius: 8px;
+
+  /* Night: warm lamplight */
+  --bg: #1d1714;              /* the page */
+  --surface: #271f1a;         /* cards, header */
+  --panel: #322820;           /* a step darker/raised: inputs, hovers, chips */
+  --text: #eadfcc;
+  --muted: #a8977f;           /* secondary text */
+  --accent: #d9a35f;          /* soft amber: buttons, links, stars */
+  --accent-hover: #e8b777;
+  --on-accent: #1d1714;       /* text on accent buttons */
+  --success: #98a56b;         /* gentle olive, used rarely */
+  --error: #d27a68;           /* muted brick */
+  --on-danger: #1d1714;       /* text on brick buttons */
+  --border: #3b3027;          /* very soft lines */
+  --avatar-bg: #5b4a3b;       /* circle behind a missing picture */
+  --on-avatar: #eadfcc;
+  --want: var(--success);     /* "want to read" outline */
+  --shadow: rgba(8, 5, 3, 0.35);
+  --card-shadow: 0 1px 2px rgba(8, 5, 3, 0.25), 0 8px 24px rgba(8, 5, 3, 0.22);
+  --overlay: rgba(20, 14, 10, 0.75);       /* dark layer over pictures */
+  --overlay-light: rgba(20, 14, 10, 0.5);
+  --on-overlay: #fbf5e6;                    /* text on that layer */
+  --backdrop: rgba(12, 8, 6, 0.6);         /* behind pop-up boxes */
+  --shimmer: rgba(234, 223, 204, 0.06);
+  --skeleton: #2e251f;        /* loading boxes */
+
+  /* Fonts: bookish serif headings, a calm sans for everything else.
+     Both are fonts people already have (nothing to download). */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Times New Roman", serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Spacing steps: use these instead of random numbers */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Soft edges */
+  --radius-small: 6px;
+  --radius: 10px;
+  --radius-large: 16px;
+  --radius-pill: 999px;
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f4ecd8;
-  --surface: #fbf6e9;
-  --text: #3b2a1f;
-  --muted: #74604d;
-  --accent: #8b5a2b;
-  --ok: #2e7d32;
-  --error: #b3261e;
-  --border: #d9c9a8;
-  --on-button: #ffffff;
-  --on-danger: #ffffff;
-  --avatar-bg: #a58d72;
-  --want: #b7791f;
-  --shadow: rgba(59, 42, 31, 0.18);
-  --shimmer: rgba(255, 255, 255, 0.55);
-  --skeleton: #e9dcc0;
+
+  /* Day: cream and leather */
+  --bg: #f5ecd9;
+  --surface: #fbf5e6;
+  --panel: #ece0c8;
+  --text: #3a2a20;
+  --muted: #72604b;
+  --accent: #93552a;          /* leather brown / burnt orange */
+  --accent-hover: #7f4720;
+  --on-accent: #fbf5e6;
+  --success: #5b6638;
+  --error: #a4473a;
+  --on-danger: #fbf5e6;
+  --border: #dccdb0;
+  --avatar-bg: #b39a7c;
+  --on-avatar: #fbf5e6;
+  --shadow: rgba(90, 60, 30, 0.14);
+  --card-shadow: 0 1px 2px rgba(90, 60, 30, 0.08), 0 8px 24px rgba(90, 60, 30, 0.08);
+  --backdrop: rgba(58, 42, 32, 0.45);
+  --shimmer: rgba(255, 250, 240, 0.6);
+  --skeleton: #e9ddc5;
 }
 
 * {
@@ -58,12 +96,55 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings in the bookish serif */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 0 0 var(--space-4);
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin: var(--space-6) 0 var(--space-3);
+}
+
+h3 {
+  font-size: 1.1rem;
 }
 
 a {
   color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* One calm focus ring everywhere (keyboard users) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* ---------- Header ---------- */
@@ -72,19 +153,25 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px 24px;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1.4rem;
-  font-weight: 700;
+  gap: var(--space-2);
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
   color: var(--text);
   text-decoration: none;
+}
+
+.logo:hover {
+  color: var(--text);
 }
 
 .logo img {
@@ -106,9 +193,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
   background: none;
   color: var(--text);
   font: inherit;
@@ -119,8 +206,8 @@ a {
 }
 
 .nav-button:hover {
-  border-color: var(--muted);
-  color: var(--accent);
+  background: var(--panel);
+  color: var(--text);
 }
 
 .nav-button svg {
@@ -149,9 +236,9 @@ a {
 /* ---------- Page content ---------- */
 
 .page {
-  max-width: 800px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 40px 16px;
+  padding: var(--space-7) var(--space-4) var(--space-7);
 }
 
 .page-narrow {
@@ -166,7 +253,7 @@ a {
 .settings {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
 .settings .form {
@@ -175,7 +262,7 @@ a {
 
 /* The delete account card: a red edge so it stands apart */
 .card-danger {
-  border: 1px solid var(--error);
+  box-shadow: inset 4px 0 0 var(--error), var(--card-shadow);
 }
 
 
@@ -196,14 +283,14 @@ a {
 /* ---------- Status messages ---------- */
 
 .status {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--panel);
   border-left: 4px solid var(--muted);
 }
 
 .status-ok {
-  border-left-color: var(--ok);
+  border-left-color: var(--success);
 }
 
 .status-error {
@@ -223,36 +310,51 @@ a {
 
 .button {
   display: inline-block;
-  padding: 10px 18px;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--ok);
-  color: var(--on-button);
+  padding: 10px 22px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--on-accent);
   font: inherit;
   font-weight: 600;
+  line-height: 1.4;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .button:hover {
-  filter: brightness(1.1);
+  background: var(--accent-hover);
+  color: var(--on-accent);
 }
 
 .button:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: default;
 }
 
+/* Quiet button: no fill, a soft outline */
 .button-secondary {
-  background: var(--surface);
+  background: transparent;
   color: var(--text);
-  border: 1px solid var(--muted);
+  border-color: var(--border);
 }
 
-/* Red button for things that delete (delete account, remove review) */
+.button-secondary:hover {
+  background: var(--panel);
+  color: var(--text);
+}
+
+/* Brick button for things that delete (delete account, remove review) */
 .button-danger {
   background: var(--error);
   color: var(--on-danger);
+}
+
+.button-danger:hover {
+  background: var(--error);
+  color: var(--on-danger);
+  opacity: 0.9;
 }
 
 /* Full-width button (used for "Continue with Google") */
@@ -271,7 +373,7 @@ a {
 }
 
 .link-button:hover {
-  color: var(--text);
+  color: var(--accent);
 }
 
 /* "Resend the email" under the login / sign up message */
@@ -285,12 +387,12 @@ a {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-5);
 }
 
 .form label {
   font-weight: 600;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 .form input[type="text"],
@@ -300,12 +402,33 @@ a {
 .form input[type="date"],
 .form textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--bg);
   color: var(--text);
   font: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Every text box, everywhere: soft focus ring in the accent colour */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--panel);
+}
+
+::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
 }
 
 .form textarea {
@@ -314,7 +437,7 @@ a {
 
 .form .button {
   align-self: flex-start;
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .hint {
@@ -353,7 +476,7 @@ a {
 /* Default avatar: grey circle with the first letter of the username */
 .avatar-default {
   background: var(--avatar-bg);
-  color: var(--on-button);
+  color: var(--on-avatar);
   font-weight: 700;
 }
 
@@ -397,8 +520,8 @@ a {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.75);
-  color: #ffffff;
+  background: var(--overlay);
+  color: var(--on-overlay);
   font-size: 1.4rem;
   line-height: 1;
 }
@@ -411,8 +534,8 @@ a {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: #ffffff;
+  background: var(--overlay-light);
+  color: var(--on-overlay);
   font-size: 0.9rem;
   font-weight: 600;
   opacity: 0;
@@ -448,9 +571,10 @@ a {
 }
 
 .card {
-  padding: 20px;
-  border-radius: var(--radius);
+  padding: var(--space-5);
+  border-radius: var(--radius-large);
   background: var(--surface);
+  box-shadow: var(--card-shadow);
 }
 
 .card h2 {
@@ -610,7 +734,7 @@ a {
 }
 
 .stars-average {
-  color: var(--ok);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -640,7 +764,7 @@ a {
   left: 0;
   width: 0;
   overflow: hidden;
-  color: var(--ok);
+  color: var(--accent);
 }
 
 .star-input:focus-visible {
@@ -720,7 +844,7 @@ a {
 }
 
 .stars {
-  color: var(--ok);
+  color: var(--accent);
   letter-spacing: 1px;
 }
 
@@ -818,9 +942,9 @@ a {
 
 /* The shelf the book is on */
 .shelf-button.shelf-active {
-  background: var(--ok);
-  border-color: var(--ok);
-  color: var(--on-button);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
 }
 
 /* A row of covers that wraps onto more lines */
@@ -1158,7 +1282,7 @@ body > main {
 }
 
 .book-tile-note {
-  color: var(--ok);
+  color: var(--accent);
 }
 
 @media (max-width: 600px) {
@@ -1196,9 +1320,9 @@ body > main {
 }
 
 .genre-choice[aria-pressed="true"] {
-  border-color: var(--ok);
-  background: var(--ok);
-  color: var(--on-button);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
   font-weight: 600;
 }
 
@@ -1245,7 +1369,7 @@ body > main {
 }
 
 .pick-tile[data-pick="read"] .cover { outline-color: var(--accent); }
-.pick-tile[data-pick="loved"] .cover { outline-color: var(--ok); }
+.pick-tile[data-pick="loved"] .cover { outline-color: var(--accent); }
 .pick-tile[data-pick="want"] .cover { outline-color: var(--want); }
 
 /* "Read" / "Loved" / "Want to read" label on a picked cover */
@@ -1256,14 +1380,14 @@ body > main {
   right: 6px;
   padding: 3px 6px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #ffffff;
+  background: var(--overlay);
+  color: var(--on-overlay);
   font-size: 0.75rem;
   font-weight: 700;
   text-align: center;
 }
 
-.pick-tile[data-pick="loved"] .pick-badge::before { content: "\2665  "; color: var(--ok); }
+.pick-tile[data-pick="loved"] .pick-badge::before { content: "\2665  "; color: var(--accent); }
 
 @media (max-width: 600px) {
   .pick-grid {
@@ -1693,27 +1817,55 @@ body > main {
   width: 34px;
   height: 34px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 50%;
   background: none;
-  color: var(--text);
+  color: var(--muted);
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .theme-toggle:hover {
+  background: var(--panel);
   color: var(--accent);
-  border-color: var(--muted);
 }
 
-/* Night: show the sun (switch to day). Day: show the moon. */
+/* Both icons sit on top of each other; the one for the other mode fades
+   in with a small turn. Night: the sun shows (switch to day). Day: the moon. */
+.theme-toggle {
+  position: relative;
+}
+
+.theme-toggle svg {
+  position: absolute;
+  transition: opacity 0.35s ease, transform 0.45s ease;
+}
+
 .theme-toggle .icon-moon,
 :root[data-theme="light"] .theme-toggle .icon-sun {
-  display: none;
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
 }
 
+.theme-toggle .icon-sun,
 :root[data-theme="light"] .theme-toggle .icon-moon {
-  display: block;
+  opacity: 1;
+  transform: none;
+}
+
+/* While switching (set for a moment by js/auth.js): colours fade
+   instead of jumping. Never on page load, so no flash. */
+.theme-fading,
+.theme-fading *,
+.theme-fading *::before,
+.theme-fading *::after {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle svg {
+    transition: none;
+  }
 }
 
 /* Very small phones (iPhone SE and smaller): tighter header so the logo,
@@ -1765,7 +1917,7 @@ body > main {
 }
 
 .dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--backdrop);
 }
 
 .dialog-box {
@@ -1890,7 +2042,7 @@ body > main {
   display: flex;
   justify-content: space-between;
   margin-top: 2px;
-  color: var(--ok);
+  color: var(--accent);
   font-size: 0.75rem;
 }
 
@@ -1970,7 +2122,7 @@ body > main {
   height: 100%;
   width: 0;
   border-radius: 999px;
-  background: var(--ok);
+  background: var(--accent);
 }
 
 .progress-bar-small {
@@ -2144,7 +2296,7 @@ body > main {
 }
 
 .year-number {
-  color: var(--ok);
+  color: var(--accent);
   font-size: 1.8rem;
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -2176,7 +2328,7 @@ body > main {
   width: 100%;
   max-width: 36px;
   border-radius: 3px 3px 0 0;
-  background: var(--ok);
+  background: var(--accent);
 }
 
 .month-bar-empty {
@@ -2263,7 +2415,7 @@ body > main {
   padding: 0 4px;
   border-radius: 999px;
   background: var(--error);
-  color: var(--on-button);
+  color: var(--on-accent);
   font-size: 0.7rem;
   font-weight: 700;
   line-height: 18px;

@@ -13,11 +13,17 @@
 // ------------------------------------------------------------
 
 const CARD_SIZE = 1080;
-const CARD_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+const CARD_FONT = themeFont("--font-sans");
+const CARD_SERIF = themeFont("--font-serif");
 
-// A colour token from style.css, like "--bg".
+// A font list from style.css (the same fonts as the site).
+function themeFont(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "serif";
+}
+
+// A colour token from style.css, like "--bg" (themeColour is in auth.js).
 function cardColour(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888888";
+  return themeColour(name);
 }
 
 // Loads a picture so it can be drawn on a canvas, or gives null.
@@ -101,7 +107,7 @@ function drawCardCover(ctx, img, title, x, y, w, h) {
 // "★★★★½" in the green star colour.
 function drawCardStars(ctx, rating, x, y, size) {
   if (!rating) return;
-  ctx.fillStyle = cardColour("--ok");
+  ctx.fillStyle = cardColour("--accent");
   ctx.font = size + "px " + CARD_FONT;
   ctx.fillText(starsText(rating), x, y);
 }
@@ -138,7 +144,7 @@ async function makeReviewCard(log) {
   const textX = 420;
   const textWidth = CARD_SIZE - textX - 70;
   ctx.fillStyle = cardColour("--text");
-  ctx.font = "700 58px " + CARD_FONT;
+  ctx.font = "600 58px " + CARD_SERIF;
   const titleLines = wrapCardText(ctx, book.title, textWidth, 3);
   titleLines.forEach((line, i) => ctx.fillText(line, textX, 140 + i * 68));
   let y = 140 + titleLines.length * 68;
@@ -177,7 +183,7 @@ async function makeYearCard(stats) {
   ctx.font = "600 40px " + CARD_FONT;
   ctx.fillText("@" + stats.username + "’s", 70, 120);
   ctx.fillStyle = cardColour("--text");
-  ctx.font = "800 84px " + CARD_FONT;
+  ctx.font = "600 84px " + CARD_SERIF;
   ctx.fillText(stats.year + " in books", 70, 215);
 
   // Big numbers on the left
@@ -188,8 +194,8 @@ async function makeYearCard(stats) {
   ];
   rows.forEach(function (row, i) {
     const top = 340 + i * 150;
-    ctx.fillStyle = cardColour("--ok");
-    ctx.font = "800 88px " + CARD_FONT;
+    ctx.fillStyle = cardColour("--accent");
+    ctx.font = "600 88px " + CARD_SERIF;
     ctx.fillText(row[0], 70, top);
     ctx.fillStyle = cardColour("--muted");
     ctx.font = "36px " + CARD_FONT;

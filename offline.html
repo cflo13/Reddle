@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#14181c">
+  <meta name="theme-color" content="#1d1714">
   <title>You're offline · Reddle</title>
   <!-- Shown by sw.js when there's no internet. Everything is inside this
        file (no links to other files), because it can be shown at any
@@ -19,8 +19,8 @@
     })();
   </script>
   <style>
-    :root { --bg: #14181c; --text: #e6e9ec; --muted: #9aa5b1; --tile: #1f262d; --button: #00c030; }
-    :root.light { --bg: #f4ecd8; --text: #3b2a1f; --muted: #74604d; --tile: #fbf6e9; --button: #2e7d32; }
+    :root { --bg: #1d1714; --text: #eadfcc; --muted: #a8977f; --tile: #271f1a; --button: #d9a35f; --on-button: #1d1714; }
+    :root.light { --bg: #f5ecd9; --text: #3a2a20; --muted: #72604b; --tile: #fbf5e6; --button: #93552a; --on-button: #fbf5e6; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -35,14 +35,14 @@
       line-height: 1.5;
       text-align: center;
     }
-    h1 { font-size: 1.5rem; margin: 16px 0 8px; }
+    h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-weight: 600; font-size: 1.6rem; margin: 16px 0 8px; }
     p { color: var(--muted); margin: 0 0 20px; }
     button {
       padding: 10px 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 999px;
       background: var(--button);
-      color: #ffffff;
+      color: var(--on-button);
       font: inherit;
       font-weight: 600;
       cursor: pointer;

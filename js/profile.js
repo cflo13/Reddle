@@ -499,8 +499,8 @@ function makeSquareJpeg(file) {
       canvas.height = AVATAR_SIZE;
       const ctx = canvas.getContext("2d");
 
-      // White background, so see-through PNGs don't turn black as a JPEG.
-      ctx.fillStyle = "#ffffff";
+      // A plain background, so see-through PNGs don't turn black as a JPEG.
+      ctx.fillStyle = themeColour("--surface");
       ctx.fillRect(0, 0, AVATAR_SIZE, AVATAR_SIZE);
 
       // Copy the square part of the picture, shrunk to 256 x 256.

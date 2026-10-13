@@ -658,7 +658,11 @@ function addFooterExtras(profile) {
 // sun/moon switch, and follows the device setting while you haven't chosen.
 
 const THEME_KEY = "reddle-theme";
-const THEME_COLOURS = { dark: "#14181c", light: "#f4ecd8" }; // = --bg in style.css
+
+// A colour token from style.css, like themeColour("--bg").
+function themeColour(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
 function savedTheme() {
   try {
@@ -668,10 +672,17 @@ function savedTheme() {
   }
 }
 
-function showTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
+// `fade`: colours fade over a moment (when the button is pressed).
+function showTheme(theme, fade) {
+  const root = document.documentElement;
+  if (fade && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    root.classList.add("theme-fading");
+    clearTimeout(showTheme.timer);
+    showTheme.timer = setTimeout(() => root.classList.remove("theme-fading"), 450);
+  }
+  root.setAttribute("data-theme", theme);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", THEME_COLOURS[theme]);
+  if (meta) meta.setAttribute("content", themeColour("--bg"));
   const toggle = document.getElementById("theme-toggle");
   if (toggle) {
     const label = theme === "light" ? "Switch to night mode" : "Switch to day mode";
@@ -692,7 +703,7 @@ function setUpThemeToggle() {
       } catch (error) {
         // can't remember it (private mode); it still switches for this page
       }
-      showTheme(next);
+      showTheme(next, true);
     });
   }
 }
@@ -702,7 +713,7 @@ setUpThemeToggle();
 // No choice saved: follow the device when it switches (e.g. at sunset).
 if (window.matchMedia) {
   window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (event) {
-    if (!savedTheme()) showTheme(event.matches ? "light" : "dark");
+    if (!savedTheme()) showTheme(event.matches ? "light" : "dark", true);
   });
 }
 
