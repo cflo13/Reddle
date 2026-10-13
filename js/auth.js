@@ -248,8 +248,8 @@ function pageParam(name) {
   const fromQuery = new URLSearchParams(window.location.search).get(name);
   if (fromQuery) return fromQuery;
   const parts = window.location.pathname.split("/");
-  // id: book/OL45804W, u: u/maria, a: author/OL23919A
-  const at = parts.lastIndexOf({ id: "book", u: "u", a: "author" }[name]);
+  // id: book/OL45804W, u: u/maria, a: author/OL23919A, d: diary/maria
+  const at = parts.lastIndexOf({ id: "book", u: "u", a: "author", d: "diary" }[name]);
   return at >= 0 && parts[at + 1] ? decodeURIComponent(parts[at + 1]) : null;
 }
 
@@ -326,6 +326,18 @@ function bookLink(externalId) {
   return cleanAddresses
     ? "book/" + encodeURIComponent(externalId)
     : "book.html?id=" + encodeURIComponent(externalId);
+}
+
+// Link to someone's diary: diary/maria (or diary.html?u= as a local file).
+function diaryLink(username) {
+  return cleanAddresses
+    ? "diary/" + encodeURIComponent(username)
+    : "diary.html?u=" + encodeURIComponent(username);
+}
+
+// Link to someone's year in review (year.html?u=maria&y=2026).
+function yearLink(username, year) {
+  return "year.html?u=" + encodeURIComponent(username) + "&y=" + year;
 }
 
 // Link to an author page: author/OL23919A (or author.html?a= as a local file).

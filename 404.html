@@ -12,7 +12,7 @@
       document.write('<base href="' + root + '">');
       // Clean addresses: u/NAME is a profile, book/ID a book, author/ID an author.
       var rest = location.pathname.slice(root.length).split("/");
-      var pages = { u: "profile.html", book: "book.html", author: "author.html" };
+      var pages = { u: "profile.html", book: "book.html", author: "author.html", diary: "diary.html" };
       if (pages[rest[0]] && rest[1]) {
         window.CLEAN_ROUTE = pages[rest[0]];
         document.write("<style>body { visibility: hidden; }</style>");
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=37">
+  <link rel="stylesheet" href="css/style.css?v=38">
 </head>
 <body>
   <header class="site-header">
@@ -99,6 +99,6 @@
   </footer>
 
   <!-- Loads the page for a clean address, or the usual scripts (js/router.js) -->
-  <script src="js/router.js?v=37"></script>
+  <script src="js/router.js?v=38"></script>
 </body>
 </html>

@@ -34,6 +34,10 @@ the people they follow are reading.
 - **Spoilers:** `logs.spoiler`, a tick box under the review. Spoiler reviews show "This review contains spoilers." and a Show spoiler button everywhere log cards appear (`makeReview()` in books.js).
 - **Rereads:** `logs.reread_count` + `logs.reread_dates`. On the book page, under your log: a date box, "I read this again" and "Undo last reread" (plain `update` by log id, so the log upsert never touches or resets them). Cards show "↻ Read N times" (N = rereads + 1).
 - **Page progress:** `books.page_count` (median `number_of_pages` of the first 20 Open Library editions, saved with new books; older books get it when someone has them Currently reading, via `fill_book_pages()`, which only fills an empty count) and `shelves.current_page`. Book page: Page [ ] of N with a bar while the book is Currently reading; when the total is unknown it asks once and saves it for everyone. Profile Currently reading covers show a bar and %.
+- **Reading goal:** `reading_goals` (user, year, target 1 to 1000; `step19`). Profile card "2026 reading goal": bar and "12 of 30 books", counting logs with a date read in the current year. Your own profile: Set a reading goal / Edit / Remove goal. Others see it only when set.
+- **Diary:** `diary.html` + `js/diary.js`, clean address `diary/USERNAME` (`diaryLink()`; old style `diary.html?u=`). Logs by date read (newest first, no-date last), grouped by month, day number, cover, title, stars, reread badge, review snippet (160 characters; spoiler reviews say "Review hidden"). 20 at a time with Load more. Linked from the profile.
+- **Year in review:** `year.html?u=USERNAME&y=YEAR` + `js/year.js` (`yearLink()`), any year up to the current one, with previous/next links: books read, pages (says how many books had a known count), average rating, busiest month, top 3 genres, books-per-month bars, highest and lowest rated. "Share as picture" draws a 1080 x 1080 card. Linked from the profile and the diary (there's no stats section yet).
+- **Picture cards:** `js/share-card.js` (loaded with books.js on every book page): `makeReviewCard()`, `makeYearCard()`, `shareCanvas()` (phone share sheet with the PNG, else a download). Square 1080 x 1080, colours from the CSS tokens (so day or night), covers drawn only if their website allows it (crossOrigin), otherwise a title box. "Share as image" appears on your own log cards that have a review; spoiler reviews say "Contains spoilers" instead of the text.
 - **Header buttons:** when logged in, the header shows separate, always-visible buttons (no dropdown): Profile (your picture + @username), Admin (shield icon, admins only), Settings (gear icon) and a small Log out. Built by `setupHeader()` / `makeNavButton()` in `js/auth.js`. Below 1000px wide only the icons show (so tablets fit). Logged out: Log in and Sign up. The header also has Genres and Popular links (on phones they sit next to the search box).
 - **Reports:** a small Report button on other people's reviews (log cards with review text, when logged in) and on other people's profiles. It asks for an optional reason with the browser's own prompt box, then turns into "Reported". `makeReportButton()` and `sendReport()` are in `js/auth.js`; `currentUserId` and `currentIsAdmin` are set there after `authReady`. Clicking elsewhere closes it.
 - **Shelves (Want to read / Currently reading):** two toggle buttons under the author on the book page (logged in only). Clicking the active one takes the book off; clicking the other moves it. Putting a book on a shelf saves it to our `books` table first, like logging does. Logging a book takes it off your shelf (you've read it). The profile shows "Currently reading" (only when not empty) and "Want to read" as rows of covers, newest first.
@@ -75,6 +79,7 @@ Defined in `supabase/schema.sql` (run once in the Supabase SQL Editor).
 - **old_usernames:** username (old name), user_id. Filled by a trigger whenever someone changes their username, so old profile links still work. In `supabase/step8-old-usernames.sql`.
 - **admins:** user_id. Only the owner (`cflo13`). Users can only see their own row (to show the Admin menu link). In `supabase/step10-reports-admin.sql`, which has a placeholder id; the live project has the owner's real id.
 - **likes:** user_id, log_id (one per user + log), created_at. Everyone can read; you can only add or remove your own. **log_like_counts** (a view): log_id, like_count. In `supabase/step17-likes.sql`.
+- **reading_goals:** user_id, year, target (one per user + year). Everyone can read; you can only change your own. In `supabase/step19-reading-goals.sql`.
 - **feedback:** user_id, message (1 to 2000), page, created_at. Anyone logged in can send; only admins can read or delete. In `supabase/step16-feedback.sql`.
 - **reports:** reporter_id, log_id or reported_user_id (exactly one), reason (max 500), status (`open` / `dismissed`). Anyone logged in can send; only admins can read, dismiss or delete. One report per person per review/profile. Admins may also delete any log and any avatar (`is_admin()` in the rules).
 - **shelves:** user_id, book_id, status (`want_to_read` or `currently_reading`), one shelf per user + book, current_page (`step18`). In `supabase/step7-shelves.sql`.
@@ -105,6 +110,8 @@ Pages:
 - `search.html` + `js/search.js`: `search.html?q=WORDS`. Matching usernames, authors, then books from Open Library
 - `author.html` + `js/author.js`: `author/OL23919A` (see Author pages)
 - `js/search-suggest.js`: the live search box under the header search bar (every page)
+- `diary.html` + `js/diary.js`, `year.html` + `js/year.js`: see Diary and Year in review
+- `js/share-card.js`: picture cards drawn on a canvas
 - `book.html` + `js/book.js`: `book/OL45804W` (old: `book.html?id=OL45804W`). Cover, title, author, description, ISBN, average rating, everyone's logs. Logged in: log it with half-star rating, date read and review; update or delete your log
 
 Shared:
@@ -128,6 +135,7 @@ Supabase (SQL files, once each, in this order; for a new project run them in the
 - `supabase/step16-feedback.sql`: the `feedback` table (Part C)
 - `supabase/step17-likes.sql`: the `likes` table and `log_like_counts` view (Part D)
 - `supabase/step18-book-review-features.sql`: spoiler, rereads, page counts, reading progress, `fill_book_pages()` (Part H)
+- `supabase/step19-reading-goals.sql`: `reading_goals` table, diary index (Part I)
 - `supabase/step9-delete-account.sql`: `delete_my_account()` deletes the logged-in user's login; everything else cascades (batch 2, delete account)
 
 All of these have been applied to the live project, except `step9-delete-account.sql` and `step11-admin-remove-user.sql` (see "Waiting on the owner").
@@ -137,7 +145,7 @@ All of these have been applied to the live project, except `step9-delete-account
 - `SETUP.md`: step by step guide to set up the Supabase project
 - `.nojekyll`: empty file that tells GitHub Pages to serve the files as they are (no Jekyll processing)
 
-Phones: the header puts the search box on its own row under 600px; long words in reviews and usernames wrap; check new pages at 375px wide. Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, and an Open Library credit), a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, `search-suggest.js`, (`books.js` on pages showing books), then the page's own script.
+Phones: the header puts the search box on its own row under 600px; long words in reviews and usernames wrap; check new pages at 375px wide. Every page has a footer (About, Privacy, Terms, Contact = `about.html#contact`, and an Open Library credit), a search box and `<nav id="site-nav">` in the header and loads scripts in this order: Supabase CDN, `config.js`, `supabase-client.js`, `auth.js`, `search-suggest.js`, (`books.js` on pages showing books), then the page's own script. Pages with books.js also load `share-card.js` right after it.
 
 **Browser caching:** every page loads our CSS and JS with one shared site version number, like `css/style.css?v=4`. When any CSS or JS file changes, bump the number on every page (all files get the same number), so visitors get the new files instead of old saved copies.
 
@@ -225,6 +233,7 @@ New SQL for a feature goes in its own file in `supabase/` (named `step7-...`, `s
 - **Part C (feedback, share/invite, loading placeholders): built.** `step16-feedback.sql` applied; rules checked on the live database in a rolled-back test (admin reads, others see nothing). Tested: send/empty/escaped text, admin list and delete, invite copy, share copy and share sheet, own vs other profile, placeholders in both themes, dialog at 375px. Privacy page updated (feedback, what the browser keeps).
 - **Part D item 1 (likes): built.** `step17-likes.sql` applied (the live database has no logs yet, so the like itself was only tested with stand-ins; the security advisor shows no new warnings). Tested: like, unlike, survives reload, own log not likeable, feed/profile/book, logged out goes to login and back, failed save goes back, 375px. The owner's message was cut off after Part D item 1, so the rest of Part D is still to come.
 - **Part H (rating chart, spoilers, rereads, page progress): built.** `step18` applied. Tested with stand-ins: chart counts, spoiler hidden on book/feed and shown on click, spoiler saved, rereads add/undo with dates, updating the log keeps rereads, page count from editions (median, ignores a 9999 outlier), typed total when unknown, progress bar on book and profile, 375px.
+- **Part I (goal, diary, year in review, picture cards): built.** `step19` applied. Tested with stand-ins (26 logs over two years): set/edit goal, others without a goal see nothing, diary months across Load more without repeats, no-date group last, spoiler-safe snippets, year stats, pages known count, picks, card downloads (year and review), 375px.
 - **Connector note:** SQL containing `delete` also times out through the connector, even with a `where` filter.
 - Next: the owner's earlier list: likes on reviews, comments, lists, four favourite books, popular this week page, reading stats, /username links, Google sign in.
 

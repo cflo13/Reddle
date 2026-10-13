@@ -2005,3 +2005,211 @@ body > main {
   font-size: 0.8rem;
   text-align: center;
 }
+
+/* ---------- Reading goal (profile) ---------- */
+
+.goal-card {
+  margin-bottom: 24px;
+}
+
+.goal-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-head h2 {
+  margin: 0 0 12px;
+}
+
+.goal-text {
+  margin: 8px 0 0;
+}
+
+.goal-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.goal-inputs input {
+  width: 100px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+}
+
+/* ---------- Diary ---------- */
+
+.diary-month {
+  margin: 28px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.1rem;
+}
+
+.diary-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface);
+}
+
+.diary-entry .cover {
+  width: 46px;
+  height: 69px;
+}
+
+.diary-day {
+  flex-shrink: 0;
+  width: 28px;
+  padding-top: 4px;
+  color: var(--muted);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.diary-text {
+  min-width: 0;
+}
+
+.diary-title {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.diary-title:hover {
+  color: var(--accent);
+}
+
+.diary-author {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.diary-text .log-meta {
+  margin: 2px 0;
+}
+
+.diary-snippet {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Year in review ---------- */
+
+.year-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.year-nav .button {
+  margin-left: auto;
+}
+
+.year-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.year-stat {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.year-number {
+  color: var(--ok);
+  font-size: 1.8rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.year-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.month-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 140px;
+  margin-bottom: 24px;
+}
+
+.month-column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.month-bar {
+  width: 100%;
+  max-width: 36px;
+  border-radius: 3px 3px 0 0;
+  background: var(--ok);
+}
+
+.month-bar-empty {
+  background: var(--border);
+}
+
+.month-count,
+.month-name {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.year-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.year-pick {
+  width: 140px;
+}
+
+.year-pick h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.year-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.sk-stat {
+  height: 84px;
+}

@@ -7,6 +7,7 @@
 //   u/USERNAME   -> profile page
 //   book/OL...W  -> book page
 //   author/OL...A -> author page
+//   diary/USERNAME -> diary page
 // If it is, this file loads that page's HTML and swaps it in, so the
 // address stays clean. Otherwise it's a real "Page not found", and this
 // file loads the usual scripts so the header works.

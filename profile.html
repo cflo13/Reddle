@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=37">
+  <link rel="stylesheet" href="css/style.css?v=38">
 </head>
 <body>
   <header class="site-header">
@@ -88,6 +88,11 @@
           <!-- Only shown on other people's profiles -->
           <button id="follow-button" type="button" class="button" hidden>Follow</button>
           <p id="follow-login" class="muted" hidden><a href="login.html">Log in</a> to follow.</p>
+          <!-- Diary and Year in review links, filled in by js/profile.js -->
+          <p class="profile-links">
+            <a id="diary-link" href="#">Diary</a>
+            <a id="year-link" href="#">Year in review</a>
+          </p>
           <!-- Share (everyone), Invite friends (your own) and Report (other people's), filled in by js/profile.js -->
           <p id="profile-report" class="log-actions"></p>
         </div>
@@ -109,6 +114,30 @@
           <p class="hint">To change your profile picture, click it at the top of the page. JPG, PNG or WEBP, up to 5 MB. We crop it to a square from the middle.</p>
           <p id="avatar-message" class="status" hidden></p>
         </div>
+      </section>
+
+      <!-- Reading goal for this year (js/profile.js). Hidden on other
+           people's profiles when they haven't set one. -->
+      <section id="goal-section" class="card goal-card" hidden>
+        <div class="goal-head">
+          <h2 id="goal-title">Reading goal</h2>
+          <button id="goal-edit" type="button" class="link-button" hidden>Edit</button>
+        </div>
+        <div id="goal-progress" hidden>
+          <div class="progress-bar" aria-hidden="true"><span id="goal-fill"></span></div>
+          <p id="goal-text" class="goal-text"></p>
+        </div>
+        <button id="goal-set" type="button" class="button button-secondary" hidden>Set a reading goal</button>
+        <form id="goal-form" class="goal-form" hidden>
+          <label for="goal-input">How many books do you want to read this year?</label>
+          <div class="goal-inputs">
+            <input id="goal-input" type="number" min="1" max="1000" inputmode="numeric" required>
+            <button type="submit" class="button">Save</button>
+            <button id="goal-remove" type="button" class="link-button" hidden>Remove goal</button>
+            <button id="goal-cancel" type="button" class="link-button">Cancel</button>
+          </div>
+        </form>
+        <p id="goal-message" class="hint" hidden></p>
       </section>
 
       <!-- Shelves, filled in by js/profile.js. "Currently reading" only
@@ -142,16 +171,18 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=37"></script>
+  <script src="js/config.js?v=38"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=37"></script>
+  <script src="js/supabase-client.js?v=38"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=37"></script>
+  <script src="js/auth.js?v=38"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=37"></script>
+  <script src="js/search-suggest.js?v=38"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=37"></script>
+  <script src="js/books.js?v=38"></script>
+  <!-- 7. Picture cards to share (reviews, year in review) -->
+  <script src="js/share-card.js?v=38"></script>
   <!-- This page's own code -->
-  <script src="js/profile.js?v=37"></script>
+  <script src="js/profile.js?v=38"></script>
 </body>
 </html>

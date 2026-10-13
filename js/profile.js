@@ -96,6 +96,11 @@ async function loadPage() {
   useCleanAddress(profileLink(profile.username));
 
   const isMe = myProfile && myProfile.id === profile.id;
+  document.getElementById("diary-link").href = diaryLink(profile.username);
+  const yearLinkEl = document.getElementById("year-link");
+  yearLinkEl.href = yearLink(profile.username, new Date().getFullYear());
+  yearLinkEl.textContent = new Date().getFullYear() + " in review";
+  if (isMe) setUpGoalEditing();
   const actions = document.getElementById("profile-report");
   actions.appendChild(makeShareButton("@" + profile.username + " on Reddle", "See what @" + profile.username + " is reading on Reddle", profileLink(profile.username)));
   if (isMe) {
@@ -118,7 +123,7 @@ async function loadPage() {
     document.getElementById("follow-login").hidden = false;
   }
 
-  await Promise.all([loadStats(), loadShelves(isMe), loadProfileLogs()]);
+  await Promise.all([loadStats(), loadGoal(isMe), loadShelves(isMe), loadProfileLogs()]);
 }
 
 
@@ -160,6 +165,86 @@ async function loadStats() {
   document.getElementById("stat-books").textContent = plural(books, "book");
   document.getElementById("stat-followers").textContent = plural(followers, "follower");
   document.getElementById("stat-following").textContent = following + " following";
+}
+
+
+// ---------- Reading goal (supabase/step19-reading-goals.sql) ----------
+
+const goalYear = new Date().getFullYear();
+let myGoal = null; // this year's target, or null
+
+async function loadGoal(isMe) {
+  const section = document.getElementById("goal-section");
+  document.getElementById("goal-title").textContent = goalYear + " reading goal";
+  const [goalResult, readResult] = await Promise.all([
+    db.from("reading_goals").select("target").eq("user_id", shownProfile.id).eq("year", goalYear).maybeSingle(),
+    db.from("logs").select("id", { count: "exact", head: true })
+      .eq("user_id", shownProfile.id)
+      .gte("date_read", goalYear + "-01-01")
+      .lte("date_read", goalYear + "-12-31"),
+  ]);
+  myGoal = goalResult.data ? goalResult.data.target : null;
+  const done = readResult.count || 0;
+
+  if (!myGoal && !isMe) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  document.getElementById("goal-progress").hidden = !myGoal;
+  document.getElementById("goal-set").hidden = !isMe || !!myGoal;
+  document.getElementById("goal-edit").hidden = !isMe || !myGoal;
+  if (myGoal) {
+    const percent = Math.min(100, Math.round((done / myGoal) * 100));
+    document.getElementById("goal-fill").style.width = percent + "%";
+    document.getElementById("goal-text").textContent =
+      done + " of " + myGoal + " books" + (done >= myGoal ? " \u2014 goal reached!" : " (" + percent + "%)");
+  }
+}
+
+function setUpGoalEditing() {
+  const form = document.getElementById("goal-form");
+  const input = document.getElementById("goal-input");
+  const message = document.getElementById("goal-message");
+  const open = function () {
+    form.hidden = false;
+    input.value = myGoal || "";
+    document.getElementById("goal-remove").hidden = !myGoal;
+    document.getElementById("goal-set").hidden = true;
+    input.focus();
+  };
+  const finish = async function (error, text) {
+    message.textContent = error ? friendlyError(error, "Could not save. ") : text;
+    message.classList.toggle("hint-error", !!error);
+    message.hidden = false;
+    if (!error) {
+      form.hidden = true;
+      await loadGoal(true);
+    }
+  };
+  document.getElementById("goal-set").addEventListener("click", open);
+  document.getElementById("goal-edit").addEventListener("click", open);
+  document.getElementById("goal-cancel").addEventListener("click", function () {
+    form.hidden = true;
+    loadGoal(true);
+  });
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const target = Number(input.value);
+    if (!Number.isInteger(target) || target < 1 || target > 1000) {
+      return finish({ message: "Pick a whole number from 1 to 1000." });
+    }
+    const { error } = await db.from("reading_goals").upsert(
+      { user_id: shownProfile.id, year: goalYear, target: target },
+      { onConflict: "user_id,year" }
+    );
+    finish(error, "Goal saved.");
+  });
+  document.getElementById("goal-remove").addEventListener("click", async function () {
+    if (!window.confirm("Remove your " + goalYear + " reading goal?")) return;
+    const { error } = await db.from("reading_goals").delete().eq("user_id", shownProfile.id).eq("year", goalYear);
+    finish(error, "Goal removed.");
+  });
 }
 
 

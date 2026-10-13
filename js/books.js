@@ -574,6 +574,30 @@ function makeRatingChart(ratings) {
 
 // ---------- Log cards (feed, book page, profile) ----------
 
+// ---------- Share a review as a picture (js/share-card.js) ----------
+
+function makeReviewImageButton(log) {
+  const button = el("button", "link-button", "Share as image");
+  button.type = "button";
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    button.textContent = "Making picture...";
+    try {
+      const canvas = await makeReviewCard(log);
+      const result = await shareCanvas(canvas, cardFileName("my-review", log.books && log.books.title), "My review on Reddle");
+      button.textContent = result === "downloaded" ? "Picture saved" : "Share as image";
+    } catch (error) {
+      window.alert(friendlyError(error, "Couldn't make the picture. "));
+      button.textContent = "Share as image";
+    } finally {
+      button.disabled = false;
+      setTimeout(() => (button.textContent = "Share as image"), 2500);
+    }
+  });
+  return button;
+}
+
+
 // ---------- Likes (supabase/step17-likes.sql) ----------
 //
 // A heart with a count on every log card. One like per person per log;
@@ -744,6 +768,9 @@ function makeLogCard(log, options) {
   if (log.review) {
     const report = makeReportButton("log", log.id, log.user_id);
     if (report) actions.appendChild(report);
+    if (currentUserId && log.user_id === currentUserId && typeof makeReviewCard === "function") {
+      actions.appendChild(makeReviewImageButton(log));
+    }
   }
   body.appendChild(actions);
 
