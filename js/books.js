@@ -487,6 +487,7 @@ function makeCover(book, sizeClass) {
     const img = el("img", "cover " + sizeClass);
     img.alt = book.title;
     img.loading = "lazy";
+    img.decoding = "async";
     // A broken or tiny (blank placeholder) picture counts as no cover.
     img.addEventListener("error", function () {
       if (canRetry) lookElsewhere(img);

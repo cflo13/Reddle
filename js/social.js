@@ -333,6 +333,7 @@ function makePostCard(post) {
     picture.src = post.image_url;
     picture.alt = "Picture shared by @" + person.username;
     picture.loading = "lazy";
+    picture.decoding = "async";
     card.appendChild(picture);
   }
   if (post.books) card.appendChild(makeBookChip(post.books));

@@ -386,6 +386,8 @@ function fillAvatar(avatar, profile) {
   if (profile.avatar_url) {
     avatar.classList.remove("avatar-default");
     const img = document.createElement("img");
+    img.loading = "lazy";
+    img.decoding = "async";
     img.src = profile.avatar_url;
     img.alt = "@" + profile.username;
     avatar.appendChild(img);

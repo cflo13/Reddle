@@ -1738,12 +1738,15 @@ body > main {
 }
 
 /* On phones the genre buttons are one line you scroll sideways */
-@media (max-width: 600px) {
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
   .genre-pills {
     flex-wrap: nowrap;
     overflow-x: auto;
-    padding-bottom: 6px;
-    scrollbar-width: thin;
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding: 0 var(--space-4) 6px;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
   }
 
   .genre-pill {
@@ -3590,4 +3593,132 @@ body > main {
   .dialog[open] {
     animation: none;
   }
+}
+
+
+/* ------------------------------------------------------------
+   Speed and feel
+   ------------------------------------------------------------ */
+
+/* Post pictures keep their space while they load (4:3 until the real
+   shape is known), so the page doesn't jump. */
+.post-picture {
+  width: 100%;
+  aspect-ratio: auto 4 / 3;
+}
+
+/* No double-tap zoom on things you tap (and no tap delay). */
+a,
+button,
+input,
+label,
+select,
+textarea,
+summary,
+[role="button"],
+[role="tab"],
+[role="slider"] {
+  touch-action: manipulation;
+}
+
+/* The star picker still needs sideways finger slides (set above). */
+.star-input {
+  touch-action: pan-y;
+}
+
+/* A small press effect, so taps feel answered. */
+.button,
+.link-button,
+.like-button,
+.genre-choice,
+.genre-pill,
+.genre-tag,
+.feed-tab,
+.tab-button,
+.menu-item,
+.menu-button,
+.theme-toggle,
+.book-tile,
+.pick-tile,
+.book-result {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease-out;
+}
+
+.button:active,
+.link-button:active,
+.like-button:active,
+.genre-choice:active,
+.genre-pill:active,
+.genre-tag:active,
+.feed-tab:active,
+.tab-button:active,
+.menu-item:active,
+.menu-button:active,
+.theme-toggle:active,
+.book-tile:active,
+.pick-tile:active,
+.book-result:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .link-button,
+  .like-button,
+  .genre-choice,
+  .genre-pill,
+  .genre-tag,
+  .feed-tab,
+  .tab-button,
+  .menu-item,
+  .menu-button,
+  .theme-toggle,
+  .book-tile,
+  .pick-tile,
+  .book-result {
+    transition: none;
+  }
+
+  /* No movement: a gentle dim instead. */
+  .button:active,
+  .link-button:active,
+  .like-button:active,
+  .genre-choice:active,
+  .genre-pill:active,
+  .genre-tag:active,
+  .feed-tab:active,
+  .tab-button:active,
+  .menu-item:active,
+  .menu-button:active,
+  .theme-toggle:active,
+  .book-tile:active,
+  .pick-tile:active,
+  .book-result:active {
+    transform: none;
+    opacity: 0.75;
+  }
+}
+
+/* Phones: rows of covers run to the screen edges, snap neatly to each
+   cover, and always show part of the next one, so it's clear they scroll.
+   Sideways swipes stay inside the row (no page bounce or "back"). */
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  .tile-row {
+    grid-auto-columns: clamp(100px, calc((100% - 2 * var(--space-3)) / 2.5), 140px);
+    gap: var(--space-3);
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+    scroll-padding-left: var(--space-4);
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .tile-row::-webkit-scrollbar {
+    display: none;
+  }
+
 }
