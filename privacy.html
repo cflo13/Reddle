@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=39">
+  <link rel="stylesheet" href="css/style.css?v=40">
 </head>
 <body>
   <header class="site-header">
@@ -74,6 +74,7 @@
       <li><strong>Your reading taste:</strong> the genres you pick in the taste questionnaire, which we use to suggest books.</li>
       <li><strong>Reports:</strong> if you report a review or profile, we keep the report and who sent it, so we can look into it.</li>
       <li><strong>Privacy choices:</strong> whether your profile is private, the follow requests you send and receive, and the people you block or mute. Only you can see who you block or mute; they aren't told.</li>
+      <li><strong>Email choices:</strong> which notification emails you want (new followers, follow requests, comments) and a list of the emails we sent you, so nobody gets the same email twice or too many in a day.</li>
       <li><strong>Feedback:</strong> if you send feedback, we keep your message, who sent it and which page you sent it from. Only the site owner can read it.</li>
       <li><strong>Google sign in:</strong> if you use it, Google tells us your email address and name.</li>
     </ul>
@@ -86,6 +87,7 @@
     <h2>Where it's stored</h2>
     <ul>
       <li>Your account, profile, picture and activity are stored with <a href="https://supabase.com">Supabase</a>, the service that runs our database and logins.</li>
+      <li>Notification emails are sent through <a href="https://resend.com">Resend</a>, an email delivery service. To send one, it gets your email address and the message, and nothing else. You can turn emails off in Settings or with the link in any email.</li>
       <li>The website itself is hosted on <a href="https://pages.github.com">GitHub Pages</a>.</li>
       <li>Book details and covers are loaded from <a href="https://openlibrary.org">Open Library</a> and sometimes Google Books. Your browser contacts them directly when it shows a book, so they can see your IP address, like any website you visit.</li>
     </ul>
@@ -126,14 +128,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=39"></script>
+  <script src="js/config.js?v=40"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=39"></script>
+  <script src="js/supabase-client.js?v=40"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=39"></script>
+  <script src="js/auth.js?v=40"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=39"></script>
+  <script src="js/search-suggest.js?v=40"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=39"></script>
+  <script src="js/static-page.js?v=40"></script>
 </body>
 </html>

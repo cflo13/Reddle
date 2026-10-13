@@ -218,6 +218,33 @@ function setUpPrivacy(profile) {
 }
 
 
+// ---------- Email notifications (supabase/step21) ----------
+// No saved row means everything is on.
+
+async function setUpEmailPrefs(profile) {
+  const boxes = document.querySelectorAll(".email-pref");
+  const message = document.getElementById("email-pref-message");
+  const { data } = await db.from("email_prefs").select("new_followers, follow_requests, comments").eq("user_id", profile.id).maybeSingle();
+  boxes.forEach(function (box) {
+    box.checked = data ? data[box.dataset.pref] !== false : true;
+    box.addEventListener("change", async function () {
+      box.disabled = true;
+      const { error } = await db.from("email_prefs").upsert(
+        { user_id: profile.id, [box.dataset.pref]: box.checked, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" }
+      );
+      box.disabled = false;
+      if (error) {
+        box.checked = !box.checked;
+        showStatus(message, "error", friendlyError(error, "Could not save. "));
+        return;
+      }
+      showStatus(message, "ok", "Saved.");
+    });
+  });
+}
+
+
 // ---------- Blocked and muted ----------
 
 async function loadBlockedAndMuted() {
@@ -270,6 +297,7 @@ async function loadBlockedAndMuted() {
   showEmails();
 
   setUpPrivacy(profile);
+  setUpEmailPrefs(profile).catch(() => {});
   loadBlockedAndMuted();
 
   document.getElementById("loading").hidden = true;

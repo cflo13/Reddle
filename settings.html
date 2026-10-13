@@ -41,7 +41,7 @@
       if (meta) meta.setAttribute("content", light ? "#f4ecd8" : "#14181c");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=39">
+  <link rel="stylesheet" href="css/style.css?v=40">
 </head>
 <body>
   <header class="site-header">
@@ -117,6 +117,15 @@
       </section>
 
       <section class="card">
+        <h2>Email notifications</h2>
+        <p class="hint">Reddle can email you when something happens. Every email has an unsubscribe link.</p>
+        <label class="check-row"><input class="email-pref" data-pref="new_followers" type="checkbox" checked> Someone follows me</label>
+        <label class="check-row"><input class="email-pref" data-pref="follow_requests" type="checkbox" checked> Someone asks to follow me (private profiles)</label>
+        <label class="check-row"><input class="email-pref" data-pref="comments" type="checkbox" checked> Someone comments on my review (when comments arrive)</label>
+        <p id="email-pref-message" class="status" hidden></p>
+      </section>
+
+      <section class="card">
         <h2>Blocked and muted</h2>
         <p class="hint">Blocked people can't see you and you can't see them. Muted people's reviews stay out of your feed. Nobody is told.</p>
         <!-- Filled in by js/settings.js -->
@@ -157,14 +166,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=39"></script>
+  <script src="js/config.js?v=40"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=39"></script>
+  <script src="js/supabase-client.js?v=40"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=39"></script>
+  <script src="js/auth.js?v=40"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=39"></script>
+  <script src="js/search-suggest.js?v=40"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=39"></script>
+  <script src="js/settings.js?v=40"></script>
 </body>
 </html>
