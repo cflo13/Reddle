@@ -1,6 +1,12 @@
 /* ---------- Colours and basics ---------- */
 
+/* Every colour on the site comes from these tokens.
+   Night mode is the default; day mode (cream and brown, like paper and
+   leather books) is set by the little script at the top of every page,
+   which puts data-theme="light" or "dark" on <html> (saved choice, or
+   the device setting). The sun/moon button in the header switches. */
 :root {
+  color-scheme: dark;
   --bg: #14181c;
   --surface: #1f262d;
   --text: #e6e9ec;
@@ -8,8 +14,32 @@
   --accent: #40bcf4;
   --ok: #00c030;
   --error: #ff6b6b;
-  --border: #39424c;
+  --border: #39424c;          /* lines around boxes, empty stars */
+  --on-button: #ffffff;       /* text on green buttons */
+  --on-danger: #1a0000;       /* text on red buttons */
+  --avatar-bg: #6b7682;       /* circle behind a missing picture */
+  --want: #e2b23a;            /* "want to read" outline */
+  --shadow: rgba(0, 0, 0, 0.4);
+  --shimmer: rgba(255, 255, 255, 0.06);
   --radius: 8px;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4ecd8;
+  --surface: #fbf6e9;
+  --text: #3b2a1f;
+  --muted: #74604d;
+  --accent: #8b5a2b;
+  --ok: #2e7d32;
+  --error: #b3261e;
+  --border: #d9c9a8;
+  --on-button: #ffffff;
+  --on-danger: #ffffff;
+  --avatar-bg: #a58d72;
+  --want: #b7791f;
+  --shadow: rgba(59, 42, 31, 0.18);
+  --shimmer: rgba(255, 255, 255, 0.55);
 }
 
 * {
@@ -75,7 +105,7 @@ a {
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: none;
   color: var(--text);
@@ -195,7 +225,7 @@ a {
   border: none;
   border-radius: var(--radius);
   background: var(--ok);
-  color: #ffffff;
+  color: var(--on-button);
   font: inherit;
   font-weight: 600;
   text-decoration: none;
@@ -220,7 +250,7 @@ a {
 /* Red button for things that delete (delete account, remove review) */
 .button-danger {
   background: var(--error);
-  color: #1a0000;
+  color: var(--on-danger);
 }
 
 /* Full-width button (used for "Continue with Google") */
@@ -269,7 +299,7 @@ a {
 .form textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -320,8 +350,8 @@ a {
 
 /* Default avatar: grey circle with the first letter of the username */
 .avatar-default {
-  background: #6b7682;
-  color: #ffffff;
+  background: var(--avatar-bg);
+  color: var(--on-button);
   font-weight: 700;
 }
 
@@ -456,7 +486,7 @@ a {
 .header-search input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--bg);
   color: var(--text);
@@ -524,7 +554,7 @@ a {
   border-radius: 4px;
   background: var(--surface);
   object-fit: cover;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 /* No cover: a box with the title written on it */
@@ -534,7 +564,7 @@ a {
   justify-content: center;
   padding: 6px;
   overflow: hidden;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.75rem;
   text-align: center;
@@ -595,7 +625,7 @@ a {
   display: inline-block;
   font-size: 2rem;
   line-height: 1;
-  color: #39424c; /* grey stars */
+  color: var(--border); /* grey stars */
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -788,7 +818,7 @@ a {
 .shelf-button.shelf-active {
   background: var(--ok);
   border-color: var(--ok);
-  color: #ffffff;
+  color: var(--on-button);
 }
 
 /* A row of covers that wraps onto more lines */
@@ -1019,7 +1049,7 @@ body > main {
 
 .genre-tag {
   padding: 3px 10px;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--muted);
   font-size: 0.85rem;
@@ -1151,7 +1181,7 @@ body > main {
 /* A genre you can switch on and off */
 .genre-choice {
   padding: 8px 14px;
-  border: 1px solid #39424c;
+  border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface);
   color: var(--text);
@@ -1166,7 +1196,7 @@ body > main {
 .genre-choice[aria-pressed="true"] {
   border-color: var(--ok);
   background: var(--ok);
-  color: #ffffff;
+  color: var(--on-button);
   font-weight: 600;
 }
 
@@ -1214,7 +1244,7 @@ body > main {
 
 .pick-tile[data-pick="read"] .cover { outline-color: var(--accent); }
 .pick-tile[data-pick="loved"] .cover { outline-color: var(--ok); }
-.pick-tile[data-pick="want"] .cover { outline-color: #e2b23a; }
+.pick-tile[data-pick="want"] .cover { outline-color: var(--want); }
 
 /* "Read" / "Loved" / "Want to read" label on a picked cover */
 .pick-badge {
@@ -1445,7 +1475,7 @@ body > main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px var(--shadow);
 }
 
 .suggest-heading {
@@ -1549,4 +1579,72 @@ body > main {
 
 .person-detail {
   font-size: 0.85rem;
+}
+
+/* ---------- Day / night switch (header) ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--muted);
+}
+
+/* Night: show the sun (switch to day). Day: show the moon. */
+.theme-toggle .icon-moon,
+:root[data-theme="light"] .theme-toggle .icon-sun {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-toggle .icon-moon {
+  display: block;
+}
+
+/* Very small phones (iPhone SE and smaller): tighter header so the logo,
+   day/night switch and your buttons stay on one row. */
+@media (max-width: 400px) {
+  .site-header {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .logo {
+    gap: 6px;
+    font-size: 1.15rem;
+  }
+
+  .logo img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .theme-toggle {
+    width: 30px;
+    height: 30px;
+  }
+
+  .site-nav {
+    gap: 6px;
+  }
+
+  .nav-button {
+    padding: 4px;
+  }
+
+  .site-nav .button {
+    padding: 6px 12px;
+  }
 }

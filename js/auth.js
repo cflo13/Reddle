@@ -393,6 +393,62 @@ async function signInWithGoogle(showMessage) {
 }
 
 
+// ---------- Day and night mode ----------
+//
+// The little script at the top of every page already set data-theme on
+// <html> (your saved choice, or the device setting). This adds the
+// sun/moon switch, and follows the device setting while you haven't chosen.
+
+const THEME_KEY = "reddle-theme";
+const THEME_COLOURS = { dark: "#14181c", light: "#f4ecd8" }; // = --bg in style.css
+
+function savedTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch (error) {
+    return null;
+  }
+}
+
+function showTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", THEME_COLOURS[theme]);
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle) {
+    const label = theme === "light" ? "Switch to night mode" : "Switch to day mode";
+    toggle.setAttribute("aria-label", label);
+    toggle.title = label;
+  }
+}
+
+function setUpThemeToggle() {
+  showTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
+  const toggle = document.getElementById("theme-toggle");
+  if (toggle && !toggle.dataset.ready) {
+    toggle.dataset.ready = "yes";
+    toggle.addEventListener("click", function () {
+      const next = document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light";
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (error) {
+        // can't remember it (private mode); it still switches for this page
+      }
+      showTheme(next);
+    });
+  }
+}
+
+setUpThemeToggle();
+
+// No choice saved: follow the device when it switches (e.g. at sunset).
+if (window.matchMedia) {
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (event) {
+    if (!savedTheme()) showTheme(event.matches ? "light" : "dark");
+  });
+}
+
+
 // ---------- Installable app ----------
 //
 // sw.js (the service worker) lets the site be installed like an app and
