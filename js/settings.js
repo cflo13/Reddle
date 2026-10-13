@@ -182,10 +182,12 @@ deleteForm.addEventListener("submit", async function (event) {
     return;
   }
 
-  // 2. Delete the profile picture. Pictures live in Storage, so the
-  //    database can't delete them itself. Your login still works for a
-  //    few more seconds, which is enough for this. Fine if there isn't one.
+  // 2. Delete the profile picture and the pictures attached to posts.
+  //    Pictures live in Storage, so the database can't delete them
+  //    itself. Your login still works for a few more seconds, which is
+  //    enough for this. Fine if there aren't any.
   await db.storage.from("avatars").remove([settingsProfile.id + "/avatar.jpg"]);
+  await removePostPictures(settingsProfile.id).catch(() => {});
 
   // 3. Forget the login on this device and say goodbye.
   await db.auth.signOut({ scope: "local" });

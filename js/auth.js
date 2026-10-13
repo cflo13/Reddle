@@ -487,6 +487,19 @@ async function setMuted(personId, mute) {
 }
 
 // The people you muted (their reviews stay out of your feed).
+// Deletes every picture a person attached to posts (their folder in
+// the post-images bucket). Used when deleting an account (your own) and
+// when the admin removes a user. Pictures live in Storage, so the
+// database can't delete them itself.
+async function removePostPictures(userId) {
+  for (let round = 0; round < 20; round++) {
+    const { data } = await db.storage.from("post-images").list(userId, { limit: 100 });
+    if (!data || data.length === 0) return;
+    const { error } = await db.storage.from("post-images").remove(data.map((file) => userId + "/" + file.name));
+    if (error) return;
+  }
+}
+
 async function mutedIds() {
   if (!currentUserId) return [];
   const { data } = await db.from("mutes").select("muted_id").eq("muter_id", currentUserId);
@@ -889,16 +902,45 @@ const ICON_BELL =
 const ICON_SHIELD =
   '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
 
-// A small number on the bell: follow requests waiting for you.
+// A small number on the bell: follow requests waiting for you, plus
+// likes and comments on your reviews and posts since you last opened
+// the notifications page (that moment is kept in this browser).
+const ACTIVITY_SEEN_KEY = "reddle-activity-seen-";
+
+function activitySeenAt() {
+  try {
+    const key = ACTIVITY_SEEN_KEY + currentUserId;
+    let seen = localStorage.getItem(key);
+    if (!seen) {
+      // First time on this device: start counting from now.
+      seen = new Date().toISOString();
+      localStorage.setItem(key, seen);
+    }
+    return seen;
+  } catch (error) {
+    return new Date().toISOString();
+  }
+}
+
+function markActivitySeen() {
+  try {
+    localStorage.setItem(ACTIVITY_SEEN_KEY + currentUserId, new Date().toISOString());
+  } catch (error) {
+    // private window: the badge just stays as it is
+  }
+}
+
 async function showRequestBadge(bell) {
-  const { count } = await db
-    .from("follow_requests")
-    .select("requester_id", { count: "exact", head: true })
-    .eq("target_id", currentUserId);
+  const onNotificationsPage = /notifications\.html$/.test(window.location.pathname);
+  const [requests, activity] = await Promise.all([
+    db.from("follow_requests").select("requester_id", { count: "exact", head: true }).eq("target_id", currentUserId),
+    onNotificationsPage ? Promise.resolve({ data: 0 }) : db.rpc("unread_activity_count", { since: activitySeenAt() }),
+  ]);
+  const count = (requests.count || 0) + (Number(activity.data) || 0);
   if (!count) return;
   const badge = el("span", "nav-badge", count > 9 ? "9+" : String(count));
   bell.appendChild(badge);
-  bell.setAttribute("aria-label", "Notifications (" + count + " follow " + (count === 1 ? "request" : "requests") + ")");
+  bell.setAttribute("aria-label", "Notifications (" + count + " new)");
 }
 
 // One header button: an icon plus a word. On phones only the icon shows,

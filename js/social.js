@@ -316,7 +316,9 @@ function makePostCard(post) {
   who.appendChild(makeAvatar(person, "avatar-small"));
   who.appendChild(el("span", "", "@" + person.username));
   top.appendChild(who);
-  top.appendChild(el("span", "muted post-time", ago(post.created_at)));
+  const time = el("a", "muted post-time", ago(post.created_at)); // the post's own page
+  time.href = "post.html?id=" + post.id;
+  top.appendChild(time);
   card.appendChild(top);
 
   if (post.weekly_prompts) {
@@ -670,5 +672,111 @@ function makeEmptyState(text) {
   const box = el("div", "empty-note");
   box.appendChild(el("span", "empty-note-icon", "❧"));
   box.appendChild(el("p", "", text));
+  return box;
+}
+
+
+// ---------- Book of the week and the weekly question ----------
+// Both are chosen by the admin on the admin page; the newest one is
+// "this week's". Book of the week has its own comment thread ("pick").
+
+const PICK_FIELDS = "id, note, created_at, books!book_picks_book_id_fkey(id, external_id, title, author, cover_url, isbn)";
+const PROMPT_FIELDS = "id, question, created_at";
+
+async function fetchLatestPick() {
+  const { data, error } = await db.from("book_picks").select(PICK_FIELDS)
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1);
+  if (error) throw error;
+  return data[0] || null;
+}
+
+async function fetchLatestPrompt() {
+  const { data, error } = await db.from("weekly_prompts").select(PROMPT_FIELDS)
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1);
+  if (error) throw error;
+  return data[0] || null;
+}
+
+// "Week of 12 Oct" (or "12 Oct 2025" for older years)
+function weekOf(dateText) {
+  const date = new Date(dateText);
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+  return date.toLocaleDateString(undefined, sameYear ? { day: "numeric", month: "long" } : { day: "numeric", month: "long", year: "numeric" });
+}
+
+// A Book of the week: cover, title, the admin's note, a link to the
+// book and "Join the discussion" (opens the comment thread).
+// options: { label, open }
+function makePickCard(pick, options) {
+  const settings = options || {};
+  const book = pick.books;
+  const card = el("article", "pick-card");
+  card.dataset.pickId = pick.id;
+
+  const coverLink = el("a", "pick-cover");
+  coverLink.href = bookLink(book.external_id);
+  coverLink.setAttribute("aria-hidden", "true");
+  coverLink.tabIndex = -1;
+  coverLink.appendChild(makeCover(book, "cover-medium"));
+  card.appendChild(coverLink);
+
+  const text = el("div", "pick-text");
+  const head = el("div", "pick-head"); // beside the cover, even on phones
+  head.appendChild(el("p", "pick-label", (settings.label || "Book of the week") + " · " + weekOf(pick.created_at)));
+  const title = el("h2", "pick-title");
+  const titleLink = el("a", "", book.title);
+  titleLink.href = bookLink(book.external_id);
+  title.appendChild(titleLink);
+  head.appendChild(title);
+  if (book.author) head.appendChild(el("p", "muted pick-author", "by " + book.author));
+  text.appendChild(head);
+  if (pick.note) text.appendChild(el("p", "pick-note", pick.note));
+
+  const comments = makeCommentArea("pick", pick.id, { open: settings.open });
+  const buttons = el("div", "pick-buttons");
+  const see = el("a", "button", "See the book");
+  see.href = bookLink(book.external_id);
+  const join = el("button", "button button-secondary", "Join the discussion");
+  join.type = "button";
+  join.addEventListener("click", function () {
+    if (comments.thread.hidden) comments.button.click();
+    // Jump to the comment box once it's there.
+    setTimeout(function () {
+      const box = comments.thread.querySelector("textarea, a");
+      if (box) box.focus();
+    }, 300);
+  });
+  buttons.append(see, join, comments.button);
+  text.appendChild(buttons);
+  card.appendChild(text);
+  card.appendChild(comments.thread);
+  return card;
+}
+
+// This week's question with an answer box (logged in).
+// options: { onPosted(post), showLink }
+function makePromptCard(prompt, options) {
+  const settings = options || {};
+  const box = el("section", "prompt-card");
+  box.appendChild(el("p", "pick-label", "This week's question · " + weekOf(prompt.created_at)));
+  box.appendChild(el("h2", "prompt-question", prompt.question));
+  if (currentUserId) {
+    box.appendChild(makePostComposer({
+      promptId: prompt.id,
+      placeholder: "Your answer...",
+      onPosted: settings.onPosted,
+    }));
+  } else {
+    const login = el("p", "muted");
+    const link = el("a", "", "Log in");
+    link.href = "login.html";
+    login.append(link, " to answer.");
+    box.appendChild(login);
+  }
+  if (settings.showLink !== false) {
+    const all = el("a", "see-all prompt-link", "See all answers");
+    all.href = "prompt.html?id=" + prompt.id;
+    box.appendChild(all);
+  }
   return box;
 }

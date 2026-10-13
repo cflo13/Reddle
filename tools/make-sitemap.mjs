@@ -51,6 +51,8 @@ try {
 const pages = [
   ["", "daily", "1.0"],
   ["popular.html", "daily", "0.8"],
+  ["picks.html", "weekly", "0.6"],
+  ["prompt.html", "weekly", "0.6"],
   ["genres.html", "weekly", "0.8"],
   ...genres.map((slug) => ["genre.html?g=" + slug, "weekly", "0.6"]),
   ...books.map((id) => ["book.html?id=" + id, "weekly", "0.5"]),

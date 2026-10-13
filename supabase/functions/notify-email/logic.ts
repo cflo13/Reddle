@@ -3,8 +3,9 @@
 // here, so it can be tested on its own; index.ts plugs those in).
 // ------------------------------------------------------------
 // Two ways in:
-//  1. POST { type: "follows" | "follow_requests", record } from the
-//     database (supabase/step21-email-notifications.sql).
+//  1. POST { type: "follows" | "follow_requests" | "comments", record }
+//     from the database (supabase/step21-email-notifications.sql and
+//     step22-social-feed.sql).
 //  2. POST ?unsubscribe=TOKEN&kind=... : from our unsubscribe.html page
 //     (the link in every email) or an email app's one-click unsubscribe.
 //     (Supabase shows HTML from Edge Functions as plain text, so the page
@@ -21,10 +22,23 @@ export type Prefs = {
   unsubscribe_token: string;
 };
 
+// A comment, looked up again (never trusting what was posted to us):
+// who wrote it, whose review or post it's on, and where to see it.
+// Comments on Book of the week have no owner, so nobody is emailed.
+export type CommentInfo = {
+  author: string;
+  recipient: string | null;
+  body: string;
+  on: "review" | "post";
+  bookTitle: string | null;
+  path: string; // e.g. "book.html?id=OL45804W" or "post.html?id=12"
+};
+
 export type Deps = {
   env: (name: string) => string | undefined;
   followExists: (follower: string, following: string) => Promise<boolean>;
   requestExists: (requester: string, target: string) => Promise<boolean>;
+  commentInfo: (commentId: string) => Promise<CommentInfo | null>;
   isBlocked: (a: string, b: string) => Promise<boolean>;
   getPrefs: (userId: string) => Promise<Prefs>; // creates default prefs if missing
   unsubscribe: (token: string, kind: Kind | "all") => Promise<boolean>;
@@ -85,6 +99,7 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
 
   // Work out who gets what, and check it really happened.
   let recipient: string, actor: string, kind: Kind, eventKey: string;
+  let comment: CommentInfo | null = null;
   if (payload.type === "follows" && record.follower_id && record.following_id) {
     actor = record.follower_id;
     recipient = record.following_id;
@@ -97,6 +112,14 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
     kind = "follow_requests";
     eventKey = "request:" + actor + ":" + recipient;
     if (!(await deps.requestExists(actor, recipient))) return json({ skipped: "no such request" });
+  } else if (payload.type === "comments" && record.id) {
+    comment = await deps.commentInfo(String(record.id));
+    if (!comment) return json({ skipped: "no such comment" });
+    if (!comment.recipient || comment.recipient === comment.author) return json({ skipped: "nobody to tell" });
+    actor = comment.author;
+    recipient = comment.recipient;
+    kind = "comments";
+    eventKey = "comment:" + record.id;
   } else {
     return json({ skipped: "unknown event" });
   }
@@ -123,20 +146,36 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
   const profile = siteUrl + "u/" + encodeURIComponent(actorName);
   const name = "@" + actorName;
 
-  const subject = kind === "new_followers" ? name + " started following you on Reddle" : name + " wants to follow you on Reddle";
-  const line = kind === "new_followers"
-    ? name + " is now following you on Reddle."
-    : name + " asked to follow you. Your profile is private, so they can see your books once you accept.";
-  const action = kind === "new_followers" ? "See their profile" : "Accept or decline";
-  const actionUrl = kind === "new_followers" ? profile : siteUrl + "notifications.html";
-  const what = kind === "new_followers" ? "new followers" : "follow requests";
+  let subject: string, line: string, action: string, actionUrl: string, what: string;
+  if (kind === "new_followers") {
+    subject = name + " started following you on Reddle";
+    line = name + " is now following you on Reddle.";
+    action = "See their profile";
+    actionUrl = profile;
+    what = "new followers";
+  } else if (kind === "follow_requests") {
+    subject = name + " wants to follow you on Reddle";
+    line = name + " asked to follow you. Your profile is private, so they can see your books once you accept.";
+    action = "Accept or decline";
+    actionUrl = siteUrl + "notifications.html";
+    what = "follow requests";
+  } else {
+    const c = comment as CommentInfo;
+    const onWhat = c.on === "review" ? "your review" + (c.bookTitle ? " of " + c.bookTitle : "") : "your post";
+    const said = c.body.length > 300 ? c.body.slice(0, 300) + "..." : c.body;
+    subject = name + " commented on " + onWhat;
+    line = name + " commented on " + onWhat + ": \u201c" + said + "\u201d";
+    action = "See the comment";
+    actionUrl = siteUrl + c.path;
+    what = "comments";
+  }
 
-  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#3b2a1f;background:#fbf6e9">
+  const html = `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#3a2a20;background:#fbf5e6">
 <p style="font-size:20px;font-weight:700;margin:0 0 16px">Reddle</p>
 <p style="font-size:16px;line-height:1.5">${escapeHtml(line)}</p>
-<p><a href="${escapeHtml(actionUrl)}" style="display:inline-block;padding:10px 18px;background:#2e7d32;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600">${escapeHtml(action)}</a></p>
-<p style="font-size:12px;color:#74604d;margin-top:32px">You get this because email for ${what} is on in your Reddle settings.<br>
-<a href="${escapeHtml(unsubscribeKind)}" style="color:#74604d">Stop emails about ${what}</a> · <a href="${escapeHtml(unsubscribeAll)}" style="color:#74604d">Unsubscribe from all Reddle emails</a> · <a href="${escapeHtml(siteUrl)}settings.html" style="color:#74604d">Email settings</a></p>
+<p><a href="${escapeHtml(actionUrl)}" style="display:inline-block;padding:10px 18px;background:#93552a;color:#fbf5e6;border-radius:999px;text-decoration:none;font-weight:600">${escapeHtml(action)}</a></p>
+<p style="font-size:12px;color:#72604b;margin-top:32px">You get this because email for ${what} is on in your Reddle settings.<br>
+<a href="${escapeHtml(unsubscribeKind)}" style="color:#72604b">Stop emails about ${what}</a> · <a href="${escapeHtml(unsubscribeAll)}" style="color:#72604b">Unsubscribe from all Reddle emails</a> · <a href="${escapeHtml(siteUrl)}settings.html" style="color:#72604b">Email settings</a></p>
 </div>`;
   const text = `${line}\n\n${action}: ${actionUrl}\n\n--\nStop emails about ${what}: ${unsubscribeKind}\nUnsubscribe from all Reddle emails: ${unsubscribeAll}\nEmail settings: ${siteUrl}settings.html\n`;
 

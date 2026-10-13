@@ -283,7 +283,7 @@ grant select on public.trending_books_week to anon, authenticated;
 
 create or replace function public.unread_activity_count(since timestamptz)
 returns integer
-language sql stable
+language sql stable set search_path = public
 as $$
   select (
     (select count(*) from public.likes k join public.logs l on l.id = k.log_id

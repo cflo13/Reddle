@@ -314,6 +314,18 @@ function addGenreRow(slug, titleStart, lazy) {
   );
 }
 
+// People are talking about: the 6 books with the most logs, posts and
+// comments in the last 7 days (the trending_books_week view).
+function talkedAboutCandidates() {
+  return remembered("talked-about", async function () {
+    const { data, error } = await db.from("trending_books_week")
+      .select("id, external_id, title, author, cover_url, activity")
+      .order("activity", { ascending: false }).order("id", { ascending: true }).limit(6);
+    if (error) throw error;
+    return data.map((book) => ({ book: book, reason: book.activity + (book.activity === 1 ? " mention" : " mentions") + " this week" }));
+  });
+}
+
 // 3. Popular this week, topped up with Open Library's trending list.
 function popularThisWeekCandidates() {
   return remembered("this-week", async function () {
@@ -381,6 +393,9 @@ function buildRows(profile, myBooks, followingIds) {
 
   // 2. Because you like [Genre] (the second row loads straight away too)
   tasteRows.forEach((slug) => addGenreRow(slug, "Because you like ", rows.length >= 2));
+
+  // People are talking about (the most logged, posted and commented on)
+  addRow({ title: "People are talking about" }, talkedAboutCandidates, rows.length >= 2);
 
   // 3. Popular this week, 4. New and noteworthy
   addRow({ title: "Popular this week", titleLink: "popular.html", seeAll: "popular.html" }, popularThisWeekCandidates, rows.length >= 2);
@@ -550,16 +565,23 @@ async function loadFeed(profile, followingIds) {
     });
   });
 
-  // "Share a thought" (logged in). A new post shows at the top straight away.
+  // A new post (or answer to the weekly question) shows at the top
+  // of the feed straight away.
+  function showNewPost(post) {
+    if (feedTab === "popular") return;
+    const empty = feedList.querySelector(".empty-note");
+    if (empty) empty.remove();
+    feedList.prepend(makePostCard(post));
+  }
+
+  // This week's question, if the admin set one.
+  fetchLatestPrompt().then(function (prompt) {
+    if (prompt) document.getElementById("prompt-spot").appendChild(makePromptCard(prompt, { onPosted: showNewPost }));
+  }).catch(() => {}); // a nice extra: never break the feed
+
+  // "Share a thought" (logged in)
   if (profile) {
-    document.getElementById("composer-spot").appendChild(makePostComposer({
-      onPosted: function (post) {
-        if (feedTab === "popular") return;
-        const empty = feedList.querySelector(".empty-note");
-        if (empty) empty.remove();
-        feedList.prepend(makePostCard(post));
-      },
-    }));
+    document.getElementById("composer-spot").appendChild(makePostComposer({ onPosted: showNewPost }));
   }
 
   // Which tab: the one you chose last time, else Following if you follow
@@ -592,6 +614,15 @@ async function loadHome() {
     ? await Promise.all([loadMyBooks(profile.id), loadFollowingIds(profile.id)])
     : [{ logs: [], knownIds: [], known: new Set() }, []];
   knownBooks = myBooks.known;
+
+  // Book of the week at the top, if the admin chose one.
+  fetchLatestPick().then(function (pick) {
+    if (pick && pick.books) {
+      const card = makePickCard(pick);
+      document.getElementById("pick-spot").appendChild(card);
+      fillCommentCounts("pick", [pick.id]);
+    }
+  }).catch(() => {}); // a nice extra: never break the page
 
   buildRows(profile, myBooks, followingIds);
 

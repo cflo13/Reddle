@@ -2818,3 +2818,200 @@ body > main {
   font-size: 1.6rem;
   opacity: 0.7;
 }
+
+
+/* ------------------------------------------------------------
+   Book of the week, the weekly question, activity, admin forms
+   ------------------------------------------------------------ */
+
+.pick-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* A lamplit card: cover on the left, words on the right. */
+.pick-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.pick-list .pick-card {
+  margin-bottom: 0;
+}
+
+.pick-cover .cover {
+  width: 110px;
+  height: 165px;
+}
+
+.pick-text {
+  min-width: 0;
+}
+
+.pick-label {
+  margin: 0 0 var(--space-2);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pick-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.pick-title a,
+.pick-cover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.pick-title a:hover {
+  color: var(--accent);
+}
+
+.pick-author {
+  margin: var(--space-1) 0 0;
+}
+
+.pick-note {
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pick-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.pick-card > .comment-thread {
+  grid-column: 1 / -1;
+}
+
+/* Phones: cover and title side by side, the note and buttons below. */
+@media (max-width: 600px) {
+  .pick-card {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  .pick-text {
+    display: contents;
+  }
+  .pick-head {
+    align-self: center;
+    min-width: 0;
+  }
+  .pick-cover .cover {
+    width: 80px;
+    height: 120px;
+  }
+  .pick-title {
+    font-size: 1.25rem;
+  }
+  .pick-note,
+  .pick-buttons {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+}
+
+/* This week's question */
+.prompt-card {
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  border-radius: var(--radius-large);
+  background: var(--panel);
+}
+
+.prompt-question {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.prompt-card .composer {
+  box-shadow: none;
+}
+
+.prompt-link {
+  display: inline-block;
+  margin-top: var(--space-3);
+}
+
+.prompt-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  line-height: 1.8;
+}
+
+/* Notifications: likes and comments */
+.activity-text {
+  flex: 1 1 200px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.activity-snippet {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-family: var(--font-serif);
+}
+
+.activity-time {
+  font-size: 0.85rem;
+}
+
+.activity-new .activity-time::before {
+  content: "\2022  ";
+  color: var(--accent);
+}
+
+/* Admin: choosing the Book of the week and the question */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.admin-form p {
+  margin: 0;
+}
+
+.admin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-row p {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

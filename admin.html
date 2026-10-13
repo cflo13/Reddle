@@ -41,7 +41,7 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=46">
+  <link rel="stylesheet" href="css/style.css?v=47">
 </head>
 <body>
   <header class="site-header">
@@ -67,10 +67,35 @@
     <p id="admin-status" class="muted">Checking...</p>
 
     <section id="admin-area" hidden>
+      <h2>Reported reviews and profiles</h2>
       <p class="lead">Open reports, newest first. Removing a review or user also clears its reports.</p>
       <p id="admin-message" class="status" hidden></p>
       <!-- Filled in by js/admin.js -->
       <div id="reports" class="report-list"></div>
+
+      <h2>Reported posts and comments</h2>
+      <!-- Filled in by js/admin.js -->
+      <div id="content-reports" class="report-list"></div>
+
+      <h2>Book of the week</h2>
+      <p class="hint">Choose a book and write a short note. The newest pick shows at the top of the home page, with its own discussion, and on the Books of the week page.</p>
+      <form id="pick-form" class="card form admin-form">
+        <div id="pick-picker"></div>
+        <p id="pick-chosen" class="muted">No book chosen yet.</p>
+        <label for="pick-note">Note (optional, up to 600 characters)</label>
+        <textarea id="pick-note" rows="3" maxlength="600" placeholder="Why this book? A line or two."></textarea>
+        <p><button type="submit" class="button">Make it Book of the week</button></p>
+      </form>
+      <div id="pick-list" class="report-list"></div>
+
+      <h2>Question of the week</h2>
+      <p class="hint">The newest question shows above the feed with an answer box. Answers are posts, shown on the question's page.</p>
+      <form id="prompt-form" class="card form admin-form">
+        <label for="prompt-question">Question (3 to 200 characters)</label>
+        <input id="prompt-question" type="text" minlength="3" maxlength="200" placeholder="What book would you take to a desert island?" required>
+        <p><button type="submit" class="button">Set this week's question</button></p>
+      </form>
+      <div id="prompt-list" class="report-list"></div>
 
       <h2>Feedback</h2>
       <p class="hint">Messages people sent with the Feedback link in the footer, newest first.</p>
@@ -82,6 +107,7 @@
   <footer class="site-footer">
     <nav class="footer-links" aria-label="About Reddle">
       <a href="about.html">About</a>
+      <a href="picks.html">Books of the week</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
       <a href="about.html#contact">Contact</a>
@@ -92,20 +118,20 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=46"></script>
+  <script src="js/config.js?v=47"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=46"></script>
+  <script src="js/supabase-client.js?v=47"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=46"></script>
+  <script src="js/auth.js?v=47"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=46"></script>
+  <script src="js/search-suggest.js?v=47"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=46"></script>
+  <script src="js/books.js?v=47"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=46"></script>
+  <script src="js/share-card.js?v=47"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=46"></script>
+  <script src="js/social.js?v=47"></script>
   <!-- This page's own code -->
-  <script src="js/admin.js?v=46"></script>
+  <script src="js/admin.js?v=47"></script>
 </body>
 </html>

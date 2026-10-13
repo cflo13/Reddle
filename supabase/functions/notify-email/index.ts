@@ -33,6 +33,26 @@ const deps: Deps = {
     return !!data;
   },
 
+  async commentInfo(commentId) {
+    const { data } = await db.from("comments")
+      .select("user_id, body, log_id, post_id, logs(user_id, books(external_id, title)), posts(user_id)")
+      .eq("id", commentId).maybeSingle();
+    if (!data) return null;
+    // deno-lint-ignore no-explicit-any
+    const row = data as any;
+    if (row.log_id && row.logs) {
+      return {
+        author: row.user_id, recipient: row.logs.user_id, body: row.body, on: "review",
+        bookTitle: row.logs.books ? row.logs.books.title : null,
+        path: row.logs.books ? "book.html?id=" + row.logs.books.external_id : "",
+      };
+    }
+    if (row.post_id && row.posts) {
+      return { author: row.user_id, recipient: row.posts.user_id, body: row.body, on: "post", bookTitle: null, path: "post.html?id=" + row.post_id };
+    }
+    return { author: row.user_id, recipient: null, body: row.body, on: "post", bookTitle: null, path: "" }; // Book of the week
+  },
+
   async isBlocked(a, b) {
     const { data } = await db.from("blocks").select("blocker_id")
       .or(`and(blocker_id.eq.${a},blocked_id.eq.${b}),and(blocker_id.eq.${b},blocked_id.eq.${a})`)

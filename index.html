@@ -40,7 +40,7 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=46">
+  <link rel="stylesheet" href="css/style.css?v=47">
 </head>
 <body>
   <header class="site-header">
@@ -77,12 +77,17 @@
 
     <p id="home-status" class="status status-error" hidden></p>
 
+    <!-- Book of the week, chosen on the admin page (js/home.js) -->
+    <div id="pick-spot"></div>
+
     <!-- Rows of books (For you, genres, popular...), built by js/home.js -->
     <div id="home-rows" class="home-rows"></div>
 
     <!-- The feed. Loads when you scroll near it. -->
     <section id="feed-section" class="feed-section">
       <h2 id="feed-heading" class="visually-hidden">Feed</h2>
+      <!-- This week's question with an answer box (js/home.js) -->
+      <div id="prompt-spot"></div>
       <!-- "Share a thought" box, logged in only (js/social.js) -->
       <div id="composer-spot"></div>
       <!-- Feed tabs: the choice is remembered in this browser -->
@@ -100,6 +105,7 @@
   <footer class="site-footer">
     <nav class="footer-links" aria-label="About Reddle">
       <a href="about.html">About</a>
+      <a href="picks.html">Books of the week</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
       <a href="about.html#contact">Contact</a>
@@ -110,20 +116,20 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=46"></script>
+  <script src="js/config.js?v=47"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=46"></script>
+  <script src="js/supabase-client.js?v=47"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=46"></script>
+  <script src="js/auth.js?v=47"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=46"></script>
+  <script src="js/search-suggest.js?v=47"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=46"></script>
+  <script src="js/books.js?v=47"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=46"></script>
+  <script src="js/share-card.js?v=47"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=46"></script>
+  <script src="js/social.js?v=47"></script>
   <!-- This page's own code -->
-  <script src="js/home.js?v=46"></script>
+  <script src="js/home.js?v=47"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 // Admin page: see reports, remove reviews or users, or dismiss.
-// Also reads the feedback people sent (and can delete it).
+// Also: reported posts and comments, choosing the Book of the week and
+// the weekly question, and the feedback people sent.
 // ------------------------------------------------------------
 // Only admins can open it (the `admins` table). The database checks
 // this too, so nobody else can read reports even if they open this page.
@@ -49,7 +50,10 @@ async function removeUser(userId, username) {
     finish({ message: "Removing users isn't switched on yet: run supabase/step11-admin-remove-user.sql in the Supabase SQL Editor." });
     return;
   }
-  if (!error) await db.storage.from("avatars").remove([userId + "/avatar.jpg"]);
+  if (!error) {
+    await db.storage.from("avatars").remove([userId + "/avatar.jpg"]);
+    await removePostPictures(userId).catch(() => {});
+  }
   finish(error, "@" + username + " removed.");
 }
 
@@ -185,6 +189,216 @@ async function loadFeedback() {
 }
 
 
+// ---------- Reported posts and comments ----------
+
+const contentReportsList = document.getElementById("content-reports");
+const CONTENT_REPORT_FIELDS =
+  "id, reason, created_at, post_id, comment_id, " +
+  "reporter:profiles!content_reports_reporter_id_fkey(username), " +
+  "posts(id, body, image_url, user_id, profiles!posts_user_id_fkey(id, username)), " +
+  "comments(id, body, user_id, post_id, log_id, pick_id, profiles!comments_user_id_fkey(id, username))";
+
+async function contentAction(error, doneText) {
+  if (error) {
+    showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+    return;
+  }
+  showStatus(adminMessage, "ok", doneText);
+  await loadContentReports();
+}
+
+async function removePost(post) {
+  if (!window.confirm("Remove this post for good?")) return;
+  const { error } = await db.from("posts").delete().eq("id", post.id);
+  const path = !error && post.image_url && post.image_url.split("/post-images/")[1];
+  if (path) await db.storage.from("post-images").remove([path]);
+  contentAction(error, "Post removed.");
+}
+
+async function removeComment(comment) {
+  if (!window.confirm("Remove this comment for good?")) return;
+  const { error } = await db.from("comments").delete().eq("id", comment.id);
+  contentAction(error, "Comment removed.");
+}
+
+async function dismissContent(report) {
+  const { error } = await db.from("content_reports").update({ status: "dismissed" }).eq("id", report.id);
+  contentAction(error, "Report dismissed.");
+}
+
+function makeContentReportCard(report) {
+  const card = el("article", "card report-card");
+  const top = el("p", "muted");
+  top.append(
+    report.post_id ? "Post reported by " : "Comment reported by ",
+    report.reporter ? userLink(report.reporter.username) : "a deleted user",
+    " on " + new Date(report.created_at).toLocaleString()
+  );
+  card.appendChild(top);
+  card.appendChild(el("p", "report-reason", report.reason ? "“" + report.reason + "”" : "No reason given."));
+
+  const target = el("div", "report-target");
+  const buttons = el("div", "report-buttons");
+  const item = report.posts || report.comments;
+  if (item) {
+    const author = item.profiles;
+    const about = el("p", "");
+    about.append(author ? userLink(author.username) : "someone", report.posts ? " posted:" : " commented:");
+    target.append(about, el("p", "log-review", item.body));
+    if (report.posts && item.image_url) {
+      const picture = document.createElement("img");
+      picture.className = "post-picture";
+      picture.src = item.image_url;
+      picture.alt = "The post's picture";
+      target.appendChild(picture);
+    }
+    if (report.posts) {
+      const open = el("a", "", "Open the post");
+      open.href = "post.html?id=" + item.id;
+      target.appendChild(el("p", "")).appendChild(open);
+    } else if (item.post_id) {
+      const open = el("a", "", "Open the post it's on");
+      open.href = "post.html?id=" + item.post_id;
+      target.appendChild(el("p", "")).appendChild(open);
+    }
+    buttons.appendChild(actionButton(report.posts ? "Remove post" : "Remove comment", "button-danger",
+      () => (report.posts ? removePost(item) : removeComment(item))));
+    if (author) buttons.appendChild(actionButton("Remove user", "button-secondary", () => removeUser(author.id, author.username)));
+  } else {
+    target.appendChild(el("p", "muted", "Already removed."));
+  }
+  buttons.appendChild(actionButton("Dismiss", "button-secondary", () => dismissContent(report)));
+  card.append(target, buttons);
+  return card;
+}
+
+async function loadContentReports() {
+  const { data, error } = await db
+    .from("content_reports")
+    .select(CONTENT_REPORT_FIELDS)
+    .eq("status", "open")
+    .order("created_at", { ascending: false });
+  contentReportsList.textContent = "";
+  if (error) {
+    contentReportsList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load reports. ")));
+    return;
+  }
+  if (data.length === 0) {
+    contentReportsList.appendChild(el("p", "muted", "No reported posts or comments."));
+    return;
+  }
+  for (const report of data) contentReportsList.appendChild(makeContentReportCard(report));
+}
+
+
+// ---------- Book of the week ----------
+
+const pickList = document.getElementById("pick-list");
+let chosenBook = null;
+
+async function loadPicks() {
+  const { data, error } = await db.from("book_picks").select(PICK_FIELDS)
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(10);
+  pickList.textContent = "";
+  if (error) {
+    pickList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load the picks. ")));
+    return;
+  }
+  data.forEach(function (pick, index) {
+    const row = el("div", "admin-row");
+    const text = el("p", "");
+    const link = el("a", "", pick.books ? pick.books.title : "(book removed)");
+    if (pick.books) link.href = bookLink(pick.books.external_id);
+    text.append(index === 0 ? "Now: " : "", link, el("span", "muted", " · " + weekOf(pick.created_at)));
+    row.append(text, actionButton("Delete", "button-secondary", async function () {
+      if (!window.confirm("Delete this pick and its discussion?")) return;
+      const { error } = await db.from("book_picks").delete().eq("id", pick.id);
+      if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+      showStatus(adminMessage, "ok", "Pick deleted.");
+      loadPicks();
+    }));
+    pickList.appendChild(row);
+  });
+}
+
+function setUpPickForm() {
+  const chosen = document.getElementById("pick-chosen");
+  const picker = makeBookPicker(function (book) {
+    chosenBook = book;
+    chosen.textContent = "Chosen: " + book.title + (book.author ? " by " + book.author : "");
+  });
+  document.getElementById("pick-picker").appendChild(picker.element);
+
+  const form = document.getElementById("pick-form");
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (!chosenBook) return showStatus(adminMessage, "error", "Search for a book and choose it first.");
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+    try {
+      const book = await savePickedBook(chosenBook);
+      const note = document.getElementById("pick-note").value.trim();
+      const { error } = await db.from("book_picks").insert({ book_id: book.id, note: note || null });
+      if (error) throw error;
+      showStatus(adminMessage, "ok", book.title + " is now the Book of the week.");
+      chosenBook = null;
+      chosen.textContent = "No book chosen yet.";
+      document.getElementById("pick-note").value = "";
+      loadPicks();
+    } catch (error) {
+      showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+
+// ---------- Question of the week ----------
+
+const promptList = document.getElementById("prompt-list");
+
+async function loadPrompts() {
+  const { data, error } = await db.from("weekly_prompts").select(PROMPT_FIELDS)
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(10);
+  promptList.textContent = "";
+  if (error) {
+    promptList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load the questions. ")));
+    return;
+  }
+  data.forEach(function (prompt, index) {
+    const row = el("div", "admin-row");
+    const text = el("p", "");
+    const link = el("a", "", prompt.question);
+    link.href = "prompt.html?id=" + prompt.id;
+    text.append(index === 0 ? "Now: " : "", link, el("span", "muted", " · " + weekOf(prompt.created_at)));
+    row.append(text, actionButton("Delete", "button-secondary", async function () {
+      if (!window.confirm("Delete this question? Its answers stay as normal posts.")) return;
+      const { error } = await db.from("weekly_prompts").delete().eq("id", prompt.id);
+      if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+      showStatus(adminMessage, "ok", "Question deleted.");
+      loadPrompts();
+    }));
+    promptList.appendChild(row);
+  });
+}
+
+function setUpPromptForm() {
+  const form = document.getElementById("prompt-form");
+  const input = document.getElementById("prompt-question");
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (question.length < 3) return showStatus(adminMessage, "error", "The question needs at least 3 characters.");
+    const { error } = await db.from("weekly_prompts").insert({ question: question });
+    if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+    showStatus(adminMessage, "ok", "This week's question is set.");
+    input.value = "";
+    loadPrompts();
+  });
+}
+
+
 // ---------- Start ----------
 
 (async function () {
@@ -200,5 +414,7 @@ async function loadFeedback() {
   }
   status.hidden = true;
   document.getElementById("admin-area").hidden = false;
-  await Promise.all([loadReports(), loadFeedback()]);
+  setUpPickForm();
+  setUpPromptForm();
+  await Promise.all([loadReports(), loadContentReports(), loadPicks(), loadPrompts(), loadFeedback()]);
 })();
