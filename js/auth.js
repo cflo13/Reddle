@@ -1213,6 +1213,8 @@ async function setupHeader() {
       '<a href="login.html">Log in</a>' +
       '<a class="button" href="signup.html">Sign up</a>';
     addLoggedOutFooter();
+    buildBottomBar(null);
+    setUpPhoneMenu(null, false);
     return { user: null, profile: null };
   }
 
@@ -1228,6 +1230,7 @@ async function setupHeader() {
     logOutButton.addEventListener("click", logOut);
     nav.textContent = "";
     nav.append(logOutButton);
+    setUpPhoneMenu(null, true);
     return { user: user, profile: null };
   }
 
@@ -1265,6 +1268,8 @@ async function setupHeader() {
   nav.textContent = "";
   nav.append(...buttons);
   addFooterExtras(profile);
+  buildBottomBar(profile);
+  setUpPhoneMenu(profile, true);
 
   // Google sign in and email confirmation links land on the home page.
   // If they started logging in from another page, go back there.
@@ -1273,6 +1278,170 @@ async function setupHeader() {
 
   return { user: user, profile: profile };
 }
+
+// ---------- Phones: bottom bar and menu ----------
+//
+// On phones (and phones turned sideways) the header is just the logo,
+// the day/night switch and a menu button; the main places live in a bar
+// at the bottom, where thumbs reach. CSS decides when it shows (see
+// "Phones: bottom bar" in style.css); computers never see it.
+//   Logged in:  Home, Search, Add (log a book), Alerts, Profile
+//   Logged out: Home, Search, Log in, Sign up
+// Everything else (Genres, Popular, Settings, Admin, Log out and the
+// footer links) is in the menu.
+
+const ICON_HOME =
+  '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>';
+const ICON_SEARCH =
+  '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+const ICON_ADD =
+  '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>';
+const ICON_LOG_IN =
+  '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>';
+const ICON_SIGN_UP =
+  '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M19 8v6M16 11h6"/></svg>';
+
+// Which tab is the page we're on?
+function currentTab(profile) {
+  const params = new URLSearchParams(window.location.search);
+  if (isOnPage("search.html")) return params.get("log") === "1" ? "add" : "search";
+  if (isOnPage("notifications.html")) return "alerts";
+  if (isOnPage("login.html")) return "login";
+  if (isOnPage("signup.html")) return "signup";
+  if (profile && pageParam("u") === profile.username) return "profile";
+  if (isOnPage("index.html") || window.location.pathname.endsWith("/")) return "home";
+  return "";
+}
+
+function makeTab(name, href, label, icon) {
+  const tab = el("a", "tab-button");
+  tab.href = href;
+  tab.dataset.tab = name;
+  tab.innerHTML = icon;
+  tab.appendChild(el("span", "tab-label", label));
+  return tab;
+}
+
+function buildBottomBar(profile) {
+  if (document.querySelector(".bottom-bar")) return;
+  const bar = el("nav", "bottom-bar");
+  bar.setAttribute("aria-label", "Main");
+  let tabs;
+  if (profile) {
+    const alerts = makeTab("alerts", "notifications.html", "Alerts", ICON_BELL.replace(/18/g, "24"));
+    alerts.classList.add("nav-bell");
+    showRequestBadge(alerts).catch(() => {});
+    const me = makeTab("profile", profileLink(profile.username), "Profile", "");
+    const avatar = makeAvatar(profile, "avatar-tab");
+    me.prepend(avatar);
+    tabs = [
+      makeTab("home", "index.html", "Home", ICON_HOME),
+      makeTab("search", "search.html", "Search", ICON_SEARCH),
+      makeTab("add", "search.html?log=1", "Add", ICON_ADD),
+      alerts,
+      me,
+    ];
+  } else {
+    tabs = [
+      makeTab("home", "index.html", "Home", ICON_HOME),
+      makeTab("search", "search.html", "Search", ICON_SEARCH),
+      makeTab("login", "login.html", "Log in", ICON_LOG_IN),
+      makeTab("signup", "signup.html", "Sign up", ICON_SIGN_UP),
+    ];
+  }
+  const here = currentTab(profile);
+  for (const tab of tabs) {
+    if (tab.dataset.tab === here) tab.setAttribute("aria-current", "page");
+    bar.appendChild(tab);
+  }
+  document.body.appendChild(bar);
+  document.documentElement.classList.add("has-bottom-bar");
+}
+
+// The menu (top right on phones): a sheet with every other place.
+function openPhoneMenu(profile) {
+  const { dialog, body } = makeDialog("Menu");
+  dialog.classList.add("menu-sheet");
+  const list = el("nav", "menu-list");
+  list.setAttribute("aria-label", "More");
+  function link(text, href) {
+    const a = el("a", "menu-item", text);
+    a.href = href;
+    list.appendChild(a);
+    return a;
+  }
+  function action(text, onClick, className) {
+    const button = el("button", "menu-item" + (className ? " " + className : ""), text);
+    button.type = "button";
+    button.addEventListener("click", () => {
+      dialog.close();
+      onClick();
+    });
+    list.appendChild(button);
+    return button;
+  }
+  function divider() {
+    list.appendChild(el("hr", "menu-divider"));
+  }
+
+  link("Genres", "genres.html");
+  link("Popular this week", "popular.html");
+  link("Books of the week", "picks.html");
+  divider();
+  if (profile) {
+    link("Settings", "settings.html");
+    if (currentIsAdmin) {
+      const admin = link("Admin", "admin.html");
+      admin.classList.add("nav-bell");
+      showNewFeedbackBadge(admin).catch(() => {});
+    }
+    action("Feedback", () => openFeedbackDialog("other"));
+    action("Report a bug", () => openFeedbackDialog("bug"));
+    action("Invite friends", () => openInviteDialog(profile));
+  } else if (!currentUserId) {
+    action("Report a bug", () => openFeedbackDialog("bug"));
+  }
+  if (installPrompt) action("Install app", () => installPrompt && installPrompt.prompt());
+  divider();
+  link("About", "about.html");
+  link("Privacy", "privacy.html");
+  link("Terms", "terms.html");
+  link("Contact", "about.html#contact");
+  if (profile || phoneMenuLoggedIn) {
+    divider();
+    action("Log out", logOut, "menu-log-out");
+  }
+  body.appendChild(list);
+  dialog.addEventListener("close", () => dialog.remove());
+  dialog.showModal();
+}
+
+let phoneMenuLoggedIn = false; // logged in but no username yet
+
+function setUpPhoneMenu(profile, loggedIn) {
+  phoneMenuLoggedIn = loggedIn;
+  const button = document.getElementById("menu-button");
+  if (!button || button.dataset.ready) return;
+  button.dataset.ready = "1";
+  button.hidden = false;
+  button.addEventListener("click", () => openPhoneMenu(profile));
+}
+
+// The on-screen keyboard: hide the bottom bar while typing, so it never
+// covers the box you're typing in.
+(function watchKeyboard() {
+  const typing = (target) => target && target.matches &&
+    target.matches("input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=submit]):not([type=button]), textarea, select, [contenteditable=true]");
+  document.addEventListener("focusin", (event) => {
+    if (typing(event.target)) document.documentElement.classList.add("keyboard-open");
+  });
+  document.addEventListener("focusout", () => {
+    // Wait a moment: focus may be moving to the next box.
+    setTimeout(() => {
+      if (!typing(document.activeElement)) document.documentElement.classList.remove("keyboard-open");
+    }, 100);
+  });
+})();
 
 // Start straight away. Page scripts use `await authReady`.
 const authReady = setupHeader().catch(function (error) {

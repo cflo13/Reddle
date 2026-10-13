@@ -66,7 +66,7 @@ async function searchAuthorsSection(query) {
 
 function makeBookResult(book) {
   const link = el("a", "book-result");
-  link.href = bookLink(book.externalId);
+  link.href = bookLink(book.externalId) + (loggingABook ? "#log" : "");
   link.appendChild(makeCover({ title: book.title, author: book.author, cover_url: book.coverUrl, isbns: book.isbns }, "cover-small"));
 
   const text = el("div", "");
@@ -103,7 +103,21 @@ async function runSearch(query) {
 // Submitting the form changes the address to search.html?q=..., which
 // reloads this page and runs the search below. That way the back button
 // and sharing a search link both work.
-const startQuery = new URLSearchParams(window.location.search).get("q");
+const startParams = new URLSearchParams(window.location.search);
+const startQuery = startParams.get("q");
+
+// "Add" in the phone bar opens search.html?log=1: same search, but the
+// books found open straight at the log form (book page + #log).
+const loggingABook = startParams.get("log") === "1";
+if (loggingABook) {
+  document.querySelector("main h1").textContent = "Log a book";
+  searchInput.placeholder = "Which book did you read?";
+  const keep = document.createElement("input"); // keeps ?log=1 when searching
+  keep.type = "hidden";
+  keep.name = "log";
+  keep.value = "1";
+  searchInput.form.appendChild(keep);
+}
 if (startQuery && startQuery.trim()) {
   searchInput.value = startQuery.trim();
   runSearch(startQuery.trim());

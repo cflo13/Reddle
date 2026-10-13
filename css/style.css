@@ -55,6 +55,11 @@
   --radius: 10px;
   --radius-large: 16px;
   --radius-pill: 999px;
+
+  /* Phones: the bottom bar's height (without the home-bar safe area) and
+     the smallest comfortable size for anything you tap. */
+  --bottom-bar-height: 60px;
+  --tap: 44px;
 }
 
 :root[data-theme="light"] {
@@ -3199,4 +3204,189 @@ body > main {
 .feedback-card[data-status="fixed"],
 .feedback-card[data-status="wont_fix"] {
   opacity: 0.7;
+}
+
+
+
+/* ------------------------------------------------------------
+   Phones: bottom bar, minimal header and the menu (js/auth.js)
+   "Phones" = narrower than 768px, or a phone turned sideways
+   (short screen + touch). Computers and tablets never see the bar.
+   ------------------------------------------------------------ */
+
+.bottom-bar,
+.menu-button {
+  display: none;
+}
+
+@media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
+  /* The header: logo, day/night switch, menu. Room for the notch. */
+  .site-header {
+    padding-top: calc(var(--space-2) + env(safe-area-inset-top));
+    padding-bottom: var(--space-2);
+    padding-left: max(var(--space-4), env(safe-area-inset-left));
+    padding-right: max(var(--space-2), env(safe-area-inset-right));
+    flex-wrap: nowrap;
+  }
+
+  .site-header .header-search,
+  .site-header .header-link,
+  .site-header #site-nav,
+  .site-header::after {
+    display: none;
+  }
+
+  .theme-toggle {
+    width: var(--tap);
+    height: var(--tap);
+    margin-left: auto;
+  }
+
+  .menu-button:not([hidden]) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* The bar itself */
+  .bottom-bar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 0 max(var(--space-1), env(safe-area-inset-right)) env(safe-area-inset-bottom) max(var(--space-1), env(safe-area-inset-left));
+    background: var(--surface);
+    box-shadow: 0 -1px 0 var(--border), 0 -6px 18px var(--shadow);
+  }
+
+  /* Never cover the end of a page. */
+  html.has-bottom-bar body {
+    padding-bottom: calc(var(--bottom-bar-height) + env(safe-area-inset-bottom));
+  }
+
+  /* Typing: the keyboard takes the bottom of the screen, so the bar hides. */
+  html.keyboard-open .bottom-bar {
+    display: none;
+  }
+
+  .tab-button {
+    flex: 1 1 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    height: var(--bottom-bar-height);
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .tab-button[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .tab-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .avatar-tab {
+    width: 26px;
+    height: 26px;
+    font-size: 0.8rem;
+  }
+
+  .tab-button[aria-current="page"] .avatar-tab {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .tab-button .nav-badge {
+    top: 6px;
+    right: calc(50% - 22px);
+  }
+
+  /* The footer links live in the menu on phones; the credit stays. */
+  .site-footer .footer-links {
+    display: none;
+  }
+}
+
+/* The menu: a list of big, easy rows. */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu-item:hover,
+.menu-item:active {
+  background: var(--panel);
+}
+
+.menu-item .nav-badge {
+  position: static;
+  margin-left: var(--space-2);
+}
+
+.menu-log-out {
+  color: var(--error);
+}
+
+.menu-divider {
+  width: 100%;
+  margin: var(--space-1) 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* Phones turned sideways: the screen is short, so the bar is slimmer
+   and the icon sits beside its word. */
+@media (max-height: 500px) and (pointer: coarse) {
+  :root {
+    --bottom-bar-height: 48px;
+  }
+
+  .tab-button {
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+
+  .tab-button .nav-badge {
+    top: 2px;
+    right: auto;
+    left: calc(50% - 4px);
+  }
 }

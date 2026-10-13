@@ -91,13 +91,14 @@ function yearsText(birth, death) {
 
 // ---------- The dropdown ----------
 
-(function setUpSearchSuggestions() {
-  const form = document.querySelector(".header-search");
+// Every search box gets the dropdown: the one in the header (computers)
+// and the one on the search page (what phones use, from the bottom bar).
+function setUpSearchSuggestions(form, number) {
   const input = form && form.querySelector("input[name=q]");
   if (!input) return;
 
   const box = el("div", "suggest-box");
-  box.id = "search-suggestions";
+  box.id = "search-suggestions-" + number;
   box.setAttribute("role", "listbox");
   box.setAttribute("aria-label", "Search suggestions");
   box.hidden = true;
@@ -343,4 +344,6 @@ function yearsText(birth, death) {
   window.addEventListener("resize", function () {
     if (!box.hidden) placeBox();
   });
-})();
+}
+
+document.querySelectorAll(".header-search, .search-form").forEach(setUpSearchSuggestions);

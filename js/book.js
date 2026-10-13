@@ -548,6 +548,10 @@ async function deleteLog() {
 
 function setUpLogForm() {
   document.getElementById("log-section").hidden = false;
+  // Came from "Add" (log a book): go straight to the log form.
+  if (window.location.hash === "#log") {
+    document.getElementById("log-section").scrollIntoView({ block: "start" });
+  }
   dateInput.max = todayText(); // no reading dates in the future
   reviewInput.maxLength = MAX_REVIEW_LENGTH;
   setUpStars();
