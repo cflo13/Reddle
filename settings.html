@@ -41,14 +41,14 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=52">
+  <link rel="stylesheet" href="css/style.css?v=53">
 </head>
 <body>
   <header class="site-header">
     <a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Reddle</a>
     <!-- Search box: goes to search.html?q=... -->
     <form class="header-search" action="search.html" role="search">
-      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+      <input name="q" type="search" enterkeyhint="search" placeholder="Search books or people" aria-label="Search books or people">
     </form>
     <!-- Links for everyone -->
     <a class="header-link" href="genres.html">Genres</a>
@@ -76,7 +76,7 @@
         <h2>Username</h2>
         <form id="username-form" class="form">
           <label for="username">Username</label>
-          <input id="username" type="text" autocomplete="username" required minlength="3" maxlength="20">
+          <input id="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" required minlength="3" maxlength="20">
           <p id="username-hint" class="hint">Lowercase letters, numbers and _ only. 3 to 20 characters.</p>
           <p class="hint">Old links to your profile will keep working and lead to your new name.</p>
           <button type="submit" class="button">Change username</button>
@@ -91,7 +91,7 @@
           <p>Your email is <strong id="current-email"></strong>.</p>
           <p id="pending-email" class="hint" hidden></p>
           <label for="email">New email</label>
-          <input id="email" type="email" autocomplete="email" required>
+          <input id="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" enterkeyhint="done" required>
           <p class="hint">We'll send a confirmation link. The change happens once you click it.</p>
           <button type="submit" class="button">Change email</button>
           <p id="email-message" class="status" hidden></p>
@@ -103,10 +103,10 @@
         <h2>Password</h2>
         <form id="password-form" class="form">
           <label for="password">New password</label>
-          <input id="password" type="password" autocomplete="new-password" required minlength="6">
+          <input id="password" type="password" autocomplete="new-password" enterkeyhint="next" required minlength="6">
           <p class="hint">At least 6 characters.</p>
           <label for="password-again">New password again</label>
-          <input id="password-again" type="password" autocomplete="new-password" required minlength="6">
+          <input id="password-again" type="password" autocomplete="new-password" enterkeyhint="done" required minlength="6">
           <button type="submit" class="button">Change password</button>
           <p id="password-message" class="status" hidden></p>
         </form>
@@ -149,7 +149,7 @@
           your posts, comments and likes, your shelves, and who you follow. It can't be undone.</p>
         <form id="delete-form" class="form">
           <label for="delete-confirm">To confirm, type your username: <strong id="delete-username"></strong></label>
-          <input id="delete-confirm" type="text" autocomplete="off" required>
+          <input id="delete-confirm" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" required>
           <button type="submit" class="button button-danger" disabled>Delete my account forever</button>
           <p id="delete-message" class="status" hidden></p>
         </form>
@@ -171,14 +171,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=52"></script>
+  <script src="js/config.js?v=53"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=52"></script>
+  <script src="js/supabase-client.js?v=53"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=52"></script>
+  <script src="js/auth.js?v=53"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=52"></script>
+  <script src="js/search-suggest.js?v=53"></script>
   <!-- This page's own code -->
-  <script src="js/settings.js?v=52"></script>
+  <script src="js/settings.js?v=53"></script>
 </body>
 </html>

@@ -370,6 +370,7 @@ function makePostCard(post) {
 function makeBookPicker(onPick) {
   const box = el("div", "book-picker");
   const input = el("input", "book-picker-input");
+  input.enterKeyHint = "search";
   input.type = "search";
   input.placeholder = "Search for a book";
   input.setAttribute("aria-label", "Search for a book to add");

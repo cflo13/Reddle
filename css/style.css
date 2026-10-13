@@ -762,7 +762,22 @@ input[type="checkbox"] {
   color: var(--border); /* grey stars */
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
   white-space: nowrap;
+  touch-action: pan-y; /* sideways finger slides choose stars; up and down still scrolls */
+}
+
+/* Phones: stars big enough for a thumb, with the words below if needed. */
+@media (max-width: 767px), (pointer: coarse) {
+  .star-input {
+    font-size: 2.75rem;
+    padding: 4px 0;
+  }
+
+  .star-row {
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
 }
 
 /* The green stars, cut off at the chosen rating by their width */
@@ -3388,5 +3403,119 @@ body > main {
     top: 2px;
     right: auto;
     left: calc(50% - 4px);
+  }
+}
+
+
+/* ------------------------------------------------------------
+   Touch: everything you tap is at least 44 x 44 pixels, with room
+   between neighbours. Phones and anything with a touch screen.
+   ------------------------------------------------------------ */
+
+@media (max-width: 767px), (pointer: coarse) {
+  .button,
+  .link-button,
+  .like-button,
+  .genre-choice,
+  .genre-pill,
+  .genre-tag,
+  .feed-tab,
+  .see-all,
+  .shelf-button,
+  .theme-toggle,
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input[type="date"] {
+    min-height: var(--tap);
+  }
+
+  .link-button,
+  .see-all,
+  .genre-tag,
+  .genre-pill {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .link-button {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+
+  .like-button {
+    min-width: var(--tap);
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  /* Names, titles and small links on cards */
+  .log-user,
+  .log-title,
+  .diary-title,
+  .post-time,
+  .comment-name,
+  .person-row-name,
+  .profile-links a,
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+
+  /* The row of actions under a card: the first one lines up with the
+     text, the rest have room between them. */
+  .log-actions,
+  .comment-actions {
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+    margin-left: calc(-1 * var(--space-2));
+  }
+
+  /* Tick boxes: the whole row (box and words) is the tap area. */
+  .check-row {
+    min-height: var(--tap);
+  }
+
+  input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Links inside sentences: invisible extra tap room above and below
+     (padding on a word in a sentence doesn't move the lines). */
+  p a:not([class]),
+  li a:not([class]),
+  label a:not([class]) {
+    padding: 14px 0;
+  }
+
+  .log-title,
+  .diary-title {
+    min-width: var(--tap);
+  }
+
+  /* Text boxes: 16px text, so iPhones don't zoom in when you tap them. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1rem);
+  }
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+  .footer-note a {
+    padding: 16px 0;
+  }
+}
+
+/* Touch screens keep the "hover" look on the last thing touched; in the
+   bar only the page you're on should look chosen. */
+@media (hover: none) {
+  .tab-button:hover:not([aria-current="page"]) {
+    color: var(--muted);
   }
 }

@@ -168,14 +168,15 @@ async function loadLogs() {
 
 
 // ---------- Star rating picker ----------
-// Five stars. Click the left half of a star for a half star, the right
-// half for a whole star. Arrow keys work too.
+// Five stars. Tap or click the left half of a star for a half star, the
+// right half for a whole star. On phones you can also slide a finger
+// along the stars. Arrow keys work too.
 
 const starInput = document.getElementById("star-input");
 const starFill = document.getElementById("star-fill");
 const ratingLabel = document.getElementById("rating-label");
 
-// Colours in the stars up to `rating` (used for hovering and the real value).
+// Colours in the stars up to `rating` (used while choosing and for the real value).
 function paintStars(rating) {
   starFill.style.width = ((rating || 0) / 5) * 100 + "%";
 }
@@ -187,8 +188,8 @@ function setRating(rating) {
   starInput.setAttribute("aria-valuenow", rating || 0);
 }
 
-// Which value the mouse is over: 0.5, 1, 1.5 ... 5
-function ratingAtMouse(event) {
+// Which value the finger or mouse is over: 0.5, 1, 1.5 ... 5
+function ratingAtPointer(event) {
   const box = starInput.getBoundingClientRect();
   const fraction = (event.clientX - box.left) / box.width;
   const value = Math.ceil(fraction * 10) / 2;
@@ -196,9 +197,28 @@ function ratingAtMouse(event) {
 }
 
 function setUpStars() {
-  starInput.addEventListener("mousemove", (event) => paintStars(ratingAtMouse(event)));
-  starInput.addEventListener("mouseleave", () => paintStars(currentRating));
-  starInput.addEventListener("click", (event) => setRating(ratingAtMouse(event)));
+  let choosing = false;
+
+  // Press (finger, pen or mouse): choose straight away, and keep choosing
+  // while the finger slides along the stars.
+  starInput.addEventListener("pointerdown", (event) => {
+    choosing = true;
+    starInput.setPointerCapture(event.pointerId);
+    setRating(ratingAtPointer(event));
+  });
+  starInput.addEventListener("pointermove", (event) => {
+    if (choosing) setRating(ratingAtPointer(event));
+    else if (event.pointerType === "mouse") paintStars(ratingAtPointer(event)); // a preview on hover
+  });
+  const stop = () => {
+    choosing = false;
+    paintStars(currentRating);
+  };
+  starInput.addEventListener("pointerup", stop);
+  starInput.addEventListener("pointercancel", stop); // e.g. the page started scrolling
+  starInput.addEventListener("pointerleave", () => {
+    if (!choosing) paintStars(currentRating);
+  });
 
   starInput.addEventListener("keydown", function (event) {
     if (event.key === "ArrowRight" || event.key === "ArrowUp") {

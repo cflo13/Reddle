@@ -40,14 +40,14 @@
       if (meta) meta.setAttribute("content", light ? "#f5ecd9" : "#1d1714");
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=52">
+  <link rel="stylesheet" href="css/style.css?v=53">
 </head>
 <body>
   <header class="site-header">
     <a class="logo" href="index.html"><img src="favicon.svg" alt="" width="28" height="28">Reddle</a>
     <!-- Search box: goes to search.html?q=... -->
     <form class="header-search" action="search.html" role="search">
-      <input name="q" type="search" placeholder="Search books or people" aria-label="Search books or people">
+      <input name="q" type="search" enterkeyhint="search" placeholder="Search books or people" aria-label="Search books or people">
     </form>
     <!-- Links for everyone -->
     <a class="header-link" href="genres.html">Genres</a>
@@ -70,10 +70,10 @@
 
     <form id="login-form" class="form">
       <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="email" required>
+      <input id="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" enterkeyhint="next" required>
 
       <label for="password">Password</label>
-      <input id="password" type="password" autocomplete="current-password" required>
+      <input id="password" type="password" autocomplete="current-password" enterkeyhint="go" required>
       <p class="hint"><a href="forgot-password.html">Forgot password?</a></p>
 
       <button type="submit" class="button">Log in</button>
@@ -101,14 +101,14 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=52"></script>
+  <script src="js/config.js?v=53"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=52"></script>
+  <script src="js/supabase-client.js?v=53"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=52"></script>
+  <script src="js/auth.js?v=53"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=52"></script>
+  <script src="js/search-suggest.js?v=53"></script>
   <!-- This page's own code -->
-  <script src="js/login.js?v=52"></script>
+  <script src="js/login.js?v=53"></script>
 </body>
 </html>

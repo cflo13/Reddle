@@ -1433,7 +1433,15 @@ function setUpPhoneMenu(profile, loggedIn) {
   const typing = (target) => target && target.matches &&
     target.matches("input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=submit]):not([type=button]), textarea, select, [contenteditable=true]");
   document.addEventListener("focusin", (event) => {
-    if (typing(event.target)) document.documentElement.classList.add("keyboard-open");
+    if (!typing(event.target)) return;
+    document.documentElement.classList.add("keyboard-open");
+    // Once the keyboard is up, make sure the box isn't hidden behind it.
+    const box = event.target;
+    setTimeout(() => {
+      const visible = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const rect = box.getBoundingClientRect();
+      if (rect.bottom > visible - 16 || rect.top < 0) box.scrollIntoView({ block: "center" });
+    }, 350);
   });
   document.addEventListener("focusout", () => {
     // Wait a moment: focus may be moving to the next box.
@@ -1442,6 +1450,20 @@ function setUpPhoneMenu(profile, loggedIn) {
     }, 100);
   });
 })();
+
+// Text boxes (reviews, comments, posts, feedback) grow as you type, up
+// to half the screen, so what you've written stays in view.
+function growTextarea(box) {
+  box.style.height = "auto";
+  const most = Math.max(120, Math.round(window.innerHeight * 0.5));
+  box.style.height = Math.min(box.scrollHeight + 2, most) + "px";
+}
+document.addEventListener("input", (event) => {
+  if (event.target.tagName === "TEXTAREA") growTextarea(event.target);
+});
+document.addEventListener("focusin", (event) => {
+  if (event.target.tagName === "TEXTAREA" && event.target.value) growTextarea(event.target);
+});
 
 // Start straight away. Page scripts use `await authReady`.
 const authReady = setupHeader().catch(function (error) {
