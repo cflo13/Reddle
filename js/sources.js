@@ -409,8 +409,8 @@ async function fetchGoogleDescription(externalId) {
 // The search box and the search page: books of the current universe.
 // Books: Open Library. Comics and manga: Open Library and Google Books,
 // taking turns, without repeats.
-async function searchUniverseBooks(query, limit, signal) {
-  const universe = currentUniverse();
+async function searchUniverseBooks(query, limit, signal, universe) {
+  universe = universe || currentUniverse();
   if (universe === "books") return searchOpenLibraryIn(query, "books", limit, { signal: signal });
   const [open, google] = await Promise.allSettled([
     searchOpenLibraryIn(query, universe, limit, { signal: signal }),

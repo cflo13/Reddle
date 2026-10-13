@@ -20,7 +20,7 @@ const COMMENT_MAX = 500;
 const POST_PICTURE_MAX_BYTES = 5 * 1024 * 1024;
 const POST_PICTURE_SIZE = 1600; // longest side after resizing, in pixels
 const POST_FIELDS =
-  "id, user_id, body, book_id, image_url, prompt_id, created_at, " +
+  "id, user_id, body, book_id, image_url, prompt_id, universe, created_at, " +
   "profiles!posts_user_id_fkey(username, avatar_url), " +
   "books!posts_book_id_fkey(id, external_id, title, author, cover_url), " +
   "weekly_prompts!posts_prompt_id_fkey(id, question)";
@@ -366,7 +366,10 @@ function makePostCard(post) {
 
 // A search box with up to 6 results; clicking one calls onPick(book)
 // with { externalId, title, author, coverUrl, isbns }.
-function makeBookPicker(onPick) {
+// options.universe(): which universe to search (default: the current one;
+// the admin page picks one in a dropdown).
+function makeBookPicker(onPick, options) {
+  const pickerOptions = options || {};
   const box = el("div", "book-picker");
   const input = el("input", "book-picker-input");
   input.enterKeyHint = "search";
@@ -388,7 +391,8 @@ function makeBookPicker(onPick) {
       results.textContent = "";
       results.appendChild(el("p", "muted", "Searching..."));
       try {
-        const books = (await searchBooks(words)).slice(0, 6);
+        const universe = pickerOptions.universe ? pickerOptions.universe() : currentUniverse();
+        const books = (await searchUniverseBooks(words, 6, null, universe)).slice(0, 6);
         if (mine !== searchNumber) return;
         results.textContent = "";
         if (books.length === 0) results.appendChild(el("p", "muted", "No books found."));
@@ -543,7 +547,8 @@ function makePostComposer(options) {
     problem("");
     let uploaded = null;
     try {
-      const row = { user_id: currentUserId, body: text };
+      // Posts belong to the universe you're in (or the question's).
+      const row = { user_id: currentUserId, body: text, universe: settings.universe || currentUniverse() };
       if (settings.promptId) row.prompt_id = settings.promptId;
       if (pickedBook) row.book_id = (await savePickedBook(pickedBook)).id;
       if (pickedFile) {
@@ -655,11 +660,14 @@ function makeEmptyState(text) {
 // Both are chosen by the admin on the admin page; the newest one is
 // "this week's". Book of the week has its own comment thread ("pick").
 
-const PICK_FIELDS = "id, note, created_at, books!book_picks_book_id_fkey(id, external_id, title, author, cover_url, isbn)";
-const PROMPT_FIELDS = "id, question, created_at";
+const PICK_FIELDS = "id, note, universe, created_at, books!book_picks_book_id_fkey(id, external_id, title, author, cover_url, isbn)";
+const PROMPT_FIELDS = "id, question, universe, created_at";
 
+// The newest of each in the current universe (the admin picks the
+// universe for each one).
 async function fetchLatestPick() {
   const { data, error } = await db.from("book_picks").select(PICK_FIELDS)
+    .eq("universe", currentUniverse())
     .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1);
   if (error) throw error;
   return data[0] || null;
@@ -667,6 +675,7 @@ async function fetchLatestPick() {
 
 async function fetchLatestPrompt() {
   const { data, error } = await db.from("weekly_prompts").select(PROMPT_FIELDS)
+    .eq("universe", currentUniverse())
     .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1);
   if (error) throw error;
   return data[0] || null;
@@ -677,6 +686,11 @@ function weekOf(dateText) {
   const date = new Date(dateText);
   const sameYear = date.getFullYear() === new Date().getFullYear();
   return date.toLocaleDateString(undefined, sameYear ? { day: "numeric", month: "long" } : { day: "numeric", month: "long", year: "numeric" });
+}
+
+// "Book of the week", "Comic of the week" or "Manga of the week".
+function pickName(universe) {
+  return { books: "Book", comics: "Comic", manga: "Manga" }[universe || currentUniverse()] + " of the week";
 }
 
 // A Book of the week: cover, title, the admin's note, a link to the
@@ -697,7 +711,7 @@ function makePickCard(pick, options) {
 
   const text = el("div", "pick-text");
   const head = el("div", "pick-head"); // beside the cover, even on phones
-  head.appendChild(el("p", "pick-label", (settings.label || "Book of the week") + " · " + weekOf(pick.created_at)));
+  head.appendChild(el("p", "pick-label", (settings.label || pickName(pick.universe)) + " · " + weekOf(pick.created_at)));
   const title = el("h2", "pick-title");
   const titleLink = el("a", "", book.title);
   titleLink.href = bookLink(book.external_id);
@@ -738,6 +752,7 @@ function makePromptCard(prompt, options) {
   if (currentUserId) {
     box.appendChild(makePostComposer({
       promptId: prompt.id,
+      universe: prompt.universe, // answers belong to the question's universe
       placeholder: "Your answer...",
       onPosted: settings.onPosted,
     }));

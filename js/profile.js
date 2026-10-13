@@ -430,7 +430,7 @@ async function loadProfileLogs() {
       } else {
         // books!inner: only logs whose book is in that universe.
         query = onlyThisUniverse(
-          query.select(LOG_FIELDS.replace("books(external_id, title, author, cover_url)", "books!inner(external_id, title, author, cover_url, genres)")),
+          query.select(logFieldsWithGenres()),
           "books.genres",
           universe
         );

@@ -612,6 +612,13 @@ const LOG_FIELDS =
   "profiles!logs_user_id_fkey(username, avatar_url), " +
   "books(external_id, title, author, cover_url)";
 
+// LOG_FIELDS with the book's genres, joined with books!inner so a
+// "books.genres" filter (onlyThisUniverse) leaves out logs of books
+// from other universes.
+function logFieldsWithGenres(fields) {
+  return (fields || LOG_FIELDS).replace("books(external_id, title, author, cover_url)", "books!inner(external_id, title, author, cover_url, genres)");
+}
+
 // "Read 3 times" (a reread count of 2 means three reads in total).
 function rereadText(rereadCount) {
   return "\u21bb Read " + (rereadCount + 1) + " times";

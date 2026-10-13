@@ -48,7 +48,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=59">
+  <link rel="stylesheet" href="css/style.css?v=60">
 </head>
 <body>
   <header class="site-header">
@@ -101,8 +101,14 @@
       <div id="content-reports" class="report-list"></div>
 
       <h2>Book of the week</h2>
-      <p class="hint">Choose a book and write a short note. The newest pick shows at the top of the home page, with its own discussion, and on the Books of the week page.</p>
+      <p class="hint">Choose a universe and a book, and write a short note. The newest pick of each universe shows at the top of that universe's home page, with its own discussion, and on the Books of the week page.</p>
       <form id="pick-form" class="card form admin-form">
+        <label for="pick-universe">Universe</label>
+        <select id="pick-universe">
+          <option value="books">Books</option>
+          <option value="comics">Comics</option>
+          <option value="manga">Manga</option>
+        </select>
         <div id="pick-picker"></div>
         <p id="pick-chosen" class="muted">No book chosen yet.</p>
         <label for="pick-note">Note (optional, up to 600 characters)</label>
@@ -112,8 +118,14 @@
       <div id="pick-list" class="report-list"></div>
 
       <h2>Question of the week</h2>
-      <p class="hint">The newest question shows above the feed with an answer box. Answers are posts, shown on the question's page.</p>
+      <p class="hint">The newest question of each universe shows above that universe's feed with an answer box. Answers are posts, shown on the question's page.</p>
       <form id="prompt-form" class="card form admin-form">
+        <label for="prompt-universe">Universe</label>
+        <select id="prompt-universe">
+          <option value="books">Books</option>
+          <option value="comics">Comics</option>
+          <option value="manga">Manga</option>
+        </select>
         <label for="prompt-question">Question (3 to 200 characters)</label>
         <input id="prompt-question" type="text" minlength="3" maxlength="200" placeholder="What book would you take to a desert island?" required>
         <p><button type="submit" class="button">Set this week's question</button></p>
@@ -164,22 +176,22 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=59"></script>
+  <script src="js/config.js?v=60"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=59"></script>
+  <script src="js/supabase-client.js?v=60"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=59"></script>
+  <script src="js/auth.js?v=60"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=59"></script>
+  <script src="js/sources.js?v=60"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=59"></script>
+  <script src="js/search-suggest.js?v=60"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=59"></script>
+  <script src="js/books.js?v=60"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=59"></script>
+  <script src="js/share-card.js?v=60"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=59"></script>
+  <script src="js/social.js?v=60"></script>
   <!-- This page's own code -->
-  <script src="js/admin.js?v=59"></script>
+  <script src="js/admin.js?v=60"></script>
 </body>
 </html>

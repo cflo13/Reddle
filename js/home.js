@@ -464,11 +464,17 @@ function rememberedTab() {
 
 // One kind of thing for showMixedFeed (js/social.js): logs or posts,
 // newest first, older than `before`.
+// Only this universe: logs of its books, posts made in it.
+function inThisUniverseFeed(table, query) {
+  return table === "logs" ? onlyThisUniverse(query, "books.genres") : query.eq("universe", currentUniverse());
+}
+
 function feedSource(table, select, narrow) {
+  if (table === "logs") select = logFieldsWithGenres(select);
   return {
     kind: table === "logs" ? "log" : "post",
     fetch: function (before, count) {
-      let query = withoutMuted(db.from(table).select(select));
+      let query = inThisUniverseFeed(table, withoutMuted(db.from(table).select(select)));
       query = narrow(query);
       if (before) query = query.lt("created_at", before);
       return query.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(count);
@@ -498,9 +504,9 @@ function discoverSources() {
 async function showPopularThisWeekFeed() {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const [logs, posts] = await Promise.all([
-    withoutMuted(db.from("logs").select(LOG_FIELDS)).not("review", "is", null).gte("created_at", since)
+    inThisUniverseFeed("logs", withoutMuted(db.from("logs").select(logFieldsWithGenres()))).not("review", "is", null).gte("created_at", since)
       .order("created_at", { ascending: false }).limit(150),
-    withoutMuted(db.from("posts").select(POST_FIELDS)).gte("created_at", since)
+    inThisUniverseFeed("posts", withoutMuted(db.from("posts").select(POST_FIELDS))).gte("created_at", since)
       .order("created_at", { ascending: false }).limit(150),
   ]);
   if (logs.error) throw logs.error;

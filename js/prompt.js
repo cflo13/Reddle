@@ -17,6 +17,7 @@ function promptProblem(text) {
 
 async function showEarlierPrompts(currentId) {
   const { data } = await db.from("weekly_prompts").select(PROMPT_FIELDS)
+    .eq("universe", currentUniverse())
     .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(30);
   const others = (data || []).filter((prompt) => prompt.id !== currentId);
   if (others.length === 0) return;
@@ -49,6 +50,11 @@ async function showEarlierPrompts(currentId) {
     return promptProblem(friendlyError(error, "Couldn't load the question. "));
   }
   if (!prompt) return promptProblem(id ? "This question doesn't exist." : "There's no question this week yet. Check back soon.");
+  // A link to a question from another universe switches to it.
+  if (prompt.universe && prompt.universe !== currentUniverse()) {
+    showUniverse(prompt.universe);
+    showSearchPlaceholders();
+  }
 
   setPageInfo(prompt.question + " · Reddle", "Answers from Reddle readers: " + prompt.question);
   promptTop.textContent = "";

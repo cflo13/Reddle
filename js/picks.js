@@ -14,6 +14,7 @@ async function showMorePicks() {
   morePicks.disabled = true;
   // One extra row tells us whether there are more.
   const { data, error } = await db.from("book_picks").select(PICK_FIELDS)
+    .eq("universe", currentUniverse()) // this universe's picks
     .order("created_at", { ascending: false }).order("id", { ascending: false })
     .range(picksShown, picksShown + PICKS_PAGE);
   morePicks.disabled = false;
@@ -24,10 +25,10 @@ async function showMorePicks() {
   }
   const page = data.slice(0, PICKS_PAGE).filter((pick) => pick.books);
   if (picksShown === 0 && page.length === 0) {
-    picksList.appendChild(makeEmptyState("No Book of the week yet. Check back soon."));
+    picksList.appendChild(makeEmptyState("No " + pickName() + " yet. Check back soon."));
   }
   page.forEach(function (pick, index) {
-    const label = picksShown === 0 && index === 0 ? "This week's book" : "Book of the week";
+    const label = picksShown === 0 && index === 0 ? "This week's " + { books: "book", comics: "comic", manga: "manga" }[currentUniverse()] : pickName();
     picksList.appendChild(makePickCard(pick, { label: label }));
   });
   picksShown += PICKS_PAGE;
@@ -38,6 +39,13 @@ async function showMorePicks() {
 morePicks.addEventListener("click", showMorePicks);
 
 (async function () {
+  // "Comics of the week" / "Manga of the week" in those universes.
+  const universe = currentUniverse();
+  if (universe !== "books") {
+    const title = universe === "comics" ? "Comics of the week" : "Manga of the week";
+    document.getElementById("picks-title").textContent = title;
+    setPageInfo(title + " \u00b7 Reddle", "Every " + pickName() + " chosen for Reddle readers, with notes and discussion.");
+  }
   await authReady;
   if (!db) return;
   await showMorePicks();

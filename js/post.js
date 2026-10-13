@@ -23,6 +23,11 @@
     box.appendChild(makeEmptyState("This post isn't here. It may have been deleted, or it's from a private profile."));
     return;
   }
+  // A post from another universe switches to it (the Back button still works).
+  if (post.universe && post.universe !== currentUniverse()) {
+    showUniverse(post.universe);
+    showSearchPlaceholders();
+  }
   const name = post.profiles ? "@" + post.profiles.username : "A reader";
   setPageInfo(name + " on Reddle", post.body);
   const card = makePostCard(post);

@@ -4025,6 +4025,18 @@ summary,
   cursor: default;
 }
 
+/* Admin page: which universe a pick or question is for */
+.admin-universe {
+  display: inline-block;
+  margin-right: var(--space-2);
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 /* Book page: "View on Google Books" (Google Books books only) */
 .book-source {
   margin: 0;

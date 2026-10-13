@@ -390,7 +390,7 @@ async function loadPicks() {
     const text = el("p", "");
     const link = el("a", "", pick.books ? pick.books.title : "(book removed)");
     if (pick.books) link.href = bookLink(pick.books.external_id);
-    text.append(index === 0 ? "Now: " : "", link, el("span", "muted", " · " + weekOf(pick.created_at)));
+    text.append(universeTag(pick.universe), link, el("span", "muted", " · " + weekOf(pick.created_at)));
     row.append(text, actionButton("Delete", "button-secondary", async function () {
       if (!window.confirm("Delete this pick and its discussion?")) return;
       const { error } = await db.from("book_picks").delete().eq("id", pick.id);
@@ -402,11 +402,23 @@ async function loadPicks() {
   });
 }
 
+// "Books", "Comics" or "Manga" in front of a pick or question.
+function universeTag(universe) {
+  return el("span", "admin-universe", UNIVERSES[universe || "books"].name);
+}
+
 function setUpPickForm() {
   const chosen = document.getElementById("pick-chosen");
+  const universeSelect = document.getElementById("pick-universe");
+  universeSelect.value = currentUniverse();
+  // The search looks in the chosen universe; changing it starts over.
   const picker = makeBookPicker(function (book) {
     chosenBook = book;
     chosen.textContent = "Chosen: " + book.title + (book.author ? " by " + book.author : "");
+  }, { universe: () => universeSelect.value });
+  universeSelect.addEventListener("change", function () {
+    chosenBook = null;
+    chosen.textContent = "No book chosen yet.";
   });
   document.getElementById("pick-picker").appendChild(picker.element);
 
@@ -419,9 +431,9 @@ function setUpPickForm() {
     try {
       const book = await savePickedBook(chosenBook);
       const note = document.getElementById("pick-note").value.trim();
-      const { error } = await db.from("book_picks").insert({ book_id: book.id, note: note || null });
+      const { error } = await db.from("book_picks").insert({ book_id: book.id, note: note || null, universe: universeSelect.value });
       if (error) throw error;
-      showStatus(adminMessage, "ok", book.title + " is now the Book of the week.");
+      showStatus(adminMessage, "ok", book.title + " is now the " + pickName(universeSelect.value) + ".");
       chosenBook = null;
       chosen.textContent = "No book chosen yet.";
       document.getElementById("pick-note").value = "";
@@ -452,7 +464,7 @@ async function loadPrompts() {
     const text = el("p", "");
     const link = el("a", "", prompt.question);
     link.href = "prompt.html?id=" + prompt.id;
-    text.append(index === 0 ? "Now: " : "", link, el("span", "muted", " · " + weekOf(prompt.created_at)));
+    text.append(universeTag(prompt.universe), link, el("span", "muted", " · " + weekOf(prompt.created_at)));
     row.append(text, actionButton("Delete", "button-secondary", async function () {
       if (!window.confirm("Delete this question? Its answers stay as normal posts.")) return;
       const { error } = await db.from("weekly_prompts").delete().eq("id", prompt.id);
@@ -467,13 +479,15 @@ async function loadPrompts() {
 function setUpPromptForm() {
   const form = document.getElementById("prompt-form");
   const input = document.getElementById("prompt-question");
+  const universeSelect = document.getElementById("prompt-universe");
+  universeSelect.value = currentUniverse();
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const question = input.value.trim();
     if (question.length < 3) return showStatus(adminMessage, "error", "The question needs at least 3 characters.");
-    const { error } = await db.from("weekly_prompts").insert({ question: question });
+    const { error } = await db.from("weekly_prompts").insert({ question: question, universe: universeSelect.value });
     if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
-    showStatus(adminMessage, "ok", "This week's question is set.");
+    showStatus(adminMessage, "ok", "This week's " + UNIVERSES[universeSelect.value].name + " question is set.");
     input.value = "";
     loadPrompts();
   });
