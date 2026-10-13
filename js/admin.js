@@ -1,5 +1,6 @@
 // ------------------------------------------------------------
 // Admin page: see reports, remove reviews or users, or dismiss.
+// Also reads the feedback people sent (and can delete it).
 // ------------------------------------------------------------
 // Only admins can open it (the `admins` table). The database checks
 // this too, so nobody else can read reports even if they open this page.
@@ -134,6 +135,56 @@ async function loadReports() {
 }
 
 
+// ---------- Feedback ----------
+
+const feedbackList = document.getElementById("feedback-list");
+
+async function deleteFeedback(id) {
+  if (!window.confirm("Delete this message?")) return;
+  const { error } = await db.from("feedback").delete().eq("id", id);
+  if (error) {
+    showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+    return;
+  }
+  showStatus(adminMessage, "ok", "Message deleted.");
+  await loadFeedback();
+}
+
+function makeFeedbackCard(item) {
+  const card = el("article", "card report-card");
+  const top = el("p", "muted");
+  top.append(
+    "From ",
+    item.profiles ? userLink(item.profiles.username) : "a deleted user",
+    " on " + new Date(item.created_at).toLocaleString(),
+    item.page ? " \u00b7 sent from " + item.page : ""
+  );
+  card.append(top, el("p", "log-review", item.message));
+  const buttons = el("div", "report-buttons");
+  buttons.appendChild(actionButton("Delete", "button-secondary", () => deleteFeedback(item.id)));
+  card.appendChild(buttons);
+  return card;
+}
+
+async function loadFeedback() {
+  const { data, error } = await db
+    .from("feedback")
+    .select("id, message, page, created_at, profiles(username)")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  feedbackList.textContent = "";
+  if (error) {
+    feedbackList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load feedback. ")));
+    return;
+  }
+  if (data.length === 0) {
+    feedbackList.appendChild(el("p", "muted", "No feedback yet."));
+    return;
+  }
+  for (const item of data) feedbackList.appendChild(makeFeedbackCard(item));
+}
+
+
 // ---------- Start ----------
 
 (async function () {
@@ -149,5 +200,5 @@ async function loadReports() {
   }
   status.hidden = true;
   document.getElementById("admin-area").hidden = false;
-  await loadReports();
+  await Promise.all([loadReports(), loadFeedback()]);
 })();

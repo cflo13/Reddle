@@ -21,6 +21,7 @@
   --want: #e2b23a;            /* "want to read" outline */
   --shadow: rgba(0, 0, 0, 0.4);
   --shimmer: rgba(255, 255, 255, 0.06);
+  --skeleton: #1f262d;        /* loading boxes */
   --radius: 8px;
 }
 
@@ -40,6 +41,7 @@
   --want: #b7791f;
   --shadow: rgba(59, 42, 31, 0.18);
   --shimmer: rgba(255, 255, 255, 0.55);
+  --skeleton: #e9dcc0;
 }
 
 * {
@@ -1383,20 +1385,121 @@ body > main {
 }
 
 /* Grey book shapes while a row loads */
+/* ---------- Loading placeholders (grey shimmer boxes) ---------- */
+
+.skeleton,
 .tile-placeholder {
-  height: 168px;
+  display: block;
   border-radius: 4px;
-  background: var(--surface);
-  animation: placeholder-pulse 1.4s ease-in-out infinite;
+  background-color: var(--skeleton);
+  background-image: linear-gradient(90deg, transparent 0, var(--shimmer) 50%, transparent 100%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s linear infinite;
 }
 
-@keyframes placeholder-pulse {
-  50% { opacity: 0.5; }
+@keyframes shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .skeleton,
   .tile-placeholder {
     animation: none;
+  }
+}
+
+.tile-placeholder {
+  height: 168px;
+}
+
+.sk-lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sk-line {
+  height: 12px;
+  width: 100%;
+}
+
+.sk-short {
+  width: 45%;
+}
+
+.sk-title {
+  height: 28px;
+  width: 60%;
+}
+
+.sk-cover {
+  width: 60px;
+  height: 90px;
+  flex-shrink: 0;
+}
+
+.sk-avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sk-book {
+  width: 200px;
+  height: 300px;
+  flex-shrink: 0;
+}
+
+.sk-tile {
+  aspect-ratio: 2 / 3;
+}
+
+.skeleton-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-log {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--surface);
+}
+
+.skeleton-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.skeleton-profile {
+  align-items: center;
+}
+
+/* Tile grids: the boxes take the grid's columns */
+.skeleton-tiles {
+  display: contents;
+}
+
+@media (max-width: 600px) {
+  .skeleton-top {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .skeleton-top .sk-lines {
+    width: 100%;
+  }
+
+  .sk-book {
+    width: 160px;
+    height: 240px;
   }
 }
 
@@ -1647,4 +1750,56 @@ body > main {
   .site-nav .button {
     padding: 6px 12px;
   }
+}
+
+/* ---------- Pop-up boxes (Feedback, Invite friends) ---------- */
+
+.dialog {
+  width: min(480px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-box {
+  padding: 16px 20px 20px;
+}
+
+.dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-head h2 {
+  margin: 0;
+}
+
+.dialog-close {
+  font-size: 1.6rem;
+  line-height: 1;
+  padding: 4px 8px;
+}
+
+.invite-text {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.footer-links .link-button {
+  font-size: inherit;
 }

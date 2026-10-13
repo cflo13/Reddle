@@ -622,7 +622,7 @@ const PAGE_SIZE = 20;
 //   (from, to) => db.from("logs").select(LOG_FIELDS).eq(...).order(...).range(from, to)
 // We ask for one extra row each time; if it comes back, there's more.
 async function showPagedLogs(container, makeQuery, options, emptyText) {
-  container.textContent = "";
+  // The grey loading boxes stay until the first page arrives.
   let shown = 0;
 
   const moreButton = el("button", "button button-secondary load-more", "Load more");
@@ -634,6 +634,7 @@ async function showPagedLogs(container, makeQuery, options, emptyText) {
 
     const { data, error } = await makeQuery(shown, shown + PAGE_SIZE);
     moreButton.remove();
+    if (shown === 0) container.textContent = ""; // first page: clear the loading boxes
 
     if (error) {
       const problem = el("p", "status status-error", friendlyError(error, "Couldn't load these. "));

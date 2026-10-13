@@ -96,6 +96,14 @@ async function loadPage() {
   useCleanAddress(profileLink(profile.username));
 
   const isMe = myProfile && myProfile.id === profile.id;
+  const actions = document.getElementById("profile-report");
+  actions.appendChild(makeShareButton("@" + profile.username + " on Reddle", "See what @" + profile.username + " is reading on Reddle", profileLink(profile.username)));
+  if (isMe) {
+    const invite = el("button", "link-button", "Invite friends");
+    invite.type = "button";
+    invite.addEventListener("click", () => openInviteDialog(profile));
+    actions.appendChild(invite);
+  }
   if (isMe) {
     // Your own profile: show the edit section.
     setUpEditing();
@@ -104,7 +112,7 @@ async function loadPage() {
     // and a Report button.
     await setUpFollowButton(myProfile);
     const report = makeReportButton("user", profile.id, profile.id);
-    if (report) document.getElementById("profile-report").appendChild(report);
+    if (report) actions.appendChild(report);
   } else {
     // Logged out: invite them to log in to follow.
     document.getElementById("follow-login").hidden = false;

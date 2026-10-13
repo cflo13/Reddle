@@ -393,6 +393,163 @@ async function signInWithGoogle(showMessage) {
 }
 
 
+// ---------- Share, invite and feedback ----------
+
+// The full web address of one of our links, like "u/maria".
+function fullAddress(link) {
+  return new URL(link, document.baseURI).href;
+}
+
+// Copies text, or asks the browser to show it for copying by hand.
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (error) {
+    window.prompt("Copy this:", text);
+    return false;
+  }
+}
+
+// Shares with the phone's share sheet when there is one, otherwise
+// copies the link. `button` briefly says what happened.
+async function shareLink(button, title, text, url) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: title, text: text, url: url });
+      return;
+    } catch (error) {
+      if (error.name === "AbortError") return; // they closed the share sheet
+    }
+  }
+  if (await copyText(url)) flashButtonText(button, "Link copied!");
+}
+
+function flashButtonText(button, text) {
+  const before = button.dataset.label || button.textContent;
+  button.dataset.label = before;
+  button.textContent = text;
+  setTimeout(() => (button.textContent = before), 2000);
+}
+
+// A small "Share" button for a profile or a book page.
+function makeShareButton(title, text, link) {
+  const button = el("button", "link-button share-button", "Share");
+  button.type = "button";
+  button.addEventListener("click", () => shareLink(button, title, text, fullAddress(link)));
+  return button;
+}
+
+// A pop-up box (<dialog>) with a heading. Returns { dialog, body }.
+function makeDialog(title) {
+  const dialog = el("dialog", "dialog");
+  const box = el("div", "dialog-box");
+  const head = el("div", "dialog-head");
+  head.appendChild(el("h2", "", title));
+  const close = el("button", "link-button dialog-close", "\u00d7");
+  close.type = "button";
+  close.setAttribute("aria-label", "Close");
+  close.addEventListener("click", () => dialog.close());
+  head.appendChild(close);
+  box.appendChild(head);
+  const body = el("div", "dialog-body");
+  box.appendChild(body);
+  dialog.appendChild(box);
+  // Clicking the dark area around the box closes it.
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  document.body.appendChild(dialog);
+  return { dialog: dialog, body: body };
+}
+
+// "Invite friends": a ready-to-send message with Share and Copy buttons.
+function openInviteDialog(profile) {
+  const { dialog, body } = makeDialog("Invite friends");
+  const message =
+    "I'm using Reddle to keep track of the books I read. Come and join me, and follow me (@" +
+    profile.username + "): " + fullAddress(profileLink(profile.username));
+  body.appendChild(el("p", "muted", "Send this to your friends. You can change the words first."));
+  const text = el("textarea", "invite-text");
+  text.rows = 4;
+  text.value = message;
+  body.appendChild(text);
+  const buttons = el("div", "form-buttons");
+  if (navigator.share) {
+    const share = el("button", "button", "Share");
+    share.type = "button";
+    share.addEventListener("click", () => navigator.share({ title: "Join me on Reddle", text: text.value }).catch(() => {}));
+    buttons.appendChild(share);
+  }
+  const copy = el("button", navigator.share ? "button button-secondary" : "button", "Copy message");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    if (await copyText(text.value)) flashButtonText(copy, "Copied!");
+  });
+  buttons.appendChild(copy);
+  body.appendChild(buttons);
+  dialog.addEventListener("close", () => dialog.remove());
+  dialog.showModal();
+}
+
+// "Feedback": a message to the site owner (saved in the feedback table,
+// supabase/step16-feedback.sql; only admins can read it).
+const FEEDBACK_MAX = 2000;
+
+function openFeedbackDialog() {
+  const { dialog, body } = makeDialog("Send feedback");
+  const form = el("form", "form");
+  const label = el("label", "", "Ideas, problems, anything. Only the site owner reads these.");
+  label.htmlFor = "feedback-text";
+  const text = el("textarea", "");
+  text.id = "feedback-text";
+  text.rows = 6;
+  text.maxLength = FEEDBACK_MAX;
+  text.required = true;
+  const counter = el("p", "hint", "0 / " + FEEDBACK_MAX);
+  text.addEventListener("input", () => (counter.textContent = text.value.length + " / " + FEEDBACK_MAX));
+  const send = el("button", "button", "Send");
+  send.type = "submit";
+  const message = el("p", "status");
+  message.hidden = true;
+  form.append(label, text, counter, send, message);
+  body.appendChild(form);
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const words = text.value.trim();
+    if (!words) return showStatus(message, "error", "Please write something first.");
+    send.disabled = true;
+    const page = (window.location.pathname + window.location.search).slice(0, 300);
+    const { error } = await db.from("feedback").insert({ message: words, page: page });
+    send.disabled = false;
+    if (error) {
+      showStatus(message, "error", friendlyError(error, "Couldn't send it. "));
+      return;
+    }
+    text.value = "";
+    showStatus(message, "ok", "Thank you! Your message was sent.");
+    setTimeout(() => dialog.close(), 1500);
+  });
+  dialog.addEventListener("close", () => dialog.remove());
+  dialog.showModal();
+  text.focus();
+}
+
+// Logged in: Feedback and Invite friends links in the footer.
+function addFooterExtras(profile) {
+  const links = document.querySelector(".footer-links");
+  if (!links || links.querySelector(".footer-feedback")) return;
+  const feedback = el("button", "link-button footer-feedback", "Feedback");
+  feedback.type = "button";
+  feedback.addEventListener("click", openFeedbackDialog);
+  const invite = el("button", "link-button", "Invite friends");
+  invite.type = "button";
+  invite.addEventListener("click", () => openInviteDialog(profile));
+  links.append(feedback, invite);
+}
+
+
 // ---------- Day and night mode ----------
 //
 // The little script at the top of every page already set data-theme on
@@ -688,6 +845,7 @@ async function setupHeader() {
 
   nav.textContent = "";
   nav.append(...buttons);
+  addFooterExtras(profile);
 
   // Google sign in and email confirmation links land on the home page.
   // If they started logging in from another page, go back there.

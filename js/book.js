@@ -59,6 +59,10 @@ function showBook(book) {
   description.textContent = book.description || "No description available.";
   description.classList.toggle("muted", !book.description);
 
+  const share = document.getElementById("book-share");
+  share.textContent = "";
+  share.appendChild(makeShareButton(book.title + " · Reddle", book.title + (book.author ? " by " + book.author : "") + " on Reddle", bookLink(book.external_id)));
+
   document.getElementById("loading").hidden = true;
   document.getElementById("book").hidden = false;
 }
