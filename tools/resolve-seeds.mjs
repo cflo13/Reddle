@@ -70,7 +70,7 @@ async function search(params) {
 }
 
 // Books about a series rather than the series itself.
-const SPIN_OFF = /\b(anime|animanga|cinemanga|profiles?|guide|guidebook|companion|art of|artbook|art book|kitchen|cook ?book|abridged|coloring|colouring|sticker|friends and foes|thank you|making of|novel|novelization|film|movie)\b/;
+const SPIN_OFF = /\b(anime|animanga|ani manga|cinemanga|profiles?|guide|guidebook|companion|art of|artbook|art book|kitchen|cook ?book|abridged|coloring|colouring|sticker|friends and foes|thank you|making of|novel|novelization|film|movie)\b/;
 
 // How good a match is: higher is better. The exact title (or volume 1)
 // beats a later volume; a spin-off is never picked.
