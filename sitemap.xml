@@ -2,6 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://reddle.org/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>https://reddle.org/popular.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://reddle.org/picks.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://reddle.org/prompt.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genres.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://reddle.org/genre.html?g=fantasy</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=science_fiction</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -19,7 +21,6 @@
   <url><loc>https://reddle.org/genre.html?g=humour</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=short_stories</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=poetry</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://reddle.org/genre.html?g=graphic_novels</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=biography</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=history</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=science</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
@@ -33,6 +34,10 @@
   <url><loc>https://reddle.org/genre.html?g=religion</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=politics</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genre.html?g=art</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://reddle.org/genre.html?g=comics</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://reddle.org/genre.html?g=manga</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://reddle.org/book.html?id=OL17712035W</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://reddle.org/book.html?id=OL11886W</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
   <url><loc>https://reddle.org/about.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
   <url><loc>https://reddle.org/privacy.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://reddle.org/terms.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
