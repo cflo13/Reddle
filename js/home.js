@@ -412,6 +412,50 @@ function bookToScreenCandidates() {
   });
 }
 
+// 4c. Reading news: the 5 newest headlines from other sites for this
+//     universe (js/news-data.js), as cards linking to the original
+//     articles. Loads when you scroll near it; hidden when there's none.
+const HOME_NEWS = 5;
+
+function addNewsRow() {
+  const section = el("section", "home-row home-news");
+  const head = el("div", "row-head");
+  const title = el("h2", "row-title");
+  const titleLink = el("a", "", "Reading news");
+  titleLink.href = "news.html";
+  title.appendChild(titleLink);
+  head.appendChild(title);
+  const tools = el("div", "row-tools");
+  const seeAll = el("a", "see-all", "See all");
+  seeAll.href = "news.html";
+  tools.appendChild(seeAll);
+  head.appendChild(tools);
+  section.appendChild(head);
+  const list = el("ul", "news-list news-list-compact");
+  for (let i = 0; i < 3; i++) list.appendChild(el("li", "news-placeholder"));
+  section.appendChild(list);
+  rowsBox.appendChild(section);
+
+  whenNearScreen(section, async function () {
+    try {
+      const data = await loadNews();
+      const items = newsForUniverse(data).slice(0, HOME_NEWS);
+      list.textContent = "";
+      if (items.length === 0) {
+        section.hidden = true;
+        return;
+      }
+      items.forEach(function (item) {
+        const row = el("li", "news-item");
+        row.appendChild(makeNewsCard(item, data.sources));
+        list.appendChild(row);
+      });
+    } catch (error) {
+      section.hidden = true;
+    }
+  });
+}
+
 // 5. Genre buttons (not a row of books).
 function addGenreButtons() {
   const section = el("section", "home-row");
@@ -465,6 +509,7 @@ function buildRows(profile, myBooks, followingIds) {
   addRow({ title: "Popular this week", titleLink: "popular.html", seeAll: "popular.html" }, popularThisWeekCandidates, rows.length >= 2);
   addRow({ title: "New and noteworthy" }, newAndNoteworthyCandidates, rows.length >= 2);
   addRow({ title: "Book to screen", titleLink: "screen.html", seeAll: "screen.html" }, bookToScreenCandidates, rows.length >= 2);
+  addNewsRow();
 
   // 5. Genre buttons
   addGenreButtons();

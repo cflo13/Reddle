@@ -1,13 +1,14 @@
 // ------------------------------------------------------------
 // Book to screen: screen.html
 // ------------------------------------------------------------
-// Two tabs (the choice is in the address: screen.html#best):
+// Three tabs (the choice is in the address: screen.html#best, #news):
 //   Coming soon: films and series from today on, soonest first, each
 //     with the book it's based on (from screen-data/upcoming.json, made
 //     every day from Wikidata; see js/screen-data.js).
 //   Best adaptations: "Our picks" (the admin's list, screen_picks), then
 //     books with a film or series, by their average rating on Reddle
 //     (3 ratings or more).
+//   News: headlines from other sites about this universe (js/news-data.js).
 // Both show only this universe: Comics and Manga only comics and manga
 // sources, Books only books (by the book's genres). 24 at a time with
 // Load more. Text only: no posters, no logos.
@@ -24,17 +25,28 @@ const bestMore = document.getElementById("more-best");
 
 // ---------- Tabs ----------
 
+const SCREEN_TABS = ["soon", "best", "news"];
+
 function showScreenTab(name) {
-  const best = name === "best";
-  document.getElementById("screen-soon").hidden = best;
-  document.getElementById("screen-best").hidden = !best;
-  for (const [id, active] of [["tab-soon", !best], ["tab-best", best]]) {
-    const tab = document.getElementById(id);
-    tab.classList.toggle("feed-tab-active", active);
-    tab.setAttribute("aria-selected", active ? "true" : "false");
+  if (!SCREEN_TABS.includes(name)) name = "soon";
+  for (const tab of SCREEN_TABS) {
+    document.getElementById("screen-" + tab).hidden = tab !== name;
+    const button = document.getElementById("tab-" + tab);
+    button.classList.toggle("feed-tab-active", tab === name);
+    button.setAttribute("aria-selected", tab === name ? "true" : "false");
   }
-  history.replaceState(null, "", best ? "#best" : location.pathname + location.search);
-  if (best) loadBestOnce();
+  history.replaceState(null, "", name === "soon" ? location.pathname + location.search : "#" + name);
+  if (name === "best") loadBestOnce();
+  if (name === "news") loadScreenNewsOnce();
+}
+
+// News: this universe's headlines from other sites (js/news-data.js).
+let screenNewsStarted = false;
+function loadScreenNewsOnce() {
+  if (screenNewsStarted) return;
+  screenNewsStarted = true;
+  showNewsList(document.getElementById("screen-news-list"), document.getElementById("more-screen-news"), SCREEN_PAGE, newsEmptyText())
+    .catch(() => {});
 }
 
 
@@ -249,9 +261,10 @@ async function loadScreenPage() {
   await authReady;
   document.getElementById("tab-soon").addEventListener("click", () => showScreenTab("soon"));
   document.getElementById("tab-best").addEventListener("click", () => showScreenTab("best"));
-  showScreenTab(location.hash === "#best" ? "best" : "soon");
+  document.getElementById("tab-news").addEventListener("click", () => showScreenTab("news"));
+  showScreenTab(location.hash.slice(1));
   // A link to screen.html#best from this page only changes the hash.
-  window.addEventListener("hashchange", () => showScreenTab(location.hash === "#best" ? "best" : "soon"));
+  window.addEventListener("hashchange", () => showScreenTab(location.hash.slice(1)));
   await loadSoon();
 }
 

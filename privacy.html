@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=65";
+        preload.href = "seeds-resolved.json?v=66";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=65">
+  <link rel="stylesheet" href="css/style.css?v=66">
 </head>
 <body>
   <header class="site-header">
@@ -129,6 +129,7 @@
       <li>The website itself is hosted on <a href="https://pages.github.com">GitHub Pages</a>.</li>
       <li>Book details and covers are loaded from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a> (Google Books mostly for comics and manga). Your browser contacts them directly when it shows or searches for a book, so they can see your IP address and what you searched for, like any website you visit. When someone logs a book, we keep its title, author, cover link, ISBN and genres; for Google Books books we don't keep the description (it's loaded from Google each time).</li>
       <li>Film and TV information (the "On screen" lists and the Book to screen page) comes from <a href="https://www.wikidata.org">Wikidata</a>. We copy it to our own site once a day, so your browser never contacts Wikidata. Its titles link to Wikipedia, which only sees you if you open one.</li>
+      <li>Reading news shows headlines from other sites (their names are on each headline). Once a day we copy only the headline, the site's name, the date and the link to our own site; we don't keep their articles. Opening a headline takes you to that site, which then sees your visit like any other. Where a site allows us to show its own small picture next to a headline, your browser loads that picture straight from the site (without telling it which Reddle page you were on), so it can see your IP address.</li>
     </ul>
 
     <h2>What we don't do</h2>
@@ -159,6 +160,7 @@
       <a href="about.html">About</a>
       <a href="picks.html">Books of the week</a>
       <a href="screen.html">Book to screen</a>
+      <a href="news.html">Reading news</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
       <a href="about.html#contact">Contact</a>
@@ -168,21 +170,22 @@
       <span class="u-home"><button class="link-button" type="button" data-go-universe="books">Back to Books</button></span>
     </p>
     <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a>. Film and TV data from <a href="https://www.wikidata.org">Wikidata</a>.</p>
+    <p class="footer-note">Headlines link to their original sites.</p>
   </footer>
 
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=65"></script>
+  <script src="js/config.js?v=66"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=65"></script>
+  <script src="js/supabase-client.js?v=66"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=65"></script>
+  <script src="js/auth.js?v=66"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=65"></script>
+  <script src="js/sources.js?v=66"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=65"></script>
+  <script src="js/search-suggest.js?v=66"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=65"></script>
+  <script src="js/static-page.js?v=66"></script>
 </body>
 </html>
