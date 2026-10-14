@@ -123,6 +123,10 @@ const QUERIES = {
     BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
   workIds: `SELECT DISTINCT ?work ?ol WHERE { ${BASED_ON} ?work wdt:P648 ?ol . }`,
   workTypes: `SELECT DISTINCT ?work ?kind WHERE { ${BASED_ON} ?work wdt:P31 ?kind . }`,
+  // Adult films (never shown): genre is pornographic, hentai, erotic,
+  // pink, softcore or sexploitation film, or a narrower kind of one.
+  adult: `SELECT DISTINCT ?film WHERE { ${ANY_BASED_ON} ?film wdt:P136 ?genre .
+    VALUES ?top { wd:Q185529 wd:Q172067 wd:Q599558 wd:Q1194365 wd:Q2000136 wd:Q2292320 } ?genre wdt:P279* ?top . }`,
   authors: `SELECT DISTINCT ?work ?label ?lang WHERE { ${BASED_ON}
     ?work wdt:P50|wdt:P170 ?author . ?author rdfs:label ?label . BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
 };
@@ -317,6 +321,7 @@ async function main() {
   const articles = new Map(answers.wikipedia
     .filter((row) => /^https:\/\/en\.wikipedia\.org\/wiki\/[^\s"<>]+$/.test(row.article))
     .map((row) => [qid(row.film), row.article]));
+  const adultFilms = new Set(answers.adult.map((row) => qid(row.film)));
   const released = earliestDates(answers.released);
   const started = earliestDates(answers.started);
   const announced = earliestDates(answers.announced);
@@ -373,7 +378,7 @@ async function main() {
     const start = started.get(film.id);
     film.date = date && start && start.date < date.date ? start : date;
     film.article = articles.get(film.id) || null;
-    if (site.looksAdult([film.title])) film.adult = true;
+    if (adultFilms.has(film.id) || site.looksAdult([film.title]) || /\bxxx\b/i.test(film.title)) film.adult = true;
   }
 
   const work = (id) => ({
