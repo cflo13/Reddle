@@ -107,6 +107,7 @@ async function ask(name) {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({ query: QUERIES[name] }),
+        signal: AbortSignal.timeout(75000), // Wikidata stops queries after 60 s anyway
       });
       if (response.ok) {
         const data = await response.json();
@@ -181,7 +182,7 @@ async function openLibrarySearch(params) {
   for (let attempt = 1; attempt <= 2; attempt++) {
     openLibraryRequests++;
     try {
-      const response = await fetch(url, { headers: { "User-Agent": USER_AGENT } });
+      const response = await fetch(url, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(30000) });
       if (response.ok) return (await response.json()).docs || [];
       if (response.status < 500 && response.status !== 429) return [];
     } catch (error) {
