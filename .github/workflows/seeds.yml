@@ -1,0 +1,37 @@
+# Matches the curated comics and manga titles (js/universe-seeds.js) to
+# real Open Library books once a week, and saves them in
+# seeds-resolved.json, so Comics and Manga pages load instantly. Also runs
+# when the owner presses "Run workflow" on GitHub's Actions tab (do that
+# after adding titles). Only commits when the list changed. No secrets.
+name: Resolve seed lists
+
+on:
+  schedule:
+    - cron: "23 5 * * 1"   # every Monday at 05:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seeds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Match the seed titles on Open Library
+        run: node tools/resolve-seeds.mjs
+      - name: Save it if it changed
+        run: |
+          if [ -z "$(git status --porcelain -- seeds-resolved.json)" ]; then
+            echo "No change."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add seeds-resolved.json
+            git commit -m "Refresh resolved seed lists"
+            git pull --rebase
+            git push
+          fi
