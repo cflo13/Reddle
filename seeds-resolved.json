@@ -1,0 +1,2053 @@
+{
+ "made": "2026-10-14",
+ "comics": [
+  {
+   "external_id": "OL2897798W",
+   "title": "Watchmen",
+   "author": "Alan Moore",
+   "cover_url": "https://covers.openlibrary.org/b/id/7774899-M.jpg?default=false",
+   "isbns": [
+    "9788467473278",
+    "6525933358"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "fantasy",
+    "mystery",
+    "classics"
+   ],
+   "seed": "Watchmen"
+  },
+  {
+   "external_id": "OL2056818W",
+   "title": "Maus I",
+   "author": "Art Spiegelman",
+   "cover_url": "https://covers.openlibrary.org/b/id/10210168-M.jpg?default=false",
+   "isbns": [
+    "0140104143",
+    "2080666185"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "history",
+    "biography"
+   ],
+   "seed": "Maus"
+  },
+  {
+   "external_id": "OL5735175W",
+   "title": "Persepolis 1-4",
+   "author": "Marjane Satrapi",
+   "cover_url": "https://covers.openlibrary.org/b/id/12648921-M.jpg?default=false",
+   "isbns": [
+    "9788328102873",
+    "1407070754"
+   ],
+   "genres": [
+    "comics",
+    "biography",
+    "history",
+    "politics",
+    "literary_fiction"
+   ],
+   "seed": "Persepolis"
+  },
+  {
+   "external_id": "OL37844209W",
+   "title": "Saga",
+   "author": "Brian K. Vaughan",
+   "cover_url": null,
+   "isbns": [
+    "9781534315631",
+    "163215286X"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "fantasy"
+   ],
+   "seed": "Saga"
+  },
+  {
+   "external_id": "OL2897797W",
+   "title": "V for Vendetta",
+   "author": "Alan Moore",
+   "cover_url": "https://covers.openlibrary.org/b/id/12293384-M.jpg?default=false",
+   "isbns": [
+    "8417827358",
+    "9781401207922"
+   ],
+   "genres": [
+    "comics",
+    "dystopian",
+    "mystery",
+    "science_fiction",
+    "thriller"
+   ],
+   "seed": "V for Vendetta"
+  },
+  {
+   "external_id": "OL21213336W",
+   "title": "The Sandman - Overture",
+   "author": "Neil Gaiman",
+   "cover_url": "https://covers.openlibrary.org/b/id/9150699-M.jpg?default=false",
+   "isbns": [
+    "1401265197",
+    "1401248969"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "fantasy"
+   ],
+   "seed": "The Sandman"
+  },
+  {
+   "external_id": "OL3577222W",
+   "title": "The Dark Knight returns",
+   "author": "Frank Miller",
+   "cover_url": "https://covers.openlibrary.org/b/id/798170-M.jpg?default=false",
+   "isbns": [
+    "9781563893421",
+    "3741605956"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "young_adult",
+    "children",
+    "adventure",
+    "thriller"
+   ],
+   "seed": "The Dark Knight Returns"
+  },
+  {
+   "external_id": "OL708284W",
+   "title": "Bone",
+   "author": "Jeff Smith",
+   "cover_url": "https://covers.openlibrary.org/b/id/12648382-M.jpg?default=false",
+   "isbns": [
+    "1415528918",
+    "1888963166"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "children",
+    "adventure"
+   ],
+   "seed": "Bone"
+  },
+  {
+   "external_id": "OL5754211W",
+   "title": "Blankets",
+   "author": "Craig Thompson",
+   "cover_url": "https://covers.openlibrary.org/b/id/940324-M.jpg?default=false",
+   "isbns": [
+    "9780613925952",
+    "0613925955"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction",
+    "romance",
+    "biography"
+   ],
+   "seed": "Blankets"
+  },
+  {
+   "external_id": "OL5735251W",
+   "title": "Ghost World",
+   "author": "Daniel Clowes",
+   "cover_url": "https://covers.openlibrary.org/b/id/791370-M.jpg?default=false",
+   "isbns": [
+    "9788478337927",
+    "1560972998"
+   ],
+   "genres": [
+    "comics",
+    "young_adult",
+    "literary_fiction",
+    "humour"
+   ],
+   "seed": "Ghost World"
+  },
+  {
+   "external_id": "OL2841431W",
+   "title": "Jimmy Corrigan",
+   "author": "Chris Ware",
+   "cover_url": "https://covers.openlibrary.org/b/id/873630-M.jpg?default=false",
+   "isbns": [
+    "0375714545",
+    "3938511125"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction"
+   ],
+   "seed": "Jimmy Corrigan"
+  },
+  {
+   "external_id": "OL31466520W",
+   "title": "The Walking Dead",
+   "author": "Robert Kirkman",
+   "cover_url": "https://covers.openlibrary.org/b/id/1944162-M.jpg?default=false",
+   "isbns": [
+    "1607069210",
+    "9781607065401"
+   ],
+   "genres": [
+    "comics",
+    "horror"
+   ],
+   "seed": "The Walking Dead"
+  },
+  {
+   "external_id": "OL16682248W",
+   "title": "Y The Last Man - Deluxe Edition, Book 3",
+   "author": "Brian K. Vaughan",
+   "cover_url": "https://covers.openlibrary.org/b/id/8477465-M.jpg?default=false",
+   "isbns": [
+    "1401225780",
+    "9781401254391"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "dystopian"
+   ],
+   "seed": "Y: The Last Man"
+  },
+  {
+   "external_id": "OL5973391W",
+   "title": "Hellboy",
+   "author": "Mike Mignola",
+   "cover_url": "https://covers.openlibrary.org/b/id/8129289-M.jpg?default=false",
+   "isbns": [
+    "159307896X",
+    "9781593070922"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "fantasy",
+    "mystery",
+    "science_fiction"
+   ],
+   "seed": "Hellboy"
+  },
+  {
+   "external_id": "OL15507248W",
+   "title": "Locke & Key, Vol. 2",
+   "author": "Joe Hill",
+   "cover_url": "https://covers.openlibrary.org/b/id/6671227-M.jpg?default=false",
+   "isbns": [
+    "9781600104831",
+    "9781613773970"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "fantasy"
+   ],
+   "seed": "Locke & Key"
+  },
+  {
+   "external_id": "OL5859250W",
+   "title": "Scott Pilgrim's Precious Little Life",
+   "author": "Bryan Lee O'Malley",
+   "cover_url": "https://covers.openlibrary.org/b/id/960258-M.jpg?default=false",
+   "isbns": [
+    "9788499081915",
+    "6054456326"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction",
+    "young_adult",
+    "romance",
+    "humour"
+   ],
+   "seed": "Scott Pilgrim"
+  },
+  {
+   "external_id": "OL17274040W",
+   "title": "Nimona",
+   "author": "N.D. Stevenson",
+   "cover_url": "https://covers.openlibrary.org/b/id/10541789-M.jpg?default=false",
+   "isbns": [
+    "0062278231",
+    "2205073826"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "science_fiction",
+    "children",
+    "young_adult"
+   ],
+   "seed": "Nimona"
+  },
+  {
+   "external_id": "OL8756330W",
+   "title": "Smile",
+   "author": "Raina Telgemeier",
+   "cover_url": "https://covers.openlibrary.org/b/id/9147132-M.jpg?default=false",
+   "isbns": [
+    "0545132061",
+    "9780545132060"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "young_adult",
+    "literary_fiction",
+    "humour",
+    "biography"
+   ],
+   "seed": "Smile"
+  },
+  {
+   "external_id": "OL20152649W",
+   "title": "New Kid",
+   "author": "Jerry Craft",
+   "cover_url": "https://covers.openlibrary.org/b/id/12355597-M.jpg?default=false",
+   "isbns": [
+    "1982609044",
+    "0062691198"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "humour"
+   ],
+   "seed": "New Kid"
+  },
+  {
+   "external_id": "OL22534064W",
+   "title": "March",
+   "author": "John Lewis",
+   "cover_url": "https://covers.openlibrary.org/b/id/10550340-M.jpg?default=false",
+   "isbns": [
+    "1531194818",
+    "1484491394"
+   ],
+   "genres": [
+    "comics",
+    "biography",
+    "history"
+   ],
+   "seed": "March"
+  },
+  {
+   "external_id": "OL5934430W",
+   "title": "The Arrival",
+   "author": "Shaun Tan",
+   "cover_url": "https://covers.openlibrary.org/b/id/1230299-M.jpg?default=false",
+   "isbns": [
+    "0439895294",
+    "987180167X"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "literary_fiction"
+   ],
+   "seed": "The Arrival"
+  },
+  {
+   "external_id": "OL8994750W",
+   "title": "American Born Chinese",
+   "author": "Gene Luen Yang",
+   "cover_url": "https://covers.openlibrary.org/b/id/10134498-M.jpg?default=false",
+   "isbns": [
+    "9781596432086",
+    "9780312384487"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "young_adult"
+   ],
+   "seed": "American Born Chinese"
+  },
+  {
+   "external_id": "OL16484573W",
+   "title": "Habibi",
+   "author": "Craig Thompson",
+   "cover_url": "https://covers.openlibrary.org/b/id/15167481-M.jpg?default=false",
+   "isbns": [
+    "9783941099500",
+    "6058523974"
+   ],
+   "genres": [
+    "comics",
+    "historical_fiction",
+    "literary_fiction"
+   ],
+   "seed": "Habibi"
+  },
+  {
+   "external_id": "OL15680084W",
+   "title": "Daytripper",
+   "author": "Fabio Moon",
+   "cover_url": "https://covers.openlibrary.org/b/id/6699744-M.jpg?default=false",
+   "isbns": [
+    "9781401229696",
+    "1401229697"
+   ],
+   "genres": [
+    "comics",
+    "history",
+    "literary_fiction"
+   ],
+   "seed": "Daytripper"
+  },
+  {
+   "external_id": "OL8134931W",
+   "title": "Asterios polyp",
+   "author": "David Mazzucchelli",
+   "cover_url": "https://covers.openlibrary.org/b/id/5984628-M.jpg?default=false",
+   "isbns": [
+    "2203029773",
+    "9780307377326"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction"
+   ],
+   "seed": "Asterios Polyp"
+  },
+  {
+   "external_id": "OL1646670W",
+   "title": "Kingdom Come",
+   "author": "Mark Waid",
+   "cover_url": "https://covers.openlibrary.org/b/id/798157-M.jpg?default=false",
+   "isbns": [
+    "1563893304",
+    "1563893177"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction"
+   ],
+   "seed": "Kingdom Come"
+  },
+  {
+   "external_id": "OL15528W",
+   "title": "Marvels",
+   "author": "Kurt Busiek",
+   "cover_url": "https://covers.openlibrary.org/b/id/950586-M.jpg?default=false",
+   "isbns": [
+    "9780936211473",
+    "9780785100492"
+   ],
+   "genres": [
+    "comics",
+    "humour",
+    "science_fiction"
+   ],
+   "seed": "Marvels"
+  },
+  {
+   "external_id": "OL15023038W",
+   "title": "All-star Superman",
+   "author": "Grant Morrison",
+   "cover_url": "https://covers.openlibrary.org/b/id/11956378-M.jpg?default=false",
+   "isbns": [
+    "1401209149",
+    "9781401209148"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction"
+   ],
+   "seed": "All-Star Superman"
+  },
+  {
+   "external_id": "OL17577307W",
+   "title": "Hawkeye, Vol. 1",
+   "author": "Matt Fraction",
+   "cover_url": "https://covers.openlibrary.org/b/id/7855585-M.jpg?default=false",
+   "isbns": [
+    "9782809499315",
+    "2809499314"
+   ],
+   "genres": [
+    "comics",
+    "humour",
+    "adventure"
+   ],
+   "seed": "Hawkeye"
+  },
+  {
+   "external_id": "OL19663627W",
+   "title": "Ms. Marvel",
+   "author": "G. Willow Wilson",
+   "cover_url": "https://covers.openlibrary.org/b/id/13128470-M.jpg?default=false",
+   "isbns": [
+    "1302903055",
+    "9781302903053"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "young_adult",
+    "adventure"
+   ],
+   "seed": "Ms. Marvel"
+  },
+  {
+   "external_id": "OL20429582W",
+   "title": "Fables",
+   "author": "Bill Willingham",
+   "cover_url": "https://covers.openlibrary.org/b/id/9096161-M.jpg?default=false",
+   "isbns": [
+    "9781781160589",
+    "9780857688958"
+   ],
+   "genres": [
+    "comics",
+    "fantasy"
+   ],
+   "seed": "Fables"
+  },
+  {
+   "external_id": "OL2888312W",
+   "title": "Transmetropolitan",
+   "author": "Warren Ellis",
+   "cover_url": "https://covers.openlibrary.org/b/id/883146-M.jpg?default=false",
+   "isbns": [
+    "9781563895685",
+    "1563895684"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "dystopian"
+   ],
+   "seed": "Transmetropolitan"
+  },
+  {
+   "external_id": "OL20026390W",
+   "title": "Paper girls, Vol. 1",
+   "author": "Brian K. Vaughan",
+   "cover_url": "https://covers.openlibrary.org/b/id/10456615-M.jpg?default=false",
+   "isbns": [
+    "9788416767489",
+    "9781632156747"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "adventure"
+   ],
+   "seed": "Paper Girls"
+  },
+  {
+   "external_id": "OL19717042W",
+   "title": "Monstress, Vol. 2",
+   "author": "Marjorie M. Liu",
+   "cover_url": "https://covers.openlibrary.org/b/id/10678052-M.jpg?default=false",
+   "isbns": [
+    "0606400567",
+    "9781534303881"
+   ],
+   "genres": [
+    "comics",
+    "fantasy"
+   ],
+   "seed": "Monstress"
+  },
+  {
+   "external_id": "OL15594672W",
+   "title": "Sweet Tooth",
+   "author": "Jeff Lemire",
+   "cover_url": "https://covers.openlibrary.org/b/id/6674045-M.jpg?default=false",
+   "isbns": [
+    "1401228542",
+    "2365778844"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "dystopian",
+    "adventure"
+   ],
+   "seed": "Sweet Tooth"
+  },
+  {
+   "external_id": "OL9862322W",
+   "title": "Essex County volume 3",
+   "author": "Jeff Lemire",
+   "cover_url": "https://covers.openlibrary.org/b/id/6747276-M.jpg?default=false",
+   "isbns": [
+    "1891830953",
+    "3935229917"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction"
+   ],
+   "seed": "Essex County"
+  },
+  {
+   "external_id": "OL17321978W",
+   "title": "Through the Woods",
+   "author": "Emily Carroll",
+   "cover_url": "https://covers.openlibrary.org/b/id/7401054-M.jpg?default=false",
+   "isbns": [
+    "9788594541406",
+    "9780571288656"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "children",
+    "short_stories"
+   ],
+   "seed": "Through the Woods"
+  },
+  {
+   "external_id": "OL20354498W",
+   "title": "Heartstopper, Volume 1",
+   "author": "Alice Oseman",
+   "cover_url": "https://covers.openlibrary.org/b/id/9020805-M.jpg?default=false",
+   "isbns": [
+    "838266007X",
+    "9781444968934"
+   ],
+   "genres": [
+    "comics",
+    "young_adult",
+    "romance"
+   ],
+   "seed": "Heartstopper"
+  },
+  {
+   "external_id": "OL17610986W",
+   "title": "Dog Man",
+   "author": "Dav Pilkey",
+   "cover_url": "https://covers.openlibrary.org/b/id/7894142-M.jpg?default=false",
+   "isbns": [
+    "9781443155014",
+    "0606391150"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "adventure",
+    "humour"
+   ],
+   "seed": "Dog Man"
+  },
+  {
+   "external_id": "OL16050250W",
+   "title": "Calvin and Hobbes",
+   "author": "Bill Watterson",
+   "cover_url": "https://covers.openlibrary.org/b/id/6916758-M.jpg?default=false",
+   "isbns": [
+    "0747402884",
+    "9780836220889"
+   ],
+   "genres": [
+    "comics",
+    "humour"
+   ],
+   "seed": "Calvin and Hobbes"
+  },
+  {
+   "external_id": "OL25762W",
+   "title": "The Complete Peanuts, 1953 to 1954",
+   "author": "Charles M. Schulz",
+   "cover_url": "https://covers.openlibrary.org/b/id/9320863-M.jpg?default=false",
+   "isbns": [
+    "1782118950",
+    "9788491465447"
+   ],
+   "genres": [
+    "comics",
+    "humour",
+    "children"
+   ],
+   "seed": "The Complete Peanuts"
+  },
+  {
+   "external_id": "OL42772540W",
+   "title": "Tintín in Tibet",
+   "author": "Hergé",
+   "cover_url": null,
+   "isbns": [],
+   "genres": [
+    "comics",
+    "adventure"
+   ],
+   "seed": "Tintin in Tibet"
+  },
+  {
+   "external_id": "OL13730634W",
+   "title": "Blacksad",
+   "author": "Juan Díaz Canales",
+   "cover_url": "https://covers.openlibrary.org/b/id/7274558-M.jpg?default=false",
+   "isbns": [
+    "9780743479356",
+    "0743479351"
+   ],
+   "genres": [
+    "comics",
+    "mystery"
+   ],
+   "seed": "Blacksad"
+  },
+  {
+   "external_id": "OL15101739W",
+   "title": "The Incal 3",
+   "author": "Alejandro Jodorowsky",
+   "cover_url": null,
+   "isbns": [
+    "0871354381",
+    "9780871354389"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction"
+   ],
+   "seed": "The Incal"
+  },
+  {
+   "external_id": "OL8842598W",
+   "title": "Amulet",
+   "author": "Kazu Kibuishi",
+   "cover_url": "https://covers.openlibrary.org/b/id/2420582-M.jpg?default=false",
+   "isbns": [
+    "9781643102559",
+    "6055678012"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "science_fiction",
+    "adventure",
+    "mystery",
+    "children"
+   ],
+   "seed": "Amulet"
+  },
+  {
+   "external_id": "OL17095216W",
+   "title": "El Deafo",
+   "author": "Cece Bell",
+   "cover_url": "https://covers.openlibrary.org/b/id/7337268-M.jpg?default=false",
+   "isbns": [
+    "1419712179",
+    "9781419710209"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "biography"
+   ],
+   "seed": "El Deafo"
+  },
+  {
+   "external_id": "OL17342469W",
+   "title": "Roller Girl",
+   "author": "Victoria Jamieson",
+   "cover_url": "https://covers.openlibrary.org/b/id/11327078-M.jpg?default=false",
+   "isbns": [
+    "1984882333",
+    "9791032400876"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "young_adult"
+   ],
+   "seed": "Roller Girl"
+  },
+  {
+   "external_id": "OL20140529W",
+   "title": "The Umbrella Academy Volume 3",
+   "author": "Gerard Way",
+   "cover_url": "https://covers.openlibrary.org/b/id/8788698-M.jpg?default=false",
+   "isbns": [
+    "9781506716466",
+    "9788467938685"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "adventure"
+   ],
+   "seed": "The Umbrella Academy"
+  },
+  {
+   "external_id": "OL21300854W",
+   "title": "East of West, Vol. 7",
+   "author": "Jonathan Hickman",
+   "cover_url": "https://covers.openlibrary.org/b/id/12750526-M.jpg?default=false",
+   "isbns": [
+    "9781534306219",
+    "1534306218"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "dystopian"
+   ],
+   "seed": "East of West"
+  },
+  {
+   "external_id": "OL19662219W",
+   "title": "Lumberjanes Vol. 3",
+   "author": "N.D. Stevenson",
+   "cover_url": "https://covers.openlibrary.org/b/id/10471067-M.jpg?default=false",
+   "isbns": [
+    "8494506390",
+    "1484465687"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "adventure",
+    "young_adult"
+   ],
+   "seed": "Lumberjanes"
+  },
+  {
+   "external_id": "OL16548334W",
+   "title": "Building stories",
+   "author": "Chris Ware",
+   "cover_url": "https://covers.openlibrary.org/b/id/7254469-M.jpg?default=false",
+   "isbns": [
+    "2756035971",
+    "9780375424335"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction"
+   ],
+   "seed": "Building Stories"
+  },
+  {
+   "external_id": "OL5876901W",
+   "title": "Palestine",
+   "author": "Joe Sacco",
+   "cover_url": "https://covers.openlibrary.org/b/id/791627-M.jpg?default=false",
+   "isbns": [
+    "2908981262",
+    "156097432X"
+   ],
+   "genres": [
+    "comics",
+    "history",
+    "politics"
+   ],
+   "seed": "Palestine"
+  },
+  {
+   "external_id": "OL17094879W",
+   "title": "This One Summer",
+   "author": "Mariko Tamaki",
+   "cover_url": "https://covers.openlibrary.org/b/id/15162174-M.jpg?default=false",
+   "isbns": [
+    "1554981522",
+    "159643774X"
+   ],
+   "genres": [
+    "comics",
+    "young_adult",
+    "literary_fiction",
+    "children"
+   ],
+   "seed": "This One Summer"
+  },
+  {
+   "external_id": "OL19914053W",
+   "title": "Laura Dean Keeps Breaking Up with Me",
+   "author": "Mariko Tamaki",
+   "cover_url": "https://covers.openlibrary.org/b/id/12293430-M.jpg?default=false",
+   "isbns": [
+    "9781250312846",
+    "1773063634"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "romance",
+    "young_adult"
+   ],
+   "seed": "Laura Dean Keeps Breaking Up with Me"
+  },
+  {
+   "external_id": "OL19755546W",
+   "title": "On a Sunbeam",
+   "author": "Tillie Walden",
+   "cover_url": "https://covers.openlibrary.org/b/id/9254455-M.jpg?default=false",
+   "isbns": [
+    "9781250178145",
+    "1250178134"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "science_fiction",
+    "romance"
+   ],
+   "seed": "On a Sunbeam"
+  },
+  {
+   "external_id": "OL19717769W",
+   "title": "Spinning",
+   "author": "Tillie Walden",
+   "cover_url": "https://covers.openlibrary.org/b/id/12354379-M.jpg?default=false",
+   "isbns": [
+    "9781626727724",
+    "1626727724"
+   ],
+   "genres": [
+    "comics",
+    "biography",
+    "young_adult"
+   ],
+   "seed": "Spinning"
+  },
+  {
+   "external_id": "OL19880287W",
+   "title": "They Called Us Enemy",
+   "author": "George Takei",
+   "cover_url": "https://covers.openlibrary.org/b/id/10552030-M.jpg?default=false",
+   "isbns": [
+    "1603094830",
+    "9788575327708"
+   ],
+   "genres": [
+    "comics",
+    "young_adult",
+    "biography",
+    "history"
+   ],
+   "seed": "They Called Us Enemy"
+  },
+  {
+   "external_id": "OL19993415W",
+   "title": "The sculptor",
+   "author": "Scott McCloud",
+   "cover_url": "https://covers.openlibrary.org/b/id/9323309-M.jpg?default=false",
+   "isbns": [
+    "1596435739",
+    "9781906838973"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "literary_fiction"
+   ],
+   "seed": "The Sculptor"
+  },
+  {
+   "external_id": "OL276032W",
+   "title": "Understanding Comics",
+   "author": "Scott McCloud",
+   "cover_url": "https://covers.openlibrary.org/b/id/10679940-M.jpg?default=false",
+   "isbns": [
+    "9788440654991",
+    "9781627652735"
+   ],
+   "genres": [
+    "comics",
+    "history",
+    "art",
+    "children",
+    "humour"
+   ],
+   "seed": "Understanding Comics"
+  },
+  {
+   "external_id": "OL12091281W",
+   "title": "Aya of Yop City",
+   "author": "Marguerite Abouet",
+   "cover_url": "https://covers.openlibrary.org/b/id/6746427-M.jpg?default=false",
+   "isbns": [
+    "1894937902",
+    "1897299419"
+   ],
+   "genres": [
+    "comics",
+    "literary_fiction",
+    "humour"
+   ],
+   "seed": "Aya of Yop City"
+  },
+  {
+   "external_id": "OL19671562W",
+   "title": "The Arab of the future",
+   "author": "Riad Sattouf",
+   "cover_url": "https://covers.openlibrary.org/b/id/9676420-M.jpg?default=false",
+   "isbns": [
+    "1627793445",
+    "9781627793445"
+   ],
+   "genres": [
+    "comics",
+    "biography",
+    "history",
+    "religion"
+   ],
+   "seed": "The Arab of the Future"
+  },
+  {
+   "external_id": "OL2897796W",
+   "title": "The league of extraordinary gentlemen",
+   "author": "Alan Moore",
+   "cover_url": "https://covers.openlibrary.org/b/id/8805707-M.jpg?default=false",
+   "isbns": [
+    "140123321X",
+    "9781603094375"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "fantasy",
+    "mystery",
+    "horror",
+    "adventure"
+   ],
+   "seed": "The League of Extraordinary Gentlemen"
+  },
+  {
+   "external_id": "OL16673121W",
+   "title": "Saga of the Swamp Thing book two",
+   "author": "Alan Moore",
+   "cover_url": "https://covers.openlibrary.org/b/id/14319249-M.jpg?default=false",
+   "isbns": [
+    "9781401225445",
+    "1401225446"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "horror"
+   ],
+   "seed": "Saga of the Swamp Thing"
+  },
+  {
+   "external_id": "OL8548336W",
+   "title": "Invincible - Ultimate Collection, Vol. 2",
+   "author": "Robert Kirkman",
+   "cover_url": "https://covers.openlibrary.org/b/id/7102999-M.jpg?default=false",
+   "isbns": [
+    "9781594972386",
+    "9781594972362"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "young_adult",
+    "children",
+    "science_fiction",
+    "adventure"
+   ],
+   "seed": "Invincible"
+  },
+  {
+   "external_id": "OL3407188W",
+   "title": "Usagi Yojimbo",
+   "author": "Stan Sakai",
+   "cover_url": "https://covers.openlibrary.org/b/id/710296-M.jpg?default=false",
+   "isbns": [
+    "1560971460",
+    "9781595823625"
+   ],
+   "genres": [
+    "comics",
+    "children",
+    "humour",
+    "adventure",
+    "historical_fiction"
+   ],
+   "seed": "Usagi Yojimbo"
+  },
+  {
+   "external_id": "OL21187712W",
+   "title": "Black Panther Book 6",
+   "author": "Ta-Nehisi Coates",
+   "cover_url": null,
+   "isbns": [
+    "1302912933",
+    "9781302912932"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "adventure"
+   ],
+   "seed": "Black Panther"
+  },
+  {
+   "external_id": "OL14864698W",
+   "title": "Gotham Central Vol. 1",
+   "author": "Greg Rucka",
+   "cover_url": "https://covers.openlibrary.org/b/id/5376439-M.jpg?default=false",
+   "isbns": [
+    "9781845765675",
+    "9781401209124"
+   ],
+   "genres": [
+    "comics",
+    "science_fiction",
+    "mystery"
+   ],
+   "seed": "Gotham Central"
+  },
+  {
+   "external_id": "OL20150743W",
+   "title": "Bitter Root Volume 1",
+   "author": "David F. Walker",
+   "cover_url": "https://covers.openlibrary.org/b/id/8794907-M.jpg?default=false",
+   "isbns": [
+    "1534314717",
+    "9781534312128"
+   ],
+   "genres": [
+    "comics",
+    "horror",
+    "historical_fiction"
+   ],
+   "seed": "Bitter Root"
+  },
+  {
+   "external_id": "OL20030353W",
+   "title": "Wonder Woman, earth one",
+   "author": "Grant Morrison",
+   "cover_url": null,
+   "isbns": [
+    "9781401229788",
+    "1401229786"
+   ],
+   "genres": [
+    "comics",
+    "adventure"
+   ],
+   "seed": "Wonder Woman: Earth One"
+  }
+ ],
+ "manga": [
+  {
+   "external_id": "OL8215661W",
+   "title": "ONE PIECE 1",
+   "author": "尾田栄一郎",
+   "cover_url": "https://covers.openlibrary.org/b/id/1020563-M.jpg?default=false",
+   "isbns": [
+    "1591163641",
+    "9781569319017"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure",
+    "science"
+   ],
+   "seed": "One Piece"
+  },
+  {
+   "external_id": "OL8755980W",
+   "title": "Naruto 01",
+   "author": "Masashi Kishimoto",
+   "cover_url": "https://covers.openlibrary.org/b/id/1020779-M.jpg?default=false",
+   "isbns": [
+    "9781417651054",
+    "6055686392"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Naruto"
+  },
+  {
+   "external_id": "OL5753059W",
+   "title": "Dragon Ball Z; Thank You",
+   "author": "鳥山 明 [Akira Toriyama]",
+   "cover_url": "https://covers.openlibrary.org/b/id/1787375-M.jpg?default=false",
+   "isbns": [
+    "9781591160069",
+    "9781415635551"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "children",
+    "science_fiction",
+    "mystery",
+    "adventure",
+    "humour"
+   ],
+   "seed": "Dragon Ball"
+  },
+  {
+   "external_id": "OL8463012W",
+   "title": "Akira, Vol. 1",
+   "author": "Katsuhiro Ōtomo",
+   "cover_url": "https://covers.openlibrary.org/b/id/814967-M.jpg?default=false",
+   "isbns": [
+    "9783551745217",
+    "9781935429005"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction",
+    "young_adult",
+    "dystopian"
+   ],
+   "seed": "Akira"
+  },
+  {
+   "external_id": "OL20172594W",
+   "title": "Attack on Titan",
+   "author": "諫山創",
+   "cover_url": "https://covers.openlibrary.org/b/id/8819326-M.jpg?default=false",
+   "isbns": [
+    "1612629717",
+    "9781632361813"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction",
+    "horror",
+    "fantasy",
+    "dystopian"
+   ],
+   "seed": "Attack on Titan"
+  },
+  {
+   "external_id": "OL8756311W",
+   "title": "Death Note, Vol. 2",
+   "author": "Tsugumi Ohba",
+   "cover_url": "https://covers.openlibrary.org/b/id/764905-M.jpg?default=false",
+   "isbns": [
+    "9789861149585",
+    "2505000425"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "mystery",
+    "thriller"
+   ],
+   "seed": "Death Note"
+  },
+  {
+   "external_id": "OL8756253W",
+   "title": "Fullmetal Alchemist Anime Profiles",
+   "author": "荒川弘",
+   "cover_url": "https://covers.openlibrary.org/b/id/4813846-M.jpg?default=false",
+   "isbns": [
+    "9781421504261",
+    "142150426X"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Fullmetal Alchemist"
+  },
+  {
+   "external_id": "OL8783807W",
+   "title": "Vagabond, Vol. 6",
+   "author": "井上雄彦 (Takehiko Inoue)",
+   "cover_url": "https://covers.openlibrary.org/b/id/8211378-M.jpg?default=false",
+   "isbns": [
+    "8416040397",
+    "9784063286854"
+   ],
+   "genres": [
+    "manga",
+    "historical_fiction"
+   ],
+   "seed": "Vagabond"
+  },
+  {
+   "external_id": "OL8783725W",
+   "title": "Slam Dunk, Vol. 1",
+   "author": "井上雄彦 (Takehiko Inoue)",
+   "cover_url": "https://covers.openlibrary.org/b/id/991930-M.jpg?default=false",
+   "isbns": [
+    "9780972503792",
+    "9781421506791"
+   ],
+   "genres": [
+    "manga",
+    "young_adult",
+    "children",
+    "humour"
+   ],
+   "seed": "Slam Dunk"
+  },
+  {
+   "external_id": "OL19623418W",
+   "title": "Monster",
+   "author": "Naoki Urasawa",
+   "cover_url": "https://covers.openlibrary.org/b/id/8536869-M.jpg?default=false",
+   "isbns": [
+    "8419096415",
+    "9781421569062"
+   ],
+   "genres": [
+    "manga",
+    "mystery",
+    "thriller"
+   ],
+   "seed": "Monster"
+  },
+  {
+   "external_id": "OL20159772W",
+   "title": "20th Century Boys",
+   "author": "浦沢直樹",
+   "cover_url": "https://covers.openlibrary.org/b/id/8805127-M.jpg?default=false",
+   "isbns": [
+    "9782809488302",
+    "8491467319"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction",
+    "mystery",
+    "adventure"
+   ],
+   "seed": "20th Century Boys"
+  },
+  {
+   "external_id": "OL19945304W",
+   "title": "Pluto, Vol. 2",
+   "author": "Naoki Urasawa",
+   "cover_url": "https://covers.openlibrary.org/b/id/10656309-M.jpg?default=false",
+   "isbns": [
+    "8542609662",
+    "9788542609660"
+   ],
+   "genres": [
+    "manga",
+    "mystery",
+    "science_fiction"
+   ],
+   "seed": "Pluto"
+  },
+  {
+   "external_id": "OL3963481W",
+   "title": "Nausicaa of the Valley of the Wind",
+   "author": "Hayao Miyazaki",
+   "cover_url": "https://covers.openlibrary.org/b/id/813557-M.jpg?default=false",
+   "isbns": [
+    "9781591165231",
+    "9781569313480"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "science_fiction"
+   ],
+   "seed": "Nausicaä of the Valley of the Wind"
+  },
+  {
+   "external_id": "OL8860062W",
+   "title": "Ghost in the Shell (Ghost in the Shell 1)",
+   "author": "Masamune Shirow",
+   "cover_url": "https://covers.openlibrary.org/b/id/901480-M.jpg?default=false",
+   "isbns": [
+    "9781852868895",
+    "1852868899"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction"
+   ],
+   "seed": "Ghost in the Shell"
+  },
+  {
+   "external_id": "OL11749588W",
+   "title": "Astro boy",
+   "author": "Osamu Tezuka",
+   "cover_url": "https://covers.openlibrary.org/b/id/12811518-M.jpg?default=false",
+   "isbns": [
+    "9781595821539",
+    "1595821538"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction",
+    "children"
+   ],
+   "seed": "Astro Boy"
+  },
+  {
+   "external_id": "OL5769539W",
+   "title": "Phoenix, Vol. 12 (Phoenix)",
+   "author": "Osamu Tezuka",
+   "cover_url": "https://covers.openlibrary.org/b/id/2806143-M.jpg?default=false",
+   "isbns": [
+    "9781421509747",
+    "1421509741"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction",
+    "fantasy",
+    "historical_fiction"
+   ],
+   "seed": "Phoenix"
+  },
+  {
+   "external_id": "OL5769559W",
+   "title": "Buddha, Volume 7",
+   "author": "Osamu Tezuka",
+   "cover_url": "https://covers.openlibrary.org/b/id/958990-M.jpg?default=false",
+   "isbns": [
+    "9781932234626",
+    "1932234497"
+   ],
+   "genres": [
+    "manga",
+    "historical_fiction",
+    "religion"
+   ],
+   "seed": "Buddha"
+  },
+  {
+   "external_id": "OL5855190W",
+   "title": "Sailor Moon, Friends and Foes",
+   "author": "武内 直子",
+   "cover_url": "https://covers.openlibrary.org/b/id/8998765-M.jpg?default=false",
+   "isbns": [
+    "9785558604313",
+    "1568361181"
+   ],
+   "genres": [
+    "manga",
+    "adventure",
+    "fantasy",
+    "science_fiction",
+    "children",
+    "romance"
+   ],
+   "seed": "Sailor Moon"
+  },
+  {
+   "external_id": "OL5750774W",
+   "title": "Cardcaptor Sakura, Cinemanga Book 2",
+   "author": "CLAMP",
+   "cover_url": "https://covers.openlibrary.org/b/id/957026-M.jpg?default=false",
+   "isbns": [
+    "2845991282",
+    "9780613804127"
+   ],
+   "genres": [
+    "manga",
+    "fantasy"
+   ],
+   "seed": "Cardcaptor Sakura"
+  },
+  {
+   "external_id": "OL20319713W",
+   "title": "Fruits Basket Ultimate Edition Volume 6",
+   "author": "高屋奈月",
+   "cover_url": "https://covers.openlibrary.org/b/id/8981194-M.jpg?default=false",
+   "isbns": [
+    "0316360716",
+    "9781427818164"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "romance"
+   ],
+   "seed": "Fruits Basket"
+  },
+  {
+   "external_id": "OL13668603W",
+   "title": "Nana",
+   "author": "Yazawa Aï",
+   "cover_url": "https://covers.openlibrary.org/b/id/11461735-M.jpg?default=false",
+   "isbns": [
+    "9782840559641",
+    "2756000191"
+   ],
+   "genres": [
+    "manga",
+    "romance"
+   ],
+   "seed": "Nana"
+  },
+  {
+   "external_id": "OL17412212W",
+   "title": "Kimi Ni Todoke From Me To You",
+   "author": "Karuho Shiina",
+   "cover_url": "https://covers.openlibrary.org/b/id/7527131-M.jpg?default=false",
+   "isbns": [
+    "9781421527871",
+    "1421527871"
+   ],
+   "genres": [
+    "manga",
+    "romance"
+   ],
+   "seed": "Kimi ni Todoke"
+  },
+  {
+   "external_id": "OL20644915W",
+   "title": "Jujutsu Kaisen, Vol. 2 (呪術廻戦 Jujutsu Kaisen #2)",
+   "author": "Gege Akutami",
+   "cover_url": "https://covers.openlibrary.org/b/id/9270020-M.jpg?default=false",
+   "isbns": [
+    "1974710033",
+    "9788467941562"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "horror"
+   ],
+   "seed": "Jujutsu Kaisen"
+  },
+  {
+   "external_id": "OL35711687W",
+   "title": "Chainsaw Man, Vol. 12",
+   "author": "Tatsuki Fujimoto",
+   "cover_url": "https://covers.openlibrary.org/b/id/14650164-M.jpg?default=false",
+   "isbns": [
+    "408883271X",
+    "9781974740581"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "horror"
+   ],
+   "seed": "Chainsaw Man"
+  },
+  {
+   "external_id": "OL20153259W",
+   "title": "My Hero Academia",
+   "author": "Hideyuki Furuhashi",
+   "cover_url": "https://covers.openlibrary.org/b/id/8798148-M.jpg?default=false",
+   "isbns": [
+    "8411401901",
+    "9781974710669"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure",
+    "science_fiction"
+   ],
+   "seed": "My Hero Academia"
+  },
+  {
+   "external_id": "OL21682176W",
+   "title": "Spy x Family, Vol. 2",
+   "author": "Tatsuya Endo",
+   "cover_url": "https://covers.openlibrary.org/b/id/10431543-M.jpg?default=false",
+   "isbns": [
+    "8418450541",
+    "4088821203"
+   ],
+   "genres": [
+    "manga",
+    "mystery",
+    "adventure",
+    "humour",
+    "thriller"
+   ],
+   "seed": "Spy x Family"
+  },
+  {
+   "external_id": "OL20715490W",
+   "title": "One-Punch Man, Vol. 20",
+   "author": "ONE",
+   "cover_url": "https://covers.openlibrary.org/b/id/9396355-M.jpg?default=false",
+   "isbns": [
+    "4088818148",
+    "9788418061387"
+   ],
+   "genres": [
+    "manga",
+    "humour",
+    "adventure"
+   ],
+   "seed": "One-Punch Man"
+  },
+  {
+   "external_id": "OL35725103W",
+   "title": "Mob Psycho 100 Volume 12",
+   "author": "ONE",
+   "cover_url": null,
+   "isbns": [
+    "9781506730745",
+    "1506730744"
+   ],
+   "genres": [
+    "manga",
+    "humour",
+    "fantasy"
+   ],
+   "seed": "Mob Psycho 100"
+  },
+  {
+   "external_id": "OL8215103W",
+   "title": "Yu Yu Hakusho 11",
+   "author": "Yoshihiro Togashi",
+   "cover_url": "https://covers.openlibrary.org/b/id/5274271-M.jpg?default=false",
+   "isbns": [
+    "1417770538",
+    "9782871292159"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Yu Yu Hakusho"
+  },
+  {
+   "external_id": "OL8756207W",
+   "title": "BLEACH―ブリーチ― 1",
+   "author": "Tite Kubo",
+   "cover_url": "https://covers.openlibrary.org/b/id/2806276-M.jpg?default=false",
+   "isbns": [
+    "9788484499763",
+    "9781421525761"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "science_fiction",
+    "horror",
+    "children",
+    "adventure"
+   ],
+   "seed": "Bleach"
+  },
+  {
+   "external_id": "OL37814176W",
+   "title": "Tokyo Ghoul",
+   "author": "Sui Ishida",
+   "cover_url": null,
+   "isbns": [
+    "9780606408653",
+    "0606408657"
+   ],
+   "genres": [
+    "manga",
+    "horror"
+   ],
+   "seed": "Tokyo Ghoul"
+  },
+  {
+   "external_id": "OL8911324W",
+   "title": "Parasyte 2",
+   "author": "Hitoshi Iwaaki",
+   "cover_url": "https://covers.openlibrary.org/b/id/212546-M.jpg?default=false",
+   "isbns": [
+    "1892213079",
+    "0345496817"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "science_fiction",
+    "horror"
+   ],
+   "seed": "Parasyte"
+  },
+  {
+   "external_id": "OL19720088W",
+   "title": "Uzumaki",
+   "author": "Junji Itō",
+   "cover_url": "https://covers.openlibrary.org/b/id/11888471-M.jpg?default=false",
+   "isbns": [
+    "1421561328",
+    "9788575327302"
+   ],
+   "genres": [
+    "manga",
+    "horror"
+   ],
+   "seed": "Uzumaki"
+  },
+  {
+   "external_id": "OL20475707W",
+   "title": "Tomie",
+   "author": "Junji Itō",
+   "cover_url": "https://covers.openlibrary.org/b/id/9140515-M.jpg?default=false",
+   "isbns": [
+    "9781421590561",
+    "1421590565"
+   ],
+   "genres": [
+    "manga",
+    "horror",
+    "mystery"
+   ],
+   "seed": "Tomie"
+  },
+  {
+   "external_id": "OL5861148W",
+   "title": "Planetes",
+   "author": "幸村誠 (Makoto Yukimura)",
+   "cover_url": "https://covers.openlibrary.org/b/id/865434-M.jpg?default=false",
+   "isbns": [
+    "1415566852",
+    "9781415506332"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction"
+   ],
+   "seed": "Planetes"
+  },
+  {
+   "external_id": "OL9213486W",
+   "title": "Mushishi",
+   "author": "漆原友紀",
+   "cover_url": null,
+   "isbns": [
+    "9780345496218",
+    "0345496213"
+   ],
+   "genres": [
+    "manga",
+    "fantasy"
+   ],
+   "seed": "Mushishi"
+  },
+  {
+   "external_id": "OL5972408W",
+   "title": "Blade of the immortal",
+   "author": "Hiroaki Samura",
+   "cover_url": "https://covers.openlibrary.org/b/id/814892-M.jpg?default=false",
+   "isbns": [
+    "1569715602",
+    "9781415612156"
+   ],
+   "genres": [
+    "manga",
+    "historical_fiction",
+    "fantasy"
+   ],
+   "seed": "Blade of the Immortal"
+  },
+  {
+   "external_id": "OL8756203W",
+   "title": "Rurouni Kenshin",
+   "author": "Nobuhiro Watsuki",
+   "cover_url": "https://covers.openlibrary.org/b/id/1041328-M.jpg?default=false",
+   "isbns": [
+    "1421506742",
+    "9781591167037"
+   ],
+   "genres": [
+    "manga",
+    "romance",
+    "historical_fiction",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Rurouni Kenshin"
+  },
+  {
+   "external_id": "OL8212065W",
+   "title": "InuYasha Animanga Vol. 23",
+   "author": "高橋留美子",
+   "cover_url": "https://covers.openlibrary.org/b/id/1813345-M.jpg?default=false",
+   "isbns": [
+    "1421509075",
+    "9781421509075"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "mystery",
+    "romance",
+    "historical_fiction"
+   ],
+   "seed": "Inuyasha"
+  },
+  {
+   "external_id": "OL8211975W",
+   "title": "Ranma ½, Vol. 1 [Deluxe Edition]",
+   "author": "高橋留美子",
+   "cover_url": "https://covers.openlibrary.org/b/id/4981251-M.jpg?default=false",
+   "isbns": [
+    "9781569319628",
+    "141765077X"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "young_adult",
+    "humour",
+    "romance"
+   ],
+   "seed": "Ranma ½"
+  },
+  {
+   "external_id": "OL8211847W",
+   "title": "Maison Ikkoku [Abridged], Vol. 10",
+   "author": "高橋留美子",
+   "cover_url": "https://covers.openlibrary.org/b/id/813525-M.jpg?default=false",
+   "isbns": [
+    "1417662239",
+    "9781569312858"
+   ],
+   "genres": [
+    "manga",
+    "romance",
+    "humour"
+   ],
+   "seed": "Maison Ikkoku"
+  },
+  {
+   "external_id": "OL19995749W",
+   "title": "Neon genesis evangelion",
+   "author": "Yoshiyuki Sadamoto",
+   "cover_url": "https://covers.openlibrary.org/b/id/12968645-M.jpg?default=false",
+   "isbns": [
+    "9789812412850",
+    "9812393684"
+   ],
+   "genres": [
+    "manga",
+    "science_fiction"
+   ],
+   "seed": "Neon Genesis Evangelion"
+  },
+  {
+   "external_id": "OL8494063W",
+   "title": "Trigun",
+   "author": "Yasuhiro Nightow",
+   "cover_url": "https://covers.openlibrary.org/b/id/7942304-M.jpg?default=false",
+   "isbns": [
+    "9781415516966",
+    "1616551054"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "science_fiction",
+    "young_adult",
+    "children",
+    "adventure"
+   ],
+   "seed": "Trigun"
+  },
+  {
+   "external_id": "OL36141153W",
+   "title": "Witch Hat Atelier Kitchen 1",
+   "author": "Hiromi Sato",
+   "cover_url": "https://covers.openlibrary.org/b/id/15113859-M.jpg?default=false",
+   "isbns": [
+    "1646518438",
+    "9781646518432"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Witch Hat Atelier"
+  },
+  {
+   "external_id": "OL36106503W",
+   "title": "Blue Period Manga Box Set 1",
+   "author": "山口つばさ",
+   "cover_url": null,
+   "isbns": [
+    "1646519701",
+    "9781646519705"
+   ],
+   "genres": [
+    "manga",
+    "art"
+   ],
+   "seed": "Blue Period"
+  },
+  {
+   "external_id": "OL20044691W",
+   "title": "Your lie in April",
+   "author": "Naoshi Arakawa",
+   "cover_url": null,
+   "isbns": [
+    "9781945054266",
+    "1945054263"
+   ],
+   "genres": [
+    "manga",
+    "romance"
+   ],
+   "seed": "Your Lie in April"
+  },
+  {
+   "external_id": "OL20028572W",
+   "title": "Orange",
+   "author": "Ichigo Takano",
+   "cover_url": "https://covers.openlibrary.org/b/id/12714007-M.jpg?default=false",
+   "isbns": [
+    "9781626922716",
+    "9782369740711"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "romance",
+    "science_fiction"
+   ],
+   "seed": "Orange"
+  },
+  {
+   "external_id": "OL8752657W",
+   "title": "Azumanga Daioh Omnibus Volume 1 (Azumanga Daioh)",
+   "author": "あずまきよひこ",
+   "cover_url": "https://covers.openlibrary.org/b/id/2778749-M.jpg?default=false",
+   "isbns": [
+    "1413903649",
+    "9781413903645"
+   ],
+   "genres": [
+    "manga",
+    "humour"
+   ],
+   "seed": "Azumanga Daioh"
+  },
+  {
+   "external_id": "OL2169590W",
+   "title": "Barefoot Gen Vol. 4, Barefoot Gen Vol. 5 (Splitting Works needed)",
+   "author": "中沢 啓治",
+   "cover_url": "https://covers.openlibrary.org/b/id/658227-M.jpg?default=false",
+   "isbns": [
+    "1550922297",
+    "9780867195958"
+   ],
+   "genres": [
+    "manga",
+    "historical_fiction",
+    "humour",
+    "history"
+   ],
+   "seed": "Barefoot Gen"
+  },
+  {
+   "external_id": "OL15350750W",
+   "title": "Bakuman 1",
+   "author": "Tsugumi Ohba",
+   "cover_url": "https://covers.openlibrary.org/b/id/6462458-M.jpg?default=false",
+   "isbns": [
+    "9788415513384",
+    "4088746228"
+   ],
+   "genres": [
+    "manga",
+    "humour"
+   ],
+   "seed": "Bakuman"
+  },
+  {
+   "external_id": "OL19751406W",
+   "title": "Dr. Stone",
+   "author": "Riichiro Inagaki",
+   "cover_url": "https://covers.openlibrary.org/b/id/12836956-M.jpg?default=false",
+   "isbns": [
+    "9786075682600",
+    "9786076348468"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "science_fiction",
+    "adventure"
+   ],
+   "seed": "Dr. Stone"
+  },
+  {
+   "external_id": "OL35740427W",
+   "title": "Soul Eater",
+   "author": "大久保篤",
+   "cover_url": null,
+   "isbns": [
+    "1646090136",
+    "1646090527"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "horror"
+   ],
+   "seed": "Soul Eater"
+  },
+  {
+   "external_id": "OL8783390W",
+   "title": "Claymore, Volume 11",
+   "author": "Norihiro Yagi",
+   "cover_url": "https://covers.openlibrary.org/b/id/1813445-M.jpg?default=false",
+   "isbns": [
+    "9788483573341",
+    "1421515717"
+   ],
+   "genres": [
+    "manga",
+    "fantasy"
+   ],
+   "seed": "Claymore"
+  },
+  {
+   "external_id": "OL37848409W",
+   "title": "Horimiya, Vol. 2",
+   "author": "HERO",
+   "cover_url": null,
+   "isbns": [
+    "9780316356602",
+    "0316356603"
+   ],
+   "genres": [
+    "manga",
+    "romance"
+   ],
+   "seed": "Horimiya"
+  },
+  {
+   "external_id": "OL27297253W",
+   "title": "Komi Can't Communicate, Vol. 22",
+   "author": "Tomohito Oda",
+   "cover_url": "https://covers.openlibrary.org/b/id/13028639-M.jpg?default=false",
+   "isbns": [
+    "1974732088",
+    "9781974732081"
+   ],
+   "genres": [
+    "manga",
+    "humour",
+    "romance"
+   ],
+   "seed": "Komi Can't Communicate"
+  },
+  {
+   "external_id": "OL21668741W",
+   "title": "Golden Kamuy, Vol. 17",
+   "author": "Satoru Noda",
+   "cover_url": "https://covers.openlibrary.org/b/id/14000227-M.jpg?default=false",
+   "isbns": [
+    "1974714896",
+    "9781974714896"
+   ],
+   "genres": [
+    "manga",
+    "historical_fiction",
+    "adventure"
+   ],
+   "seed": "Golden Kamuy"
+  }
+ ]
+}
