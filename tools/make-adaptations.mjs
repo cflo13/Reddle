@@ -63,40 +63,52 @@ const FILM_TYPES = {
   Q11424: "film", Q202866: "film", Q24869: "film", Q20650540: "film", Q506240: "film",
   Q5398426: "tv", Q581714: "tv", Q1259759: "tv", Q63952888: "tv", Q526877: "tv",
 };
-const TYPE_VALUES = "VALUES ?type { " + Object.keys(FILM_TYPES).map((id) => "wd:" + id).join(" ") + " }";
+// Each query runs twice, once for films and once for series (half the
+// work each, so they stay under Wikidata's 60 second limit).
+const TYPE_GROUPS = ["film", "tv"].map((kind) =>
+  "VALUES ?type { " + Object.keys(FILM_TYPES).filter((id) => FILM_TYPES[id] === kind).map((id) => "wd:" + id).join(" ") + " }");
 
 // A film or series with "based on" (P144) something. Only works with an
 // author (P50), a creator (P170, comics) or an Open Library id (P648)
 // count as written works; that check happens below (asking Wikidata to
-// do it made the query too slow).
-const BASED_ON = TYPE_VALUES + " ?film wdt:P31 ?type ; wdt:P144 ?work .";
+// do it made the query too slow). TYPES is replaced by a TYPE_GROUPS line.
+const BASED_ON = "TYPES ?film wdt:P31 ?type ; wdt:P144 ?work .";
+const ANY_BASED_ON = "TYPES ?film wdt:P31 ?type ; wdt:P144 [] .";
 
 const QUERIES = {
   links: `SELECT DISTINCT ?film ?type ?work WHERE { ${BASED_ON} }`,
-  filmLabels: `SELECT DISTINCT ?film ?label ?lang WHERE { ${TYPE_VALUES} ?film wdt:P31 ?type ; wdt:P144 [] ; rdfs:label ?label .
+  filmLabels: `SELECT DISTINCT ?film ?label ?lang WHERE { ${ANY_BASED_ON} ?film rdfs:label ?label .
     BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
-  wikipedia: `SELECT DISTINCT ?film ?article WHERE { ${TYPE_VALUES} ?film wdt:P31 ?type ; wdt:P144 [] .
+  wikipedia: `SELECT DISTINCT ?film ?article WHERE { ${ANY_BASED_ON}
     ?article schema:about ?film ; schema:isPartOf <https://en.wikipedia.org/> }`,
-  released: `SELECT ?film ?date ?prec WHERE { ${TYPE_VALUES} ?film wdt:P31 ?type ; wdt:P144 [] ;
-    p:P577/psv:P577 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
-  started: `SELECT ?film ?date ?prec WHERE { ${TYPE_VALUES} ?film wdt:P31 ?type ; wdt:P144 [] ;
-    p:P580/psv:P580 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
-  announced: `SELECT ?film ?date ?prec WHERE { ${TYPE_VALUES} ?film wdt:P31 ?type ; wdt:P144 [] ;
-    p:P6949/psv:P6949 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
-  works: `SELECT DISTINCT ?work ?label ?lang ?ol WHERE { ${BASED_ON}
-    OPTIONAL { ?work rdfs:label ?label . BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }
-    OPTIONAL { ?work wdt:P648 ?ol FILTER(STRENDS(?ol, "W")) } }`,
+  released: `SELECT ?film ?date ?prec WHERE { ${ANY_BASED_ON}
+    ?film p:P577/psv:P577 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
+  started: `SELECT ?film ?date ?prec WHERE { ${ANY_BASED_ON}
+    ?film p:P580/psv:P580 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
+  announced: `SELECT ?film ?date ?prec WHERE { ${ANY_BASED_ON}
+    ?film p:P6949/psv:P6949 [ wikibase:timeValue ?date ; wikibase:timePrecision ?prec ] }`,
+  workLabels: `SELECT DISTINCT ?work ?label ?lang WHERE { ${BASED_ON} ?work rdfs:label ?label .
+    BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
+  workIds: `SELECT DISTINCT ?work ?ol WHERE { ${BASED_ON} ?work wdt:P648 ?ol . }`,
   authors: `SELECT DISTINCT ?work ?label ?lang WHERE { ${BASED_ON}
     ?work wdt:P50|wdt:P170 ?author . ?author rdfs:label ?label . BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
 };
 
 let wikidataQueries = 0;
 
-// Runs one query and returns its rows as plain { name: value } objects.
-// Tries up to 4 times (waiting longer each time, or as long as Wikidata
-// asks). Throws if it never works.
+// Runs one query (both halves) and returns its rows as plain
+// { name: value } objects. Each half is tried up to 5 times (waiting
+// longer each time, or as long as Wikidata asks). Throws if one never
+// works.
 async function ask(name) {
-  for (let attempt = 1; attempt <= 4; attempt++) {
+  const rows = [];
+  for (const types of TYPE_GROUPS) rows.push(...(await askOnce(name, QUERIES[name].replace("TYPES", types))));
+  console.log("Wikidata " + name + ": " + rows.length + " rows");
+  return rows;
+}
+
+async function askOnce(name, query) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
     wikidataQueries++;
     try {
       const response = await fetch(WIKIDATA, {
@@ -106,26 +118,26 @@ async function ask(name) {
           "Accept": "application/sparql-results+json",
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({ query: QUERIES[name] }),
+        body: new URLSearchParams({ query: query }),
         signal: AbortSignal.timeout(75000), // Wikidata stops queries after 60 s anyway
       });
       if (response.ok) {
+        // A query that ran out of time sends broken JSON: that throws
+        // here and counts as a failed try.
         const data = await response.json();
-        const rows = data.results.bindings.map(function (binding) {
+        await sleep(PAUSE_MS);
+        return data.results.bindings.map(function (binding) {
           const row = {};
           for (const key in binding) row[key] = binding[key].value;
           return row;
         });
-        console.log("Wikidata " + name + ": " + rows.length + " rows");
-        await sleep(PAUSE_MS);
-        return rows;
       }
       const wait = Number(response.headers.get("retry-after")) * 1000 || PAUSE_MS * 10 * attempt;
       console.log("Wikidata " + name + ": answered " + response.status + ", trying again in " + Math.round(wait / 1000) + " s");
       await sleep(wait);
     } catch (error) {
       // A cut-off answer (the 60 second limit) or no internet.
-      console.log("Wikidata " + name + ": " + error.message + ", trying again");
+      console.log("Wikidata " + name + ": " + error.message.slice(0, 80) + ", trying again");
       await sleep(PAUSE_MS * 10 * attempt);
     }
   }
@@ -267,7 +279,7 @@ async function main() {
 
   // 2. Films and series, with their works.
   const filmLabels = pickLabels(answers.filmLabels, "film");
-  const workLabels = pickLabels(answers.works, "work");
+  const workLabels = pickLabels(answers.workLabels, "work");
   // Only real English Wikipedia article links.
   const articles = new Map(answers.wikipedia
     .filter((row) => /^https:\/\/en\.wikipedia\.org\/wiki\/[^\s"<>]+$/.test(row.article))
@@ -277,10 +289,11 @@ async function main() {
   const announced = earliestDates(answers.announced);
 
   const workIds = new Map(); // work -> Open Library work ids
-  for (const row of answers.works) {
+  for (const row of answers.workIds) {
+    if (!/^OL\d+W$/.test(row.ol)) continue; // editions (OL...M) and authors don't count
     const id = qid(row.work);
     if (!workIds.has(id)) workIds.set(id, new Set());
-    if (row.ol && /^OL\d+W$/.test(row.ol)) workIds.get(id).add(row.ol);
+    workIds.get(id).add(row.ol);
   }
   const workAuthors = new Map();
   for (const row of answers.authors) {
@@ -426,7 +439,9 @@ async function main() {
     writeFileSync(file, JSON.stringify(data) + "\n");
     changed++;
   }
-  shards.forEach((shard, number) => save("adaptations-" + String(number).padStart(2, "0") + ".json", shard, false));
+  // Keys in a fixed order, so the files only change when the data does.
+  const sorted = (shard) => Object.fromEntries(Object.keys(shard).sort().map((key) => [key, shard[key]]));
+  shards.forEach((shard, number) => save("adaptations-" + String(number).padStart(2, "0") + ".json", sorted(shard), false));
   save("upcoming.json", Object.assign({ made: TODAY, filmCount: films.size }, result), true);
   // Old files from a different number of files: remove them.
   for (const name of readdirSync(OUT)) {
