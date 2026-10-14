@@ -55,13 +55,13 @@
    "seed": "Persepolis"
   },
   {
-   "external_id": "OL37844209W",
+   "external_id": "OL17596671W",
    "title": "Saga",
    "author": "Brian K. Vaughan",
-   "cover_url": null,
+   "cover_url": "https://covers.openlibrary.org/b/id/12648948-M.jpg?default=false",
    "isbns": [
-    "9781534315631",
-    "163215286X"
+    "0606367276",
+    "9788468478906"
    ],
    "genres": [
     "comics",
@@ -89,18 +89,18 @@
    "seed": "V for Vendetta"
   },
   {
-   "external_id": "OL21213336W",
-   "title": "The Sandman - Overture",
+   "external_id": "OL28604758W",
+   "title": "The Sandman",
    "author": "Neil Gaiman",
-   "cover_url": "https://covers.openlibrary.org/b/id/9150699-M.jpg?default=false",
+   "cover_url": null,
    "isbns": [
-    "1401265197",
-    "1401248969"
+    "9781713647263",
+    "1840235357"
    ],
    "genres": [
     "comics",
-    "horror",
-    "fantasy"
+    "fantasy",
+    "horror"
    ],
    "seed": "The Sandman"
   },
@@ -205,13 +205,13 @@
    "seed": "The Walking Dead"
   },
   {
-   "external_id": "OL16682248W",
-   "title": "Y The Last Man - Deluxe Edition, Book 3",
+   "external_id": "OL5753154W",
+   "title": "Y The Last Man - Deluxe Edition, Book 1",
    "author": "Brian K. Vaughan",
-   "cover_url": "https://covers.openlibrary.org/b/id/8477465-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/798859-M.jpg?default=false",
    "isbns": [
-    "1401225780",
-    "9781401254391"
+    "9781401202323",
+    "9781401202019"
    ],
    "genres": [
     "comics",
@@ -239,13 +239,13 @@
    "seed": "Hellboy"
   },
   {
-   "external_id": "OL15507248W",
-   "title": "Locke & Key, Vol. 2",
+   "external_id": "OL22302846W",
+   "title": "Locke & Key",
    "author": "Joe Hill",
-   "cover_url": "https://covers.openlibrary.org/b/id/6671227-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/12748147-M.jpg?default=false",
    "isbns": [
-    "9781600104831",
-    "9781613773970"
+    "9781600106293",
+    "9781684057856"
    ],
    "genres": [
     "comics",
@@ -547,13 +547,13 @@
    "seed": "Paper Girls"
   },
   {
-   "external_id": "OL19717042W",
-   "title": "Monstress, Vol. 2",
+   "external_id": "OL20033584W",
+   "title": "Monstress, Vol. 1",
    "author": "Marjorie M. Liu",
-   "cover_url": "https://covers.openlibrary.org/b/id/10678052-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/8746080-M.jpg?default=false",
    "isbns": [
-    "0606400567",
-    "9781534303881"
+    "2756086800",
+    "1632157098"
    ],
    "genres": [
     "comics",
@@ -579,16 +579,17 @@
    "seed": "Sweet Tooth"
   },
   {
-   "external_id": "OL9862322W",
-   "title": "Essex County volume 3",
+   "external_id": "OL9862318W",
+   "title": "Essex County Volume 1",
    "author": "Jeff Lemire",
-   "cover_url": "https://covers.openlibrary.org/b/id/6747276-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/3033499-M.jpg?default=false",
    "isbns": [
-    "1891830953",
-    "3935229917"
+    "1891830880",
+    "9781891830884"
    ],
    "genres": [
     "comics",
+    "children",
     "literary_fiction"
    ],
    "seed": "Essex County"
@@ -702,17 +703,18 @@
    "seed": "Blacksad"
   },
   {
-   "external_id": "OL15101739W",
-   "title": "The Incal 3",
+   "external_id": "OL19714308W",
+   "title": "The Incal",
    "author": "Alejandro Jodorowsky",
-   "cover_url": null,
+   "cover_url": "https://covers.openlibrary.org/b/id/10622894-M.jpg?default=false",
    "isbns": [
-    "0871354381",
-    "9780871354389"
+    "1594650934",
+    "9781594650932"
    ],
    "genres": [
     "comics",
-    "science_fiction"
+    "science_fiction",
+    "dystopian"
    ],
    "seed": "The Incal"
   },
@@ -784,13 +786,13 @@
    "seed": "The Umbrella Academy"
   },
   {
-   "external_id": "OL21300854W",
-   "title": "East of West, Vol. 7",
+   "external_id": "OL19704326W",
+   "title": "East of West, Vol. 1",
    "author": "Jonathan Hickman",
-   "cover_url": "https://covers.openlibrary.org/b/id/12750526-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/12750523-M.jpg?default=false",
    "isbns": [
-    "9781534306219",
-    "1534306218"
+    "1607068702",
+    "1607067706"
    ],
    "genres": [
     "comics",
@@ -800,13 +802,13 @@
    "seed": "East of West"
   },
   {
-   "external_id": "OL19662219W",
-   "title": "Lumberjanes Vol. 3",
+   "external_id": "OL17200328W",
+   "title": "Lumberjanes Vol. 1",
    "author": "N.D. Stevenson",
-   "cover_url": "https://covers.openlibrary.org/b/id/10471067-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/7368687-M.jpg?default=false",
    "isbns": [
-    "8494506390",
-    "1484465687"
+    "9788494425776",
+    "8494506358"
    ],
    "genres": [
     "comics",
@@ -1018,35 +1020,31 @@
    "seed": "The League of Extraordinary Gentlemen"
   },
   {
-   "external_id": "OL16673121W",
-   "title": "Saga of the Swamp Thing book two",
+   "external_id": "OL16143277W",
+   "title": "Saga of the Swamp Thing Book Five",
    "author": "Alan Moore",
-   "cover_url": "https://covers.openlibrary.org/b/id/14319249-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/10723917-M.jpg?default=false",
    "isbns": [
-    "9781401225445",
-    "1401225446"
+    "1401230954",
+    "9781401230951"
    ],
    "genres": [
     "comics",
-    "science_fiction",
     "horror"
    ],
    "seed": "Saga of the Swamp Thing"
   },
   {
-   "external_id": "OL8548336W",
-   "title": "Invincible - Ultimate Collection, Vol. 2",
+   "external_id": "OL21008180W",
+   "title": "Invincible, Vol. 1",
    "author": "Robert Kirkman",
-   "cover_url": "https://covers.openlibrary.org/b/id/7102999-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/844977-M.jpg?default=false",
    "isbns": [
-    "9781594972386",
-    "9781594972362"
+    "9781413194265",
+    "1106900154"
    ],
    "genres": [
     "comics",
-    "fantasy",
-    "young_adult",
-    "children",
     "science_fiction",
     "adventure"
    ],
@@ -1169,38 +1167,34 @@
    "seed": "Naruto"
   },
   {
-   "external_id": "OL5753059W",
-   "title": "Dragon Ball Z; Thank You",
+   "external_id": "OL37839165W",
+   "title": "Dragon Ball",
    "author": "鳥山 明 [Akira Toriyama]",
-   "cover_url": "https://covers.openlibrary.org/b/id/1787375-M.jpg?default=false",
+   "cover_url": null,
    "isbns": [
-    "9781591160069",
-    "9781415635551"
+    "1413103634",
+    "9781421526140"
    ],
    "genres": [
     "manga",
     "fantasy",
-    "children",
-    "science_fiction",
-    "mystery",
     "adventure",
     "humour"
    ],
    "seed": "Dragon Ball"
   },
   {
-   "external_id": "OL8463012W",
-   "title": "Akira, Vol. 1",
+   "external_id": "OL32419961W",
+   "title": "Akira",
    "author": "Katsuhiro Ōtomo",
-   "cover_url": "https://covers.openlibrary.org/b/id/814967-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/15096158-M.jpg?default=false",
    "isbns": [
-    "9783551745217",
-    "9781935429005"
+    "0871356244",
+    "0871356880"
    ],
    "genres": [
     "manga",
     "science_fiction",
-    "young_adult",
     "dystopian"
    ],
    "seed": "Akira"
@@ -1224,13 +1218,13 @@
    "seed": "Attack on Titan"
   },
   {
-   "external_id": "OL8756311W",
-   "title": "Death Note, Vol. 2",
+   "external_id": "OL8756309W",
+   "title": "Death Note, Vol. 1",
    "author": "Tsugumi Ohba",
-   "cover_url": "https://covers.openlibrary.org/b/id/764905-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/1041608-M.jpg?default=false",
    "isbns": [
-    "9789861149585",
-    "2505000425"
+    "1421525771",
+    "4088736214"
    ],
    "genres": [
     "manga",
@@ -1241,16 +1235,17 @@
    "seed": "Death Note"
   },
   {
-   "external_id": "OL8756253W",
-   "title": "Fullmetal Alchemist Anime Profiles",
+   "external_id": "OL8756254W",
+   "title": "Fullmetal Alchemist Boxset W/Alphonse Figurine",
    "author": "荒川弘",
-   "cover_url": "https://covers.openlibrary.org/b/id/4813846-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/765321-M.jpg?default=false",
    "isbns": [
-    "9781421504261",
-    "142150426X"
+    "1421507455",
+    "9781421507453"
    ],
    "genres": [
     "manga",
+    "mystery",
     "fantasy",
     "adventure"
    ],
@@ -1402,54 +1397,37 @@
    "seed": "Phoenix"
   },
   {
-   "external_id": "OL5769559W",
-   "title": "Buddha, Volume 7",
+   "external_id": "OL5769514W",
+   "title": "Buddha, Volume 1",
    "author": "Osamu Tezuka",
-   "cover_url": "https://covers.openlibrary.org/b/id/958990-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/958984-M.jpg?default=false",
    "isbns": [
-    "9781932234626",
-    "1932234497"
+    "9781932234565",
+    "193223456X"
    ],
    "genres": [
     "manga",
+    "fantasy",
     "historical_fiction",
     "religion"
    ],
    "seed": "Buddha"
   },
   {
-   "external_id": "OL5855190W",
-   "title": "Sailor Moon, Friends and Foes",
-   "author": "武内 直子",
-   "cover_url": "https://covers.openlibrary.org/b/id/8998765-M.jpg?default=false",
+   "external_id": "OL29244651W",
+   "title": "Sailor Moon",
+   "author": "Lianne Sentar",
+   "cover_url": "https://covers.openlibrary.org/b/id/941186-M.jpg?default=false",
    "isbns": [
-    "9785558604313",
-    "1568361181"
+    "0613803078",
+    "1892213613"
    ],
    "genres": [
     "manga",
-    "adventure",
-    "fantasy",
-    "science_fiction",
-    "children",
-    "romance"
-   ],
-   "seed": "Sailor Moon"
-  },
-  {
-   "external_id": "OL5750774W",
-   "title": "Cardcaptor Sakura, Cinemanga Book 2",
-   "author": "CLAMP",
-   "cover_url": "https://covers.openlibrary.org/b/id/957026-M.jpg?default=false",
-   "isbns": [
-    "2845991282",
-    "9780613804127"
-   ],
-   "genres": [
-    "manga",
+    "romance",
     "fantasy"
    ],
-   "seed": "Cardcaptor Sakura"
+   "seed": "Sailor Moon"
   },
   {
    "external_id": "OL20319713W",
@@ -1483,13 +1461,13 @@
    "seed": "Nana"
   },
   {
-   "external_id": "OL17412212W",
-   "title": "Kimi Ni Todoke From Me To You",
+   "external_id": "OL19952199W",
+   "title": "Kimi ni todoke",
    "author": "Karuho Shiina",
-   "cover_url": "https://covers.openlibrary.org/b/id/7527131-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/10224615-M.jpg?default=false",
    "isbns": [
-    "9781421527871",
-    "1421527871"
+    "1421540231",
+    "9781421540238"
    ],
    "genres": [
     "manga",
@@ -1565,16 +1543,17 @@
    "seed": "Spy x Family"
   },
   {
-   "external_id": "OL20715490W",
-   "title": "One-Punch Man, Vol. 20",
+   "external_id": "OL19747060W",
+   "title": "One-Punch Man 14",
    "author": "ONE",
-   "cover_url": "https://covers.openlibrary.org/b/id/9396355-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/15107186-M.jpg?default=false",
    "isbns": [
-    "4088818148",
-    "9788418061387"
+    "1974700437",
+    "9781974700431"
    ],
    "genres": [
     "manga",
+    "science_fiction",
     "humour",
     "adventure"
    ],
@@ -1597,17 +1576,19 @@
    "seed": "Mob Psycho 100"
   },
   {
-   "external_id": "OL8215103W",
-   "title": "Yu Yu Hakusho 11",
+   "external_id": "OL8215111W",
+   "title": "Yu Yu Hakusho 8",
    "author": "Yoshihiro Togashi",
-   "cover_url": "https://covers.openlibrary.org/b/id/5274271-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/5274247-M.jpg?default=false",
    "isbns": [
-    "1417770538",
-    "9782871292159"
+    "141777049X",
+    "4088712803"
    ],
    "genres": [
     "manga",
     "fantasy",
+    "horror",
+    "children",
     "adventure"
    ],
    "seed": "Yu Yu Hakusho"
@@ -1759,20 +1740,18 @@
    "seed": "Rurouni Kenshin"
   },
   {
-   "external_id": "OL8212065W",
-   "title": "InuYasha Animanga Vol. 23",
+   "external_id": "OL8211756W",
+   "title": "Inuyasha Ani-Manga, Volume 1",
    "author": "高橋留美子",
-   "cover_url": "https://covers.openlibrary.org/b/id/1813345-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/863174-M.jpg?default=false",
    "isbns": [
-    "1421509075",
-    "9781421509075"
+    "9781591162025",
+    "1591162025"
    ],
    "genres": [
     "manga",
     "fantasy",
-    "mystery",
-    "romance",
-    "historical_fiction"
+    "romance"
    ],
    "seed": "Inuyasha"
   },
@@ -1793,22 +1772,6 @@
     "romance"
    ],
    "seed": "Ranma ½"
-  },
-  {
-   "external_id": "OL8211847W",
-   "title": "Maison Ikkoku [Abridged], Vol. 10",
-   "author": "高橋留美子",
-   "cover_url": "https://covers.openlibrary.org/b/id/813525-M.jpg?default=false",
-   "isbns": [
-    "1417662239",
-    "9781569312858"
-   ],
-   "genres": [
-    "manga",
-    "romance",
-    "humour"
-   ],
-   "seed": "Maison Ikkoku"
   },
   {
    "external_id": "OL19995749W",
@@ -1843,22 +1806,6 @@
     "adventure"
    ],
    "seed": "Trigun"
-  },
-  {
-   "external_id": "OL36141153W",
-   "title": "Witch Hat Atelier Kitchen 1",
-   "author": "Hiromi Sato",
-   "cover_url": "https://covers.openlibrary.org/b/id/15113859-M.jpg?default=false",
-   "isbns": [
-    "1646518438",
-    "9781646518432"
-   ],
-   "genres": [
-    "manga",
-    "fantasy",
-    "adventure"
-   ],
-   "seed": "Witch Hat Atelier"
   },
   {
    "external_id": "OL36106503W",
@@ -1908,33 +1855,33 @@
    "seed": "Orange"
   },
   {
-   "external_id": "OL8752657W",
-   "title": "Azumanga Daioh Omnibus Volume 1 (Azumanga Daioh)",
+   "external_id": "OL19086338W",
+   "title": "Azumanga Daioh",
    "author": "あずまきよひこ",
-   "cover_url": "https://covers.openlibrary.org/b/id/2778749-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/8402144-M.jpg?default=false",
    "isbns": [
-    "1413903649",
-    "9781413903645"
+    "9780316077385",
+    "0316077380"
    ],
    "genres": [
     "manga",
+    "children",
     "humour"
    ],
    "seed": "Azumanga Daioh"
   },
   {
-   "external_id": "OL2169590W",
-   "title": "Barefoot Gen Vol. 4, Barefoot Gen Vol. 5 (Splitting Works needed)",
+   "external_id": "OL20252292W",
+   "title": "Barefoot Gen Volume 2",
    "author": "中沢 啓治",
-   "cover_url": "https://covers.openlibrary.org/b/id/658227-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/8908469-M.jpg?default=false",
    "isbns": [
-    "1550922297",
-    "9780867195958"
+    "0867195908",
+    "086719832X"
    ],
    "genres": [
     "manga",
     "historical_fiction",
-    "humour",
     "history"
    ],
    "seed": "Barefoot Gen"
@@ -1988,13 +1935,13 @@
    "seed": "Soul Eater"
   },
   {
-   "external_id": "OL8783390W",
-   "title": "Claymore, Volume 11",
+   "external_id": "OL8783630W",
+   "title": "Claymore, Volume 2",
    "author": "Norihiro Yagi",
-   "cover_url": "https://covers.openlibrary.org/b/id/1813445-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/765230-M.jpg?default=false",
    "isbns": [
-    "9788483573341",
-    "1421515717"
+    "142150619X",
+    "8467912391"
    ],
    "genres": [
     "manga",
@@ -2018,13 +1965,13 @@
    "seed": "Horimiya"
   },
   {
-   "external_id": "OL27297253W",
-   "title": "Komi Can't Communicate, Vol. 22",
+   "external_id": "OL27297254W",
+   "title": "Komi Can't Communicate, Vol. 21",
    "author": "Tomohito Oda",
-   "cover_url": "https://covers.openlibrary.org/b/id/13028639-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/13472053-M.jpg?default=false",
    "isbns": [
-    "1974732088",
-    "9781974732081"
+    "1974731049",
+    "9781974731046"
    ],
    "genres": [
     "manga",
@@ -2034,13 +1981,13 @@
    "seed": "Komi Can't Communicate"
   },
   {
-   "external_id": "OL21668741W",
-   "title": "Golden Kamuy, Vol. 17",
+   "external_id": "OL21668858W",
+   "title": "Golden Kamuy, Vol. 16",
    "author": "Satoru Noda",
-   "cover_url": "https://covers.openlibrary.org/b/id/14000227-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/14000228-M.jpg?default=false",
    "isbns": [
-    "1974714896",
-    "9781974714896"
+    "1974709566",
+    "9788417820763"
    ],
    "genres": [
     "manga",
