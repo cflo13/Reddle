@@ -125,10 +125,15 @@ async function loadPage() {
     document.getElementById("follow-login").hidden = false;
   }
 
+  // Followers / Following open a list (a private profile's lists only
+  // for them, approved followers and admins).
+  setUpFriendLists(isMe);
+
   // Private profile you aren't approved for: just the top part.
   if (profile.is_private && !isMe) {
     const { data: allowed } = await db.rpc("can_see_activity", { owner: profile.id });
     if (!allowed) {
+      listsAllowed = false;
       showPrivateNotice();
       await loadStats();
       return;
@@ -169,15 +174,220 @@ function plural(count, word) {
   return count + " " + word + (count === 1 ? "" : "s");
 }
 
+// Followers and following counts (supabase/step28-friends-lists.sql:
+// the numbers show even on a private profile; the lists don't).
+async function followCounts(personId) {
+  const { data, error } = await db.rpc("follow_counts", { p_person: personId });
+  if (!error && data) return [Number(data.followers) || 0, Number(data.following) || 0];
+  return Promise.all([countRows("follows", "following_id", personId), countRows("follows", "follower_id", personId)]);
+}
+
 async function loadStats() {
-  const [books, followers, following] = await Promise.all([
+  const [books, [followers, following]] = await Promise.all([
     countRows("logs", "user_id", shownProfile.id),
-    countRows("follows", "following_id", shownProfile.id), // people who follow them
-    countRows("follows", "follower_id", shownProfile.id),  // people they follow
+    followCounts(shownProfile.id),
   ]);
   document.getElementById("stat-books").textContent = plural(books, "book");
   document.getElementById("stat-followers").textContent = plural(followers, "follower");
   document.getElementById("stat-following").textContent = following + " following";
+}
+
+
+// ---------- Followers / Following lists ----------
+// The counts are buttons; each opens a pop-up list (a sheet on phones):
+// picture, @username (links to the profile) and a Follow / Following
+// button, newest first, 30 at a time. Your own profile also has "Mutual
+// friends" (people you follow who follow you back). The database decides
+// who may see what (step28: private profiles, blocks); muted people
+// show as normal.
+
+const FRIENDS_PAGE = 30;
+let listsAllowed = true; // false on a private profile you aren't approved for
+
+const FRIEND_LISTS = {
+  followers: { title: "Followers", empty: "No followers yet" },
+  following: { title: "Following", empty: "Not following anyone yet" },
+  mutual: { title: "Mutual friends", empty: "No mutual friends yet" },
+};
+
+function setUpFriendLists(isMe) {
+  document.getElementById("stat-followers").addEventListener("click", () => openFriendList("followers", isMe));
+  document.getElementById("stat-following").addEventListener("click", () => openFriendList("following", isMe));
+}
+
+// One page of a list: { people: [profile...], more: boolean }.
+// One query each, with the profiles joined (the link is named because
+// follows has two links to profiles).
+async function fetchFriendPage(kind, offset) {
+  let rows;
+  if (kind === "mutual") {
+    const { data, error } = await db.rpc("mutual_friends", { p_limit: FRIENDS_PAGE + 1, p_offset: offset });
+    if (error) throw error;
+    rows = data;
+  } else {
+    const followers = kind === "followers";
+    const { data, error } = await db
+      .from("follows")
+      .select(followers
+        ? "created_at, profiles!follows_follower_id_fkey(id, username, avatar_url, is_private)"
+        : "created_at, profiles!follows_following_id_fkey(id, username, avatar_url, is_private)")
+      .eq(followers ? "following_id" : "follower_id", shownProfile.id)
+      .order("created_at", { ascending: false })
+      .order(followers ? "follower_id" : "following_id", { ascending: true })
+      .range(offset, offset + FRIENDS_PAGE);
+    if (error) throw error;
+    rows = data.map((row) => row.profiles).filter(Boolean);
+  }
+  return { people: rows.slice(0, FRIENDS_PAGE), more: rows.length > FRIENDS_PAGE };
+}
+
+// Your follow state for each person on a page: id -> "following" |
+// "requested" | "none" (two small queries for the whole page).
+async function followStates(people) {
+  const states = new Map(people.map((person) => [person.id, "none"]));
+  if (!currentUserId || people.length === 0) return states;
+  const ids = people.map((person) => person.id);
+  const [follows, requests] = await Promise.all([
+    db.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", ids),
+    db.from("follow_requests").select("target_id").eq("requester_id", currentUserId).in("target_id", ids),
+  ]);
+  (requests.data || []).forEach((row) => states.set(row.target_id, "requested"));
+  (follows.data || []).forEach((row) => states.set(row.following_id, "following"));
+  return states;
+}
+
+// The Follow / Following button on a row (existing follow helpers).
+function makeRowFollowButton(person, startState) {
+  if (!currentUserId) {
+    const link = el("a", "button friend-follow", "Follow");
+    link.href = "login.html"; // remembers this page (js/auth.js)
+    return link;
+  }
+  let state = startState;
+  const button = el("button", "button friend-follow");
+  button.type = "button";
+  function show() {
+    button.textContent = { following: "Following", requested: "Requested", none: person.is_private ? "Request" : "Follow" }[state];
+    button.classList.toggle("button-secondary", state !== "none");
+    button.setAttribute("aria-label", button.textContent + " @" + person.username);
+  }
+  show();
+  button.addEventListener("click", async function () {
+    button.disabled = true;
+    try {
+      state = state === "none" ? await followPerson(person) : await unfollowPerson(person.id);
+    } catch (error) {
+      alert(friendlyError(error, "Something went wrong. "));
+    } finally {
+      button.disabled = false;
+    }
+    show();
+  });
+  return button;
+}
+
+function makeFriendRow(person, state) {
+  const row = el("li", "friend-row");
+  const link = el("a", "friend-link");
+  link.href = profileLink(person.username);
+  link.append(makeAvatar(person, "avatar-small"), el("span", "friend-name", "@" + person.username));
+  row.appendChild(link);
+  if (person.id !== currentUserId) row.appendChild(makeRowFollowButton(person, state));
+  return row;
+}
+
+function friendSkeleton() {
+  const box = el("li", "skeleton-group");
+  box.setAttribute("role", "status");
+  box.setAttribute("aria-label", "Loading");
+  for (let i = 0; i < 4; i++) {
+    const line = el("div", "friend-skeleton");
+    line.setAttribute("aria-hidden", "true");
+    line.append(el("span", "skeleton sk-avatar-small"), el("span", "skeleton sk-line sk-short"));
+    box.appendChild(line);
+  }
+  return box;
+}
+
+function openFriendList(kind, isMe) {
+  const { dialog, body } = makeDialog(FRIEND_LISTS[kind].title);
+  dialog.classList.add("friends-dialog");
+  const heading = dialog.querySelector(".dialog-head h2");
+
+  // The chips: Followers, Following (and Mutual friends on your own profile).
+  const chips = el("div", "friend-chips");
+  chips.setAttribute("role", "tablist");
+  const kinds = isMe ? ["followers", "following", "mutual"] : ["followers", "following"];
+  const chipButtons = {};
+  for (const name of kinds) {
+    const chip = el("button", "friend-chip", FRIEND_LISTS[name].title);
+    chip.type = "button";
+    chip.setAttribute("role", "tab");
+    chip.addEventListener("click", () => show(name));
+    chipButtons[name] = chip;
+    chips.appendChild(chip);
+  }
+  body.appendChild(chips);
+  const list = el("ul", "friend-list");
+  body.appendChild(list);
+  const more = el("button", "button button-secondary friend-more", "Load more");
+  more.type = "button";
+  more.hidden = true;
+  const moreBox = el("p", "center");
+  moreBox.appendChild(more);
+  body.appendChild(moreBox);
+
+  let current = null;
+  let offset = 0;
+  let loading = 0; // which load is the newest (switching chips cancels older ones)
+
+  async function nextPage() {
+    const mine = loading;
+    more.disabled = true;
+    try {
+      const page = await fetchFriendPage(current, offset);
+      const states = await followStates(page.people);
+      if (mine !== loading) return;
+      if (offset === 0) list.textContent = "";
+      if (offset === 0 && page.people.length === 0) list.appendChild(el("li", "friend-empty", FRIEND_LISTS[current].empty));
+      page.people.forEach((person) => list.appendChild(makeFriendRow(person, states.get(person.id))));
+      offset += page.people.length;
+      more.hidden = !page.more;
+    } catch (error) {
+      if (mine !== loading) return;
+      list.textContent = "";
+      list.appendChild(el("li", "status status-error", friendlyError(error, "The list didn't load. ")));
+    } finally {
+      more.disabled = false;
+    }
+  }
+
+  function show(name) {
+    current = name;
+    offset = 0;
+    loading++;
+    heading.textContent = FRIEND_LISTS[name].title + (isMe ? "" : " of @" + shownProfile.username);
+    for (const other of kinds) {
+      chipButtons[other].classList.toggle("friend-chip-active", other === name);
+      chipButtons[other].setAttribute("aria-selected", other === name ? "true" : "false");
+    }
+    more.hidden = true;
+    list.textContent = "";
+    if (!listsAllowed) {
+      list.appendChild(el("li", "friend-empty", "This account is private"));
+      return;
+    }
+    list.appendChild(friendSkeleton());
+    nextPage();
+  }
+
+  more.addEventListener("click", nextPage);
+  dialog.addEventListener("close", function () {
+    dialog.remove();
+    loadStats().catch(() => {}); // following someone in the list changes the numbers
+  });
+  dialog.showModal();
+  show(kind);
 }
 
 

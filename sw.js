@@ -16,7 +16,7 @@
 // new link and old copies are thrown away.
 // ------------------------------------------------------------
 
-const CACHE = "reddle-v9"; // change this to throw everything away
+const CACHE = "reddle-v10"; // change this to throw everything away
 const OFFLINE_PAGE = "offline.html";
 
 // Kept straight away when the service worker is installed.

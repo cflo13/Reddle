@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=64";
+        preload.href = "seeds-resolved.json?v=65";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=64">
+  <link rel="stylesheet" href="css/style.css?v=65">
 </head>
 <body>
   <header class="site-header">
@@ -130,26 +130,26 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=64"></script>
+  <script src="js/config.js?v=65"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=64"></script>
+  <script src="js/supabase-client.js?v=65"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=64"></script>
+  <script src="js/auth.js?v=65"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=64"></script>
+  <script src="js/sources.js?v=65"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=64"></script>
+  <script src="js/search-suggest.js?v=65"></script>
   <!-- 5b. Curated comics and manga lists (fill lists while Reddle is small) -->
-  <script src="js/universe-seeds.js?v=64"></script>
+  <script src="js/universe-seeds.js?v=65"></script>
   <!-- 5c. Book to screen: films and series based on books (Wikidata files) -->
-  <script src="js/screen-data.js?v=64"></script>
+  <script src="js/screen-data.js?v=65"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=64"></script>
+  <script src="js/books.js?v=65"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=64"></script>
+  <script src="js/share-card.js?v=65"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=64"></script>
+  <script src="js/social.js?v=65"></script>
   <!-- This page's own code -->
-  <script src="js/prompt.js?v=64"></script>
+  <script src="js/prompt.js?v=65"></script>
 </body>
 </html>
