@@ -3,16 +3,22 @@
 // ------------------------------------------------------------
 // While Reddle has few comics or manga of its own, these well-known
 // titles fill Popular this week, the home rows and empty lists. Each is
-// only a title and its creator (text, no logos or artwork). The site
-// searches Open Library for each one (Google Books if it has a key) and
-// only uses a result whose title AND creator match and which our strict
-// rules (js/sources.js) also call comics or manga. Answers are remembered
-// for the browser tab, and the order changes every day.
+// only a title and its creator (text, no logos or artwork).
+//
+// The site never searches for them itself (that was slow: one Open
+// Library search per title). Once a week GitHub runs
+// tools/resolve-seeds.mjs (.github/workflows/seeds.yml), which looks each
+// title up on Open Library with the same strict rules as the site (title,
+// creator, comics or manga) and saves the winners in seeds-resolved.json.
+// The site reads that one small file (cached by the service worker) and
+// shows it in a new order every day.
 //
 //   t: title, c: creator(s) (any one may match), g: our genres, used for
 //      genre rows ("Popular in Fantasy manga")
 //
-// Loaded on every page after js/sources.js.
+// If you add titles here, run the "Resolve seed lists" workflow on
+// GitHub's Actions tab (or wait for Monday) to include them.
+// Loaded with js/books.js, after js/sources.js.
 // ------------------------------------------------------------
 
 const UNIVERSE_SEEDS = {
@@ -190,8 +196,8 @@ const UNIVERSE_SEEDS = {
 
 // The same shuffled order all day, a new one tomorrow (a small seeded
 // shuffle: Fisher-Yates with a pseudo-random number from the date).
-function seedsForToday(universe) {
-  const list = (UNIVERSE_SEEDS[universe] || []).slice();
+function shuffleForToday(list, universe) {
+  list = list.slice();
   const day = new Date();
   let state = day.getFullYear() * 10000 + (day.getMonth() + 1) * 100 + day.getDate() + (universe === "manga" ? 7 : 0);
   const random = function () {
@@ -205,10 +211,12 @@ function seedsForToday(universe) {
   return list;
 }
 
+function seedsForToday(universe) {
+  return shuffleForToday(UNIVERSE_SEEDS[universe] || [], universe);
+}
 
-// ---------- Finding a seed ----------
 
-const SEED_CACHE_PREFIX = "reddle:seed:v1:";
+// ---------- Matching rules (used by tools/resolve-seeds.mjs) ----------
 
 // "Batman: Year One" -> "batman year one" (no accents or signs, single
 // spaces); `joined` leaves out the spaces too ("batmanyearone").
@@ -241,86 +249,66 @@ function sameCreator(foundNames, seed) {
   });
 }
 
-function rememberedSeed(universe, seed) {
+
+// ---------- The resolved list (seeds-resolved.json) ----------
+
+// The file carries the site version (from this script's own ?v=), so a
+// new site version fetches it fresh; the service worker keeps a copy.
+const SEEDS_FILE = "seeds-resolved.json";
+const SEEDS_VERSION = (function () {
   try {
-    const saved = sessionStorage.getItem(SEED_CACHE_PREFIX + universe + ":" + seed.t);
-    return saved ? JSON.parse(saved) : undefined;
+    return new URL(document.currentScript.src).searchParams.get("v") || "";
   } catch (error) {
-    return undefined;
+    return "";
   }
+})();
+let resolvedSeeds = null; // one fetch per page
+
+function loadResolvedSeeds() {
+  if (!resolvedSeeds) {
+    resolvedSeeds = fetch(SEEDS_FILE + (SEEDS_VERSION ? "?v=" + SEEDS_VERSION : ""))
+      .then((response) => (response.ok ? response.json() : {}))
+      .catch(() => ({}));
+  }
+  return resolvedSeeds;
 }
 
-function rememberSeed(universe, seed, book) {
-  try {
-    sessionStorage.setItem(SEED_CACHE_PREFIX + universe + ":" + seed.t, JSON.stringify(book));
-  } catch (error) {}
+// A saved entry -> our usual search shape { externalId, title, ... }.
+function resolvedToBook(entry) {
+  return {
+    externalId: entry.external_id,
+    title: entry.title,
+    author: entry.author || "",
+    coverUrl: entry.cover_url || null,
+    isbns: entry.isbns || [],
+    genres: entry.genres || [],
+    seed: true,
+  };
 }
 
-// One seed -> a book in our usual search shape, or null. Open Library
-// first (the edition-richest matching work), then Google Books.
-async function findSeed(universe, seed) {
-  const saved = rememberedSeed(universe, seed);
-  if (saved !== undefined) return saved;
-
-  let found = null;
-  const url =
-    SOURCES_OPEN_LIBRARY + "/search.json?limit=10&sort=editions" +
-    "&fields=" + OPEN_LIBRARY_FIELDS +
-    "&title=" + encodeURIComponent(seed.t) + "&author=" + encodeURIComponent(seed.c[0]);
-  const data = await sourceJson(url);
-  for (const doc of (data && data.docs) || []) {
-    const book = openLibraryDocToBook(doc);
-    const names = (doc.author_name || []).concat(doc.author_alternative_name || []);
-    if (sameTitle(book.title, seed.t) && sameCreator(names, seed) && fitsUniverse(book, universe)) {
-      found = book;
-      break;
-    }
-  }
-
-  if (!found) {
-    const google = await googleJson((
-      GOOGLE_BOOKS + "?printType=books&maxResults=10" +
-      "&fields=items(id,volumeInfo(title,subtitle,authors,publishedDate,categories,imageLinks,industryIdentifiers,maturityRating,pageCount))" +
-      "&q=" + encodeURIComponent('intitle:"' + seed.t + '" inauthor:"' + seed.c[0] + '"')
-    ));
-    for (const item of (google && google.items) || []) {
-      const book = googleVolumeToBook(item);
-      if (book && sameTitle(book.title, seed.t) && sameCreator(book.author.split(", "), seed) && bookInUniverse(book, universe)) {
-        found = book;
-        break;
-      }
-    }
-  }
-
-  if (found) {
-    // Our genres for the rows, plus whatever the source said.
-    found.genres = [...new Set([...(found.genres || []), ...seed.g])];
-    found.seed = true;
-  }
-  // Only remember real answers (a failed request is tried again later).
-  if (found || data) rememberSeed(universe, seed, found);
-  return found;
-}
-
-// A stream of found seeds for a universe, in today's order, optionally
-// only those with one genre. next(count) gives the next `count` books
-// (fewer at the end), looking up 6 at a time.
+// The seeds of a universe in today's order, optionally only one genre.
+// next(count) gives the next `count` books (fewer at the end); there's
+// nothing to look up, so it's instant once the file is here.
 function makeSeedStream(universe, genreSlug) {
-  const list = seedsForToday(universe).filter((seed) => !genreSlug || seed.g.includes(genreSlug));
+  let list = null;
   let position = 0;
   return {
     async next(count) {
-      const books = [];
-      while (books.length < count && position < list.length) {
-        const batch = list.slice(position, position + 6);
-        position += batch.length;
-        const results = await Promise.all(batch.map((seed) => findSeed(universe, seed).catch(() => null)));
-        for (const book of results) if (book) books.push(book);
+      if (list === null) {
+        const data = await loadResolvedSeeds();
+        const all = (data[universe] || [])
+          .map(resolvedToBook)
+          .filter((book) => /^(OL\d+W|GB[A-Za-z0-9_-]{6,20})$/.test(book.externalId || "") && book.title)
+          .filter((book) => bookInUniverse(book, universe) && !looksAdult([book.title]))
+          .filter((book) => !genreSlug || book.genres.includes(genreSlug));
+        list = shuffleForToday(all, universe);
       }
-      return books;
+      const page = list.slice(position, position + count);
+      position += page.length;
+      return page;
     },
     finished() {
-      return position >= list.length;
+      return list !== null && position >= list.length;
     },
   };
 }

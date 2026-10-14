@@ -41,13 +41,23 @@
       try { universe = localStorage.getItem("reddle-universe"); } catch (e) {}
       if (universe !== "comics" && universe !== "manga") universe = "books";
       document.documentElement.setAttribute("data-universe", universe);
+      // Comics and Manga: start downloading the seed list straight away
+      // (js/universe-seeds.js reads it).
+      if (universe !== "books") {
+        var preload = document.createElement("link");
+        preload.rel = "preload";
+        preload.as = "fetch";
+        preload.crossOrigin = "anonymous";
+        preload.href = "seeds-resolved.json?v=63";
+        document.head.appendChild(preload);
+      }
       // The phone's status bar matches the header (day, night).
       var bars = { books: ["#fbf5e6", "#271f1a"], comics: ["#ffffff", "#222845"], manga: ["#ffffff", "#171717"] };
       var meta = document.querySelector('meta[name="theme-color"]');
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=62">
+  <link rel="stylesheet" href="css/style.css?v=63">
 </head>
 <body>
   <header class="site-header">
@@ -161,16 +171,16 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=62"></script>
+  <script src="js/config.js?v=63"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=62"></script>
+  <script src="js/supabase-client.js?v=63"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=62"></script>
+  <script src="js/auth.js?v=63"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=62"></script>
+  <script src="js/sources.js?v=63"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=62"></script>
+  <script src="js/search-suggest.js?v=63"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=62"></script>
+  <script src="js/static-page.js?v=63"></script>
 </body>
 </html>

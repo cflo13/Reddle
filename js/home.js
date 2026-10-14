@@ -301,15 +301,16 @@ async function forYouCandidates(profile, followingIds, myBooks, genres) {
 }
 
 // 2 and 6. A genre: top rated on Reddle, then popular on Open Library.
-// Comics and manga: the seed titles of that genre come before the open
-// Open Library search (which only keeps books our strict rules accept).
+// Comics and manga: top rated on Reddle, then the seed titles of that
+// genre (seeds-resolved.json, instant). No slow Open Library search on
+// the home page; the genre page has it under "Load more".
 function genreCandidates(slug) {
   return remembered("genre:" + slug, async function () {
     const universe = currentUniverse();
     const [topRated, seeds, popular] = await Promise.all([
       fetchTopRatedInGenres([slug], [], ROW_SIZE * 2).catch(() => []),
-      universe === "books" ? [] : makeSeedStream(universe, slug).next(ROW_SIZE).catch(() => []),
-      fetchGenreBooksFromOpenLibrary(slug, ROW_SIZE * 2, 0).catch(() => []),
+      universe === "books" ? [] : makeSeedStream(universe, slug).next(ROW_SIZE * 2).catch(() => []),
+      universe === "books" ? fetchGenreBooksFromOpenLibrary(slug, ROW_SIZE * 2, 0).catch(() => []) : [],
     ]);
     return [
       ...topRated.map((book) => ({ book: book, note: statsNote(book) })),
@@ -357,7 +358,7 @@ function popularThisWeekCandidates() {
     const [reddle, mostLogged, trending] = await Promise.all([
       fetchPopularThisWeek(ROW_SIZE * 2).catch(() => []),
       enough ? fetchMostLoggedOnReddle(ROW_SIZE * 2).catch(() => []) : [],
-      fetchTrendingFromOpenLibrary(universe === "books" ? ROW_SIZE * 2 : ROW_SIZE + 4).catch(() => []),
+      fetchTrendingFromOpenLibrary(ROW_SIZE * 2).catch(() => []),
     ]);
     reddle.push(...mostLogged.map((book) => Object.assign({ logs_this_week: 0 }, book)));
     return [
@@ -374,7 +375,8 @@ function newAndNoteworthyCandidates() {
     const universe = currentUniverse();
     const [recent, newest] = await Promise.all([
       fetchRecentlyLoggedBooks(ROW_SIZE * 2),
-      universe === "books" ? [] : fetchUniverseBooks(universe, null, ROW_SIZE * 2, 0, "newest").catch(() => []),
+      // (one smaller search, and only when you scroll down to this row)
+      universe === "books" ? [] : fetchUniverseBooks(universe, null, ROW_SIZE, 0, "newest").catch(() => []),
     ]);
     return [
       ...recent.map((item) => ({ book: item.book, reason: item.username ? "Logged by @" + item.username : "" })),

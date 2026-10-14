@@ -48,25 +48,38 @@ async function loadReddleBooks() {
 // keeps books our strict rules call comics or manga.
 const genreSeeds = genre && currentUniverse() !== "books" ? makeSeedStream(currentUniverse(), genre.universe ? null : genre.slug) : null;
 const genreShown = new Set();
+if (genreSeeds) loadResolvedSeeds(); // fetch the seed file straight away
+
+function showGenreTiles(books) {
+  if (genreShown.size === 0 && books.length) openLibraryBox.textContent = "";
+  for (const book of books) {
+    if (genreShown.has(book.externalId)) continue;
+    genreShown.add(book.externalId);
+    openLibraryBox.appendChild(makeBookTile(openLibraryToBook(book)));
+  }
+}
 
 async function loadOpenLibraryBooks() {
   moreButton.disabled = true;
   try {
-    let books = [];
-    if (genreSeeds && !genreSeeds.finished()) books = await genreSeeds.next(OPEN_LIBRARY_PAGE);
+    // Seed titles show at once; the Open Library search adds to them.
+    let seedCount = 0;
+    if (genreSeeds && !genreSeeds.finished()) {
+      const seeds = await genreSeeds.next(OPEN_LIBRARY_PAGE);
+      seedCount = seeds.length;
+      showGenreTiles(seeds);
+    }
     let openPage = [];
-    if (books.length < OPEN_LIBRARY_PAGE) {
+    if (seedCount < OPEN_LIBRARY_PAGE) {
       openPage = await fetchGenreBooksFromOpenLibrary(slug, OPEN_LIBRARY_PAGE, openLibraryShown);
       openLibraryShown += openPage.length;
-    }
-    if (genreShown.size === 0) openLibraryBox.textContent = "";
-    for (const book of books.concat(openPage)) {
-      if (genreShown.has(book.externalId)) continue;
-      genreShown.add(book.externalId);
-      openLibraryBox.appendChild(makeBookTile(openLibraryToBook(book)));
+      showGenreTiles(openPage);
     }
     moreButton.hidden = (!genreSeeds || genreSeeds.finished()) && openPage.length < OPEN_LIBRARY_PAGE;
-    if (genreShown.size === 0) openLibraryBox.appendChild(el("p", "muted", "Nothing here right now."));
+    if (genreShown.size === 0) {
+      openLibraryBox.textContent = "";
+      openLibraryBox.appendChild(el("p", "muted", "Nothing here right now."));
+    }
   } catch (error) {
     if (genreShown.size === 0) openLibraryBox.textContent = "";
     openLibraryBox.appendChild(el("p", "status status-error", friendlyError(error)));

@@ -97,18 +97,37 @@ function seedSource(universe) {
 
 let sources = null;
 
-async function buildSources() {
+// Reddle's most logged ever, only once the universe has 24+ logged
+// books (the count is asked at the same time as the first page).
+function allTimeWhenEnough(enoughPromise) {
+  const allTime = allTimeSource();
+  return {
+    finished: false,
+    async next(count) {
+      if (!(await enoughPromise)) {
+        this.finished = true;
+        return [];
+      }
+      const items = await allTime.next(count);
+      this.finished = allTime.finished;
+      return items;
+    },
+  };
+}
+
+function buildSources() {
   const universe = currentUniverse();
   if (universe === "books") return [thisWeekSource(), trendingSource()];
-  const enough = db && (await universeLoggedCount().catch(() => 0)) >= SEED_UNTIL;
-  return enough ? [thisWeekSource(), allTimeSource(), seedSource(universe)] : [thisWeekSource(), seedSource(universe)];
+  loadResolvedSeeds(); // (usually already on its way: the page head preloads it)
+  const enough = db ? universeLoggedCount().then((count) => count >= SEED_UNTIL).catch(() => false) : Promise.resolve(false);
+  return [thisWeekSource(), allTimeWhenEnough(enough), seedSource(universe)];
 }
 
 async function loadMorePopular() {
   popularMore.disabled = true;
   const firstLoad = shownIds.size === 0;
   try {
-    if (!sources) sources = await buildSources();
+    if (!sources) sources = buildSources();
     let added = 0;
     for (const source of sources) {
       while (added < POPULAR_PAGE && !source.finished) {

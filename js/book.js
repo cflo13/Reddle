@@ -712,7 +712,7 @@ async function loadSimilarBooks(book) {
     for (const candidate of seeds) add(openLibraryToBook(candidate), "");
   }
 
-  if (picks.length < SIMILAR_SIZE) {
+  if (picks.length < SIMILAR_SIZE && universe === "books") {
     const popular = await fetchGenreBooksFromOpenLibrary(genres[0], SIMILAR_SIZE + 1, 0).catch(() => []);
     for (const candidate of popular) add(openLibraryToBook(candidate), "");
   }
