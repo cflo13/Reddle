@@ -23,10 +23,10 @@ let openLibraryShown = 0;
 
 async function loadReddleBooks() {
   if (!db) return;
-  const { data, error } = await onlyThisUniverse(db
+  const { data, error } = await onlyShownGenres(onlyThisUniverse(db
     .from("books_with_stats")
     .select("external_id, title, author, cover_url, genres, log_count, avg_rating")
-    .contains("genres", [genre.slug])) // genres includes this one (in this universe)
+    .contains("genres", [genre.slug]))) // this genre (in this universe), none you hid
     .order("log_count", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
     .limit(24);
@@ -52,7 +52,7 @@ if (genreSeeds) loadResolvedSeeds(); // fetch the seed file straight away
 
 function showGenreTiles(books) {
   if (genreShown.size === 0 && books.length) openLibraryBox.textContent = "";
-  for (const book of books) {
+  for (const book of withoutHiddenGenres(books)) {
     if (genreShown.has(book.externalId)) continue;
     genreShown.add(book.externalId);
     openLibraryBox.appendChild(makeBookTile(openLibraryToBook(book)));
@@ -104,5 +104,25 @@ async function loadOpenLibraryBooks() {
   moreButton.addEventListener("click", loadOpenLibraryBooks);
 
   await authReady;
+  // A genre you hid: say so, with a button to show it again.
+  if (hiddenGenres().includes(genre.slug)) {
+    document.getElementById("genre-hidden").hidden = false;
+    document.getElementById("genre-content").hidden = true;
+    const button = document.getElementById("show-genre");
+    await new Promise(function (resolve) {
+      button.addEventListener("click", async function () {
+        button.disabled = true;
+        try {
+          await showGenreAgain(genre.slug);
+          document.getElementById("genre-hidden").hidden = true;
+          document.getElementById("genre-content").hidden = false;
+          resolve();
+        } catch (error) {
+          button.disabled = false;
+          alert(friendlyError(error, "Couldn't save. "));
+        }
+      });
+    });
+  }
   await Promise.all([loadReddleBooks(), loadOpenLibraryBooks()]);
 })();

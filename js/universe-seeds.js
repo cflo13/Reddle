@@ -299,7 +299,7 @@ function makeSeedStream(universe, genreSlug) {
         const all = (data[universe] || [])
           .map(resolvedToBook)
           .filter((book) => /^(OL\d+W|GB[A-Za-z0-9_-]{6,20})$/.test(book.externalId || "") && book.title)
-          .filter((book) => bookInUniverse(book, universe) && !looksAdult([book.title]))
+          .filter((book) => bookInUniverse(book, universe) && !looksAdult([book.title]) && !isHiddenBook(book))
           .filter((book) => !genreSlug || book.genres.includes(genreSlug));
         list = shuffleForToday(all, universe);
       }

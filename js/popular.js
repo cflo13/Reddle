@@ -24,9 +24,9 @@ function reddleSource(narrow, noteOf) {
   return {
     finished: !db,
     async next(count) {
-      const query = onlyThisUniverse(db
+      const query = onlyShownGenres(onlyThisUniverse(db
         .from("books_with_stats")
-        .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week"));
+        .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week")));
       const { data, error } = await narrow(query)
         .order("id", { ascending: true }) // same order every time, so pages never repeat
         .range(shown, shown + count);

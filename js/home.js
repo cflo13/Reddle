@@ -76,10 +76,11 @@ function cacheSet(key, value) {
 // universe (Books, Comics, Manga) remembers its own answers. ROWS_VERSION
 // changes when the way rows are filled changes, so nobody keeps seeing
 // rows filled the old way.
-const ROWS_VERSION = 2;
+const ROWS_VERSION = 3;
 
+// The key also has your hidden genres, so changing them shows at once.
 async function remembered(key, load) {
-  key = "v" + ROWS_VERSION + ":" + currentUniverse() + ":" + key;
+  key = "v" + ROWS_VERSION + ":" + currentUniverse() + ":" + hiddenGenresKey() + ":" + key;
   const saved = cacheGet(key);
   if (saved) return saved;
   const value = await load();
@@ -172,6 +173,8 @@ function fillRow(row, candidates) {
   for (const candidate of candidates || []) {
     const id = candidate.book && candidate.book.external_id;
     if (!id || knownBooks.has(id) || shownOnPage.has(id)) continue;
+    // Never a book in a genre you hid (Settings -> Hidden genres).
+    if (isHiddenBook(candidate.book)) continue;
     // Never a book from another universe (when we know its genres).
     if (candidate.book.genres && !bookInUniverse(candidate.book)) continue;
     shownOnPage.add(id);
@@ -252,8 +255,8 @@ function tasteGenres(profile, myLogs) {
       for (const slug of log.books.genres || []) score[slug] = (score[slug] || 0) + 1;
     }
   }
-  // Comics and manga are universes, not taste rows.
-  return Object.keys(score).filter((slug) => findGenre(slug) && !findGenre(slug).universe).sort((a, b) => score[b] - score[a]);
+  // Comics and manga are universes, not taste rows; hidden genres never.
+  return Object.keys(score).filter((slug) => findGenre(slug) && !findGenre(slug).universe && !hiddenGenres().includes(slug)).sort((a, b) => score[b] - score[a]);
 }
 
 // Genres ranked by how much they're logged on Reddle, then the usual
@@ -280,9 +283,9 @@ async function popularGenres() {
 async function forYouCandidates(profile, followingIds, myBooks, genres) {
   const candidates = [];
   if (followingIds.length > 0) {
-    const { data } = await onlyThisUniverse(db
+    const { data } = await onlyShownGenres(onlyThisUniverse(db
       .from("logs")
-      .select("rating, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres")
+      .select("rating, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres"), "books.genres")
       .in("user_id", followingIds)
       .gte("rating", 4)
       .order("rating", { ascending: false })
@@ -329,6 +332,7 @@ function universeSuffix() {
 function addGenreRow(slug, titleStart, lazy) {
   const genre = findGenre(slug);
   if (!genre || genre.universe) return; // not one of our genres (never show a broken row)
+  if (hiddenGenres().includes(genre.slug)) return; // a genre you hid
   addRow(
     { title: titleStart + genre.name + universeSuffix(), titleLink: genreLink(slug), seeAll: genreLink(slug) },
     () => genreCandidates(slug),
@@ -340,8 +344,8 @@ function addGenreRow(slug, titleStart, lazy) {
 // comments in the last 7 days (the trending_books_week view).
 function talkedAboutCandidates() {
   return remembered("talked-about", async function () {
-    const { data, error } = await onlyThisUniverse(db.from("trending_books_week")
-      .select("id, external_id, title, author, cover_url, activity, genres"))
+    const { data, error } = await onlyShownGenres(onlyThisUniverse(db.from("trending_books_week")
+      .select("id, external_id, title, author, cover_url, activity, genres")))
       .order("activity", { ascending: false }).order("id", { ascending: true }).limit(6);
     if (error) throw error;
     return data.map((book) => ({ book: book, reason: book.activity + (book.activity === 1 ? " mention" : " mentions") + " this week" }));
@@ -470,6 +474,7 @@ function addGenreButtons() {
 
   const pills = el("div", "genre-pills");
   for (const genre of listedGenres()) {
+    if (hiddenGenres().includes(genre.slug)) continue; // a genre you hid
     const pill = el("a", "genre-pill", genre.name);
     pill.href = genreLink(genre.slug);
     pills.appendChild(pill);
@@ -519,7 +524,7 @@ function buildRows(profile, myBooks, followingIds) {
   const moreSpot = el("div", "home-more");
   rowsBox.appendChild(moreSpot);
   whenNearScreen(moreSpot, async function () {
-    const genres = (await popularGenres().catch(() => FALLBACK_GENRES)).filter((slug) => !tasteRows.includes(slug));
+    const genres = (await popularGenres().catch(() => FALLBACK_GENRES)).filter((slug) => !tasteRows.includes(slug) && !hiddenGenres().includes(slug));
     genres.slice(0, 3).forEach((slug) => addGenreRow(slug, "Popular in ", true));
   });
 }
@@ -555,14 +560,37 @@ function rememberedTab() {
 // One kind of thing for showMixedFeed (js/social.js): logs or posts,
 // newest first, older than `before`.
 // Only this universe: logs of its books, posts made in it.
+// Logs of books in a genre you hid are left out here; posts that attach
+// such a book are left out after loading (posts without a book stay).
 function inThisUniverseFeed(table, query) {
-  return table === "logs" ? onlyThisUniverse(query, "books.genres") : query.eq("universe", currentUniverse());
+  return table === "logs" ? onlyShownGenres(onlyThisUniverse(query, "books.genres"), "books.genres") : query.eq("universe", currentUniverse());
+}
+
+function postNotHidden(post) {
+  return !post.books || !isHiddenBook(post.books);
+}
+
+// "Some items are hidden by your genre settings." under the feed while
+// any genre is hidden.
+function showHiddenGenresNote() {
+  let note = document.getElementById("feed-hidden-note");
+  if (!note) {
+    note = el("p", "hint feed-hidden-note");
+    note.id = "feed-hidden-note";
+    note.append("Some items are hidden by your genre settings. ");
+    const link = el("a", "", "Change this in Settings.");
+    link.href = feedProfile ? "settings.html" : "genres.html";
+    note.appendChild(link);
+    feedList.after(note);
+  }
+  note.hidden = hiddenGenres().length === 0;
 }
 
 function feedSource(table, select, narrow) {
   if (table === "logs") select = logFieldsWithGenres(select);
   return {
     kind: table === "logs" ? "log" : "post",
+    keep: table === "posts" ? postNotHidden : null,
     fetch: function (before, count) {
       let query = inThisUniverseFeed(table, withoutMuted(db.from(table).select(select)));
       query = narrow(query);
@@ -616,7 +644,7 @@ async function showPopularThisWeekFeed() {
   for (const row of postComments.data || []) score["post" + row.post_id] = (score["post" + row.post_id] || 0) + 2 * row.comment_count;
 
   const items = logs.data.map((row) => ({ kind: "log", row: row, score: score["log" + row.id] || 0 }))
-    .concat(posts.data.map((row) => ({ kind: "post", row: row, score: score["post" + row.id] || 0 })))
+    .concat(posts.data.filter(postNotHidden).map((row) => ({ kind: "post", row: row, score: score["post" + row.id] || 0 })))
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || (a.row.created_at < b.row.created_at ? 1 : -1))
     .slice(0, PAGE_SIZE);
@@ -669,6 +697,7 @@ async function showFeedTab(tab) {
     await showMixedFeed(feedList, discoverSources(), "Nothing logged or shared yet. Search for a book you've read and log it!", cardOptions);
   }
   if (feedTab === tab) addSeedSuggestions(tab).catch(() => {});
+  showHiddenGenresNote();
 }
 
 // An empty Comics or Manga feed suggests a few well-known titles from

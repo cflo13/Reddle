@@ -227,6 +227,157 @@ function onlyThisUniverse(query, column, universe) {
   return query.contains(column, [universe]);
 }
 
+
+// ---------- Hidden genres (Settings -> Hidden genres) ----------
+// Genres someone never wants to see. A book is hidden when ANY of its
+// genres is hidden; books with no genres never are. Logged in, the list
+// lives on the profile (profiles.hidden_genres, step29) and replaces the
+// browser's copy at login; logged out, only in this browser
+// (localStorage "reddle-hidden-genres"). Every list of books (rows,
+// search, suggestions, feeds, recommendations, seeds, trending...) goes
+// through isHiddenBook / withoutHiddenGenres / onlyShownGenres. Never
+// applied to your own logs, shelves, diary or year, to profile pages, to
+// admin picks (Book of the week, Spotlight) or to a book page opened
+// directly (it only shows a small banner).
+const HIDDEN_GENRES_KEY = "reddle-hidden-genres";
+const HIDDEN_GENRES_MAX = 30;
+
+// Only real listed genres (not comics/manga), each once.
+function cleanHiddenGenres(list) {
+  const allowed = new Set(listedGenres().map((genre) => genre.slug));
+  return [...new Set((Array.isArray(list) ? list : []).map((slug) => GENRE_ALIASES[slug] || slug))]
+    .filter((slug) => allowed.has(slug))
+    .slice(0, HIDDEN_GENRES_MAX);
+}
+
+let hiddenGenreList = (function () {
+  try {
+    return cleanHiddenGenres(JSON.parse(localStorage.getItem(HIDDEN_GENRES_KEY) || "[]"));
+  } catch (error) {
+    return [];
+  }
+})();
+
+function hiddenGenres() {
+  return hiddenGenreList.slice();
+}
+
+// Short text for cache keys, so remembered rows change with the list.
+function hiddenGenresKey() {
+  return hiddenGenreList.slice().sort().join(".") || "none";
+}
+
+// Uses this list from now on (and keeps it in this browser). Tells the
+// page, so it can redraw its lists ("reddle-hidden-genres" event).
+function useHiddenGenres(list) {
+  hiddenGenreList = cleanHiddenGenres(list);
+  try {
+    localStorage.setItem(HIDDEN_GENRES_KEY, JSON.stringify(hiddenGenreList));
+  } catch (error) {
+    // private mode: the list still works on this page
+  }
+  window.dispatchEvent(new CustomEvent("reddle-hidden-genres", { detail: hiddenGenres() }));
+}
+
+// Saves the list: on the profile when logged in, in this browser always.
+async function saveHiddenGenres(list) {
+  const clean = cleanHiddenGenres(list);
+  const { user } = await authReady;
+  if (user && db) {
+    const { error } = await db.from("profiles").update({ hidden_genres: clean }).eq("id", user.id);
+    if (error) throw error;
+  }
+  useHiddenGenres(clean);
+  return clean;
+}
+
+// Logged in: the saved list replaces this browser's one. (Registered
+// here, before any page script, so pages see the right list as soon as
+// authReady is done.)
+if (typeof authReady !== "undefined") {
+  authReady.then(function ({ profile }) {
+    if (profile && Array.isArray(profile.hidden_genres)) useHiddenGenres(profile.hidden_genres);
+  });
+}
+
+function isHiddenBook(book) {
+  if (hiddenGenreList.length === 0 || !book) return false;
+  return (book.genres || []).some((slug) => hiddenGenreList.includes(GENRE_ALIASES[slug] || slug));
+}
+
+// A list without hidden books. `bookOf` picks the book out of each item
+// (for lists of { book, note } and the like).
+function withoutHiddenGenres(list, bookOf) {
+  if (hiddenGenreList.length === 0) return list || [];
+  return (list || []).filter((item) => !isHiddenBook(bookOf ? bookOf(item) : item));
+}
+
+// The control on Settings and the Genres page: every listed genre as a
+// chip (pressed = hidden; a mark and crossed-out text, not colour alone)
+// and Save. `onSaved(list)` runs after saving.
+function makeHiddenGenresControl(onSaved) {
+  const box = el("div", "hidden-genres-control");
+  box.appendChild(el("p", "hint", "Hidden genres are left out of rows, search, feeds and recommendations. Books you logged yourself still show on your profile."));
+  const chips = el("div", "hidden-genre-chips");
+  chips.setAttribute("role", "group");
+  chips.setAttribute("aria-label", "Genres to hide");
+  const chosen = new Set(hiddenGenres());
+  for (const genre of listedGenres()) {
+    const chip = el("button", "hidden-genre-chip");
+    chip.type = "button";
+    chip.dataset.slug = genre.slug;
+    chip.append(el("span", "hidden-genre-mark", "\u2298"), el("span", "hidden-genre-name", genre.name));
+    chip.setAttribute("aria-pressed", chosen.has(genre.slug) ? "true" : "false");
+    chip.title = chosen.has(genre.slug) ? "Hidden. Tap to show it again." : "Shown. Tap to hide it.";
+    chip.addEventListener("click", function () {
+      const hide = chip.getAttribute("aria-pressed") !== "true";
+      chip.setAttribute("aria-pressed", hide ? "true" : "false");
+      chip.title = hide ? "Hidden. Tap to show it again." : "Shown. Tap to hide it.";
+      if (hide) chosen.add(genre.slug);
+      else chosen.delete(genre.slug);
+      count.textContent = countText();
+    });
+    chips.appendChild(chip);
+  }
+  box.appendChild(chips);
+  const countText = () => (chosen.size === 0 ? "No genres hidden." : chosen.size === 1 ? "1 genre hidden." : chosen.size + " genres hidden.");
+  const count = el("p", "muted hidden-genre-count", countText());
+  box.appendChild(count);
+  const save = el("button", "button", "Save");
+  save.type = "button";
+  const status = el("p", "status");
+  status.hidden = true;
+  status.setAttribute("role", "status");
+  save.addEventListener("click", async function () {
+    save.disabled = true;
+    try {
+      const list = await saveHiddenGenres([...chosen]);
+      showStatus(status, "ok", list.length ? "Saved. Those genres are hidden now." : "Saved. Nothing is hidden.");
+      if (onSaved) onSaved(list);
+    } catch (error) {
+      showStatus(status, "error", friendlyError(error, "Couldn't save. "));
+    } finally {
+      save.disabled = false;
+    }
+  });
+  const buttons = el("p", "");
+  buttons.appendChild(save);
+  box.append(buttons, status);
+  return box;
+}
+
+// Shows one genre again (the "Show it" buttons) and saves.
+async function showGenreAgain(slug) {
+  return saveHiddenGenres(hiddenGenres().filter((other) => other !== slug));
+}
+
+// The same inside a database query: leaves out rows whose genres
+// overlap the hidden list (`column` like "genres" or "books.genres").
+function onlyShownGenres(query, column) {
+  if (hiddenGenreList.length === 0) return query;
+  return query.not(column || "genres", "ov", "{" + hiddenGenreList.join(",") + "}");
+}
+
 // What the search boxes say, e.g. "Search manga or people".
 function searchPlaceholder() {
   return "Search " + UNIVERSES[currentUniverse()].noun + " or people";
@@ -486,7 +637,10 @@ async function fetchGoogleDescription(externalId) {
 // taking turns, without repeats.
 async function searchUniverseBooks(query, limit, signal, universe) {
   universe = universe || currentUniverse();
-  if (universe === "books") return searchOpenLibraryIn(query, "books", limit, { signal: signal });
+  // Hidden genres are left out; ask for a few more so the list stays full.
+  const wanted = limit;
+  limit = hiddenGenreList.length ? limit + 6 : limit;
+  if (universe === "books") return withoutHiddenGenres(await searchOpenLibraryIn(query, "books", limit, { signal: signal })).slice(0, wanted);
   const [open, google] = await Promise.allSettled([
     searchOpenLibraryIn(query, universe, limit, { signal: signal }),
     searchGoogleBooksIn(query, universe, limit, { signal: signal }),
@@ -496,7 +650,7 @@ async function searchUniverseBooks(query, limit, signal, universe) {
   }
   if (open.status === "rejected" && google.status === "rejected") throw open.reason;
   const mixed = takeTurns(open.status === "fulfilled" ? open.value : [], google.status === "fulfilled" ? google.value : []);
-  return withoutRepeats(mixed).slice(0, limit);
+  return withoutHiddenGenres(withoutRepeats(mixed)).slice(0, wanted);
 }
 
 // Popular comics or manga ("Popular this week" and "New and noteworthy"
@@ -511,7 +665,7 @@ async function fetchUniverseBooks(universe, genreSlug, limit, offset, kind) {
     searchGoogleBooksIn(genreWord, universe, limit, { offset: offset, orderBy: kind === "newest" ? "newest" : "relevance" }),
   ]);
   const mixed = takeTurns(open.status === "fulfilled" ? open.value : [], google.status === "fulfilled" ? google.value : []);
-  return withoutRepeats(mixed).slice(0, limit);
+  return withoutHiddenGenres(withoutRepeats(mixed)).slice(0, limit);
 }
 
 

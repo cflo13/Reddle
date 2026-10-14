@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=66";
+        preload.href = "seeds-resolved.json?v=67";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=66">
+  <link rel="stylesheet" href="css/style.css?v=67">
 </head>
 <body>
   <header class="site-header">
@@ -105,7 +105,7 @@
       <li><strong>Your profile:</strong> your username, bio and profile picture, if you add them.</li>
       <li><strong>What you do on Reddle:</strong> the books you log, your ratings, reviews (and whether they contain spoilers), dates read and rereads, the page you're on in books you're reading, your yearly reading goal, your Want to read and Currently reading shelves, the reviews and posts you like, and who you follow.</li>
       <li><strong>Posts and comments:</strong> the thoughts you share (with the book and picture you attach, if any), your answers to the weekly question, and your comments on reviews, posts and the Book of the week. Pictures you attach are resized in your browser and stored as public files, so anyone with the link can see them; deleting the post deletes the picture.</li>
-      <li><strong>Your reading taste:</strong> the genres you pick in the taste questionnaire, which we use to suggest books.</li>
+      <li><strong>Your reading taste:</strong> the genres you pick in the taste questionnaire, which we use to suggest books, and the genres you choose to hide (Settings, Hidden genres). If you're logged in, the hidden list is saved with your profile, like your favourite genres; if not, it stays only in your browser.</li>
       <li><strong>Reports:</strong> if you report a review, profile, post or comment, we keep the report and who sent it, so we can look into it.</li>
       <li><strong>Privacy choices:</strong> whether your profile is private, the follow requests you send and receive, and the people you block or mute. Only you can see who you block or mute; they aren't told.</li>
       <!-- Put back when notification emails are switched on (EMAILS_ON in js/config.js):
@@ -136,7 +136,7 @@
     <ul>
       <li>We don't show ads.</li>
       <li>We don't sell or rent your information to anyone.</li>
-      <li>We don't use tracking or advertising cookies. Your browser stores a few small things on your device: a login token so you stay logged in, your day or night mode choice, which universe you're in (Books, Comics or Manga), which feed tab you last used, when you last opened your notifications (for the number on the bell), the page to return to after logging in, and saved copies of Reddle's own pages so the app works offline. None of it is sent to anyone else.</li>
+      <li>We don't use tracking or advertising cookies. Your browser stores a few small things on your device: a login token so you stay logged in, your day or night mode choice, which universe you're in (Books, Comics or Manga), which feed tab you last used, the genres you hid, when you last opened your notifications (for the number on the bell), the page to return to after logging in, and saved copies of Reddle's own pages so the app works offline. None of it is sent to anyone else.</li>
     </ul>
 
     <h2>Your choices</h2>
@@ -176,16 +176,16 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=66"></script>
+  <script src="js/config.js?v=67"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=66"></script>
+  <script src="js/supabase-client.js?v=67"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=66"></script>
+  <script src="js/auth.js?v=67"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=66"></script>
+  <script src="js/sources.js?v=67"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=66"></script>
+  <script src="js/search-suggest.js?v=67"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=66"></script>
+  <script src="js/static-page.js?v=67"></script>
 </body>
 </html>

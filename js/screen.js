@@ -113,6 +113,7 @@ function upcomingHere(data) {
     .map((entry) => ({ entry: entry, source: sources[entry.work] }))
     .filter((pair) => pair.source && !pair.source.adult)
     .filter((pair) => bookInUniverse({ genres: pair.source.genres || [] }))
+    .filter((pair) => !isHiddenBook({ genres: pair.source.genres || [] }))
     .filter((pair) => !looksAdult([pair.entry.title, pair.source.title]));
 }
 
@@ -192,9 +193,9 @@ function bestSource(skipIds) {
     },
     async next(count) {
       while (waiting.length < count && !readAll) {
-        const { data, error } = await onlyThisUniverse(db
+        const { data, error } = await onlyShownGenres(onlyThisUniverse(db
           .from("books_with_stats")
-          .select("id, external_id, title, author, cover_url, isbn, genres, avg_rating, rating_count, log_count"))
+          .select("id, external_id, title, author, cover_url, isbn, genres, avg_rating, rating_count, log_count")))
           .gte("rating_count", MIN_RATINGS)
           .order("avg_rating", { ascending: false, nullsFirst: false })
           .order("rating_count", { ascending: false })

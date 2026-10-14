@@ -22,7 +22,7 @@ const POST_PICTURE_SIZE = 1600; // longest side after resizing, in pixels
 const POST_FIELDS =
   "id, user_id, body, book_id, image_url, prompt_id, universe, created_at, " +
   "profiles!posts_user_id_fkey(username, avatar_url), " +
-  "books!posts_book_id_fkey(id, external_id, title, author, cover_url), " +
+  "books!posts_book_id_fkey(id, external_id, title, author, cover_url, genres), " +
   "weekly_prompts!posts_prompt_id_fkey(id, question)";
 const COMMENT_FIELDS = "id, user_id, body, created_at, profiles!comments_user_id_fkey(username, avatar_url)";
 const COMMENT_COLUMNS = { log: "log_id", post: "post_id", pick: "pick_id", spotlight: "spotlight_id" };
@@ -583,7 +583,8 @@ function makePostComposer(options) {
 // pages never repeat or skip.
 function showMixedFeed(container, sources, emptyText, cardOptions) {
   const pageSize = PAGE_SIZE;
-  const state = sources.map((source) => ({ fetch: source.fetch, kind: source.kind, buffer: [], before: null, finished: false }));
+  // `keep` (optional) leaves rows out after loading (hidden genres).
+  const state = sources.map((source) => ({ fetch: source.fetch, kind: source.kind, keep: source.keep, buffer: [], before: null, finished: false }));
   const moreButton = el("button", "button button-secondary load-more", "Load more");
   moreButton.type = "button";
   let shown = 0;
@@ -594,7 +595,7 @@ function showMixedFeed(container, sources, emptyText, cardOptions) {
     if (error) throw error;
     if (data.length < pageSize) source.finished = true;
     if (data.length) source.before = data[data.length - 1].created_at;
-    source.buffer.push(...data.map((row) => ({ kind: source.kind, row: row })));
+    source.buffer.push(...data.filter((row) => !source.keep || source.keep(row)).map((row) => ({ kind: source.kind, row: row })));
   }
 
   async function nextPage() {

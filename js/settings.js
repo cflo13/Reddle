@@ -302,6 +302,7 @@ async function loadBlockedAndMuted() {
   showEmails();
 
   setUpPrivacy(profile);
+  document.getElementById("hidden-genres-spot").appendChild(makeHiddenGenresControl());
   setUpEmailPrefs(profile).catch(() => {});
   loadBlockedAndMuted();
 

@@ -77,6 +77,10 @@ function addBookStructuredData(book, ratings) {
 
 function showBook(book) {
   shownBook = book;
+  // A direct link always works; it only says so when you hid its genre.
+  const banner = document.getElementById("hidden-genre-banner");
+  banner.hidden = !isHiddenBook(book);
+  banner.querySelector("a").href = currentProfile ? "settings.html" : "genres.html";
   setPageInfo(
     book.title + (book.author ? " by " + book.author : "") + " \u00b7 Reddle",
     book.description || "Ratings and reviews of " + book.title + (book.author ? " by " + book.author : "") + " on Reddle."
@@ -696,7 +700,7 @@ async function loadSimilarBooks(book) {
   const picks = [];
   const seen = new Set([book.external_id]);
   function add(candidate, note) {
-    if (picks.length >= SIMILAR_SIZE || seen.has(candidate.external_id)) return;
+    if (picks.length >= SIMILAR_SIZE || seen.has(candidate.external_id) || isHiddenBook(candidate)) return;
     seen.add(candidate.external_id);
     picks.push(makeBookTile(candidate, note));
   }

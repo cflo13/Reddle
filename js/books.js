@@ -225,6 +225,7 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
   if (!genre) return [];
   // Comics and manga: that genre within comics or manga (js/sources.js).
   const universe = currentUniverse();
+  // (fetchUniverseBooks already leaves out hidden genres)
   if (genre.universe) return fetchUniverseBooks(genre.universe, null, limit, offset || 0, "popular");
   if (universe !== "books") return fetchUniverseBooks(universe, slug, limit, offset || 0, "popular");
   const url =
@@ -244,7 +245,7 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
       genres: genresFromSubjects(work.subject || [], (work.authors || []).map((person) => person.name)),
       subjects: work.subject || [],
     };
-  }).filter((book) => fitsUniverse(book, "books"));
+  }).filter((book) => fitsUniverse(book, "books") && !isHiddenBook(book));
 }
 
 
@@ -255,10 +256,10 @@ async function fetchGenreBooksFromOpenLibrary(slug, limit, offset) {
 // any book whose id is in `excludeIds`.
 async function fetchTopRatedInGenres(genres, excludeIds, limit) {
   if (!genres || genres.length === 0) return [];
-  const { data, error } = await onlyThisUniverse(db
+  const { data, error } = await onlyShownGenres(onlyThisUniverse(db
     .from("books_with_stats")
     .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")
-    .overlaps("genres", genres)) // shares at least one genre
+    .overlaps("genres", genres))) // shares at least one genre (and none you hid)
     .gte("avg_rating", 3.5)
     .order("avg_rating", { ascending: false, nullsFirst: false })
     .order("log_count", { ascending: false })
@@ -270,9 +271,9 @@ async function fetchTopRatedInGenres(genres, excludeIds, limit) {
 
 // The most logged books on Reddle (in this universe).
 async function fetchMostLoggedOnReddle(limit) {
-  const { data, error } = await onlyThisUniverse(db
+  const { data, error } = await onlyShownGenres(onlyThisUniverse(db
     .from("books_with_stats")
-    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating"))
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating")))
     .gt("log_count", 0)
     .order("log_count", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
@@ -284,9 +285,9 @@ async function fetchMostLoggedOnReddle(limit) {
 // The books logged most on Reddle in the last 7 days (then best rated),
 // in this universe.
 async function fetchPopularThisWeek(limit) {
-  const { data, error } = await onlyThisUniverse(db
+  const { data, error } = await onlyShownGenres(onlyThisUniverse(db
     .from("books_with_stats")
-    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week"))
+    .select("id, external_id, title, author, cover_url, genres, log_count, avg_rating, logs_this_week")))
     .gt("logs_this_week", 0)
     .order("logs_this_week", { ascending: false })
     .order("avg_rating", { ascending: false, nullsFirst: false })
@@ -298,9 +299,9 @@ async function fetchPopularThisWeek(limit) {
 // Books someone logged recently, newest first, each book once, with
 // the username of whoever logged it (in this universe).
 async function fetchRecentlyLoggedBooks(limit) {
-  const { data, error } = await onlyThisUniverse(db
+  const { data, error } = await onlyShownGenres(onlyThisUniverse(db
     .from("logs")
-    .select("created_at, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres")
+    .select("created_at, profiles!logs_user_id_fkey(username), books!inner(id, external_id, title, author, cover_url, genres)"), "books.genres"), "books.genres")
     .order("created_at", { ascending: false })
     .limit(limit * 4);
   if (error) throw error;
@@ -330,7 +331,7 @@ async function universeLoggedCount() {
 async function fetchTrendingFromOpenLibrary(limit) {
   const universe = currentUniverse();
   if (universe !== "books") {
-    const found = await makeSeedStream(universe).next(limit);
+    const found = await makeSeedStream(universe).next(limit); // (seeds leave out hidden genres)
     return found.map(openLibraryToBook);
   }
   const response = await fetchOpenLibrary(OPEN_LIBRARY + "/trending/weekly.json?limit=" + limit);
@@ -344,7 +345,9 @@ async function fetchTrendingFromOpenLibrary(limit) {
       title: work.title,
       author: work.author_name ? work.author_name[0] : "",
       cover_url: work.cover_i ? coverUrlFromId(work.cover_i, "M") : null,
-    }));
+      genres: work.subject ? genresFromSubjects(work.subject) : [],
+    }))
+    .filter((book) => !isHiddenBook(book));
 }
 
 
