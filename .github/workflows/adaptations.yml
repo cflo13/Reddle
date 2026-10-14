@@ -1,0 +1,36 @@
+# Refreshes the Book to screen files (screen-data/) once a day from
+# Wikidata: films and TV series based on books, comics and manga, and
+# what's coming soon. Also runs when the owner presses "Run workflow" on
+# GitHub's Actions tab. Only commits when something changed. No secrets.
+name: Refresh book to screen
+
+on:
+  schedule:
+    - cron: "41 3 * * *"   # every day at 03:41 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  adaptations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Ask Wikidata for films and series based on books
+        run: node tools/make-adaptations.mjs
+      - name: Save it if it changed
+        run: |
+          if [ -z "$(git status --porcelain -- screen-data)" ]; then
+            echo "No change."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add screen-data
+            git commit -m "Refresh book to screen data"
+            git pull --rebase
+            git push
+          fi
