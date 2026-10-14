@@ -183,7 +183,7 @@ function fillRow(row, candidates) {
     row.section.hidden = true;
     return;
   }
-  for (const pick of picked) row.strip.appendChild(makeBookTile(pick.book, pick.note, pick.reason));
+  for (const pick of picked) row.strip.appendChild(makeBookTile(pick.book, pick.note, pick.reason, pick.badge));
   // No arrows when everything already fits on screen.
   row.section.classList.toggle("row-fits", row.strip.scrollWidth <= row.strip.clientWidth + 2);
 }
@@ -385,6 +385,33 @@ function newAndNoteworthyCandidates() {
   });
 }
 
+// 4b. Book to screen: books with a film or series coming soon (soonest
+//     first), then ones out in the last 12 months (newest first), from
+//     the daily Wikidata file (js/screen-data.js). Only books we can
+//     open (Open Library id) and only this universe (fillRow checks the
+//     genres). Each cover has a small "Film 2026" badge.
+function bookToScreenCandidates() {
+  return remembered("screen", async function () {
+    const data = await loadUpcoming();
+    const sources = data.sources || {};
+    const seen = new Set();
+    const candidates = [];
+    for (const [entry, soon] of [...(data.upcoming || []).map((e) => [e, true]), ...(data.recent || []).map((e) => [e, false])]) {
+      const source = sources[entry.work];
+      if (!source || !source.ol || source.adult || seen.has(source.ol)) continue;
+      if (looksAdult([entry.title, source.title])) continue;
+      seen.add(source.ol);
+      const year = (entry.date || "").slice(0, 4); // announced, no date yet: just "Film"
+      candidates.push({
+        book: { external_id: source.ol, title: source.title, author: source.author, cover_url: source.cover, genres: source.genres || [] },
+        badge: screenKindName(entry.kind).replace(" series", "") + (year ? " " + year : ""),
+        reason: (soon ? "Coming: " : "Out: ") + entry.title,
+      });
+    }
+    return candidates;
+  });
+}
+
 // 5. Genre buttons (not a row of books).
 function addGenreButtons() {
   const section = el("section", "home-row");
@@ -437,6 +464,7 @@ function buildRows(profile, myBooks, followingIds) {
   // 3. Popular this week, 4. New and noteworthy
   addRow({ title: "Popular this week", titleLink: "popular.html", seeAll: "popular.html" }, popularThisWeekCandidates, rows.length >= 2);
   addRow({ title: "New and noteworthy" }, newAndNoteworthyCandidates, rows.length >= 2);
+  addRow({ title: "Book to screen", titleLink: "screen.html", seeAll: "screen.html" }, bookToScreenCandidates, rows.length >= 2);
 
   // 5. Genre buttons
   addGenreButtons();

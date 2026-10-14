@@ -3,6 +3,7 @@
   <url><loc>https://reddle.org/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>https://reddle.org/popular.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://reddle.org/picks.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://reddle.org/screen.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
   <url><loc>https://reddle.org/prompt.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://reddle.org/genres.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://reddle.org/genre.html?g=fantasy</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>

@@ -1073,8 +1073,9 @@ input[type="checkbox"] {
 
 /* ---------- Narrow screens: icons only in the header ---------- */
 
-@media (max-width: 1000px) {
-  /* Just your picture, the gear and the log out icon */
+@media (max-width: 1439px) {
+  /* Just your picture, the gear and the log out icon (the Books/Comics
+     switch, bell and buttons don't fit with their words below 1440px) */
   .nav-username,
   .nav-label {
     display: none;
@@ -4356,6 +4357,31 @@ html.universe-leaving body {
   }
 }
 
+/* Tablets (768-1023px): a little less space between header items, and
+   the switch shows only its icon too, so the header fits (the words stay
+   for screen readers). */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .site-header {
+    gap: var(--space-2);
+  }
+
+  .universe-button {
+    justify-content: center;
+    width: var(--tap);
+    height: var(--tap);
+    padding: 0;
+  }
+
+  .universe-button .u-words {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
 /* Phones: only the icon shows in the header (the words are in its label
    and in the menu). */
 @media (max-width: 767px), (max-height: 500px) and (pointer: coarse) {
@@ -4394,4 +4420,120 @@ html.universe-leaving body {
   :root[data-universe="manga"] .logo::after {
     font-size: 0.7rem;
   }
+}
+
+
+/* ---------- Book to screen (book page "On screen", screen.html, home row) ---------- */
+
+.on-screen {
+  margin: var(--space-4) 0;
+}
+
+.on-screen-heading {
+  margin: 0 0 var(--space-2);
+  font-size: 1.1rem;
+}
+
+.screen-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.screen-item {
+  padding: var(--space-1) 0;
+  overflow-wrap: anywhere;
+}
+
+.screen-title {
+  font-weight: 600;
+}
+
+.screen-facts {
+  color: var(--muted);
+}
+
+.screen-credit {
+  margin-top: var(--space-2);
+}
+
+.screen-tabs {
+  max-width: 420px;
+}
+
+/* Coming soon and Our picks: a list, one soft line between rows. */
+.release-list {
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  list-style: none;
+}
+
+.release {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.release:last-child {
+  border-bottom: none;
+}
+
+.release-cover {
+  flex: 0 0 auto;
+  border-radius: var(--radius-small);
+}
+
+.release-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.release-title {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight, 700);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.release-when,
+.release-source {
+  margin: var(--space-1) 0 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.release-note {
+  margin: var(--space-2) 0;
+  font-family: var(--font-reading);
+  font-size: 1.05rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tile-grid-wide {
+  grid-column: 1 / -1;
+}
+
+/* "Film 2026" on a home row cover. */
+.book-tile-cover {
+  position: relative;
+  display: block;
+}
+
+.screen-badge {
+  position: absolute;
+  left: var(--space-1);
+  bottom: calc(6px + var(--space-1));
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
 }

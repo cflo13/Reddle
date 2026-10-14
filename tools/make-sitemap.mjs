@@ -52,6 +52,7 @@ const pages = [
   ["", "daily", "1.0"],
   ["popular.html", "daily", "0.8"],
   ["picks.html", "weekly", "0.6"],
+  ["screen.html", "daily", "0.7"],
   ["prompt.html", "weekly", "0.6"],
   ["genres.html", "weekly", "0.8"],
   ...genres.map((slug) => ["genre.html?g=" + slug, "weekly", "0.6"]),

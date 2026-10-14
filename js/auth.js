@@ -1646,6 +1646,7 @@ function openPhoneMenu(profile) {
   divider();
   link("Genres", "genres.html");
   link("Popular this week", "popular.html");
+  link("Book to screen", "screen.html");
   link("Books of the week", "picks.html");
   divider();
   if (profile) {

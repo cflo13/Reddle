@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=63";
+        preload.href = "seeds-resolved.json?v=64";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=63">
+  <link rel="stylesheet" href="css/style.css?v=64">
 </head>
 <body>
   <header class="site-header">
@@ -120,6 +120,7 @@
     <nav class="footer-links" aria-label="About Reddle">
       <a href="about.html">About</a>
       <a href="picks.html">Books of the week</a>
+      <a href="screen.html">Book to screen</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
       <a href="about.html#contact">Contact</a>
@@ -128,22 +129,22 @@
       <span class="u-away"><button class="link-button" type="button" data-go-universe="comics">Enter Comic Mode</button><button class="link-button" type="button" data-go-universe="manga">Switch to Manga Mode</button></span>
       <span class="u-home"><button class="link-button" type="button" data-go-universe="books">Back to Books</button></span>
     </p>
-    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a>.</p>
+    <p class="footer-note">Book data and covers from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a>. Film and TV data from <a href="https://www.wikidata.org">Wikidata</a>.</p>
   </footer>
 
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=63"></script>
+  <script src="js/config.js?v=64"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=63"></script>
+  <script src="js/supabase-client.js?v=64"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=63"></script>
+  <script src="js/auth.js?v=64"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=63"></script>
+  <script src="js/sources.js?v=64"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=63"></script>
+  <script src="js/search-suggest.js?v=64"></script>
   <!-- This page's own code -->
-  <script src="js/login.js?v=63"></script>
+  <script src="js/login.js?v=64"></script>
 </body>
 </html>

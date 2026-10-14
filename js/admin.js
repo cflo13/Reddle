@@ -447,6 +447,80 @@ function setUpPickForm() {
 }
 
 
+// ---------- Book to screen: our picks ----------
+
+const screenPickList = document.getElementById("screen-pick-list");
+let chosenScreenBook = null;
+
+async function loadScreenPicks() {
+  const { data, error } = await db.from("screen_picks").select("id, note, universe, created_at, books(external_id, title)")
+    .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(20);
+  screenPickList.textContent = "";
+  if (error) {
+    screenPickList.appendChild(el("p", "status status-error", friendlyError(error, "Could not load our picks. ")));
+    return;
+  }
+  data.forEach(function (pick) {
+    const row = el("div", "admin-row");
+    const text = el("p", "");
+    const link = el("a", "", pick.books ? pick.books.title : "(book removed)");
+    if (pick.books) link.href = bookLink(pick.books.external_id);
+    text.append(universeTag(pick.universe), link);
+    if (pick.note) text.appendChild(el("span", "muted", " \u00b7 " + pick.note));
+    row.append(text, actionButton("Delete", "button-secondary", async function () {
+      if (!window.confirm("Take this book off our picks?")) return;
+      const { error } = await db.from("screen_picks").delete().eq("id", pick.id);
+      if (error) return showStatus(adminMessage, "error", friendlyError(error, "That didn't work. "));
+      showStatus(adminMessage, "ok", "Taken off our picks.");
+      loadScreenPicks();
+    }));
+    screenPickList.appendChild(row);
+  });
+}
+
+function setUpScreenPickForm() {
+  const chosen = document.getElementById("screen-pick-chosen");
+  const universeSelect = document.getElementById("screen-pick-universe");
+  const note = document.getElementById("screen-pick-note");
+  const counter = document.getElementById("screen-pick-note-count");
+  universeSelect.value = currentUniverse();
+  const picker = makeBookPicker(function (book) {
+    chosenScreenBook = book;
+    chosen.textContent = "Chosen: " + book.title + (book.author ? " by " + book.author : "");
+  }, { universe: () => universeSelect.value });
+  universeSelect.addEventListener("change", function () {
+    chosenScreenBook = null;
+    chosen.textContent = "No book chosen yet.";
+  });
+  document.getElementById("screen-pick-picker").appendChild(picker.element);
+  note.addEventListener("input", () => (counter.textContent = note.value.length + " / 300"));
+
+  const form = document.getElementById("screen-pick-form");
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (!chosenScreenBook) return showStatus(adminMessage, "error", "Search for a book and choose it first.");
+    const button = form.querySelector("button[type=submit]");
+    button.disabled = true;
+    try {
+      const book = await savePickedBook(chosenScreenBook);
+      const { error } = await db.from("screen_picks").insert({ book_id: book.id, note: note.value.trim() || null, universe: universeSelect.value });
+      if (error && error.code === "23505") throw new Error("That book is already one of our picks in " + UNIVERSES[universeSelect.value].name + ".");
+      if (error) throw error;
+      showStatus(adminMessage, "ok", book.title + " is now one of our picks.");
+      chosenScreenBook = null;
+      chosen.textContent = "No book chosen yet.";
+      note.value = "";
+      counter.textContent = "0 / 300";
+      loadScreenPicks();
+    } catch (error) {
+      showStatus(adminMessage, "error", error.code ? friendlyError(error, "That didn't work. ") : error.message);
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+
 // ---------- Question of the week ----------
 
 const promptList = document.getElementById("prompt-list");
@@ -624,5 +698,6 @@ function setUpPromptForm() {
   setUpPickForm();
   setUpPromptForm();
   setUpSpotlightForm();
-  await Promise.all([loadReports(), loadContentReports(), loadPicks(), loadPrompts(), loadSpotlights(), loadFeedback()]);
+  setUpScreenPickForm();
+  await Promise.all([loadReports(), loadContentReports(), loadPicks(), loadPrompts(), loadSpotlights(), loadScreenPicks(), loadFeedback()]);
 })();

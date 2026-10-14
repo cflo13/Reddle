@@ -725,6 +725,21 @@ async function loadSimilarBooks(book) {
 }
 
 
+// ---------- On screen (films and series based on this book) ----------
+
+// From the daily Wikidata files (js/screen-data.js): matched by the
+// Open Library work id, otherwise by exact title and author. Text only,
+// each title linking to its Wikipedia article. Hidden when there's none.
+async function loadOnScreen(book) {
+  const items = await findAdaptations(book);
+  if (items.length === 0) return;
+  const list = document.getElementById("on-screen-list");
+  list.textContent = "";
+  items.forEach((item) => list.appendChild(makeScreenLine(item)));
+  document.getElementById("on-screen").hidden = false;
+}
+
+
 // ---------- Start ----------
 
 async function loadBookPage() {
@@ -753,6 +768,7 @@ async function loadBookPage() {
   matchUniverse(book);
   showBook(book);
   useCleanAddress(bookLink(id));
+  loadOnScreen(book).catch((error) => console.error("On screen didn't load:", error));
 
   // Fill any gaps (genres, cover, description) from Open Library.
   const filled = await fillMissingDetails(book);

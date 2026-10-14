@@ -450,10 +450,17 @@ function makeCoverLink(book) {
 // underneath (like "★ 4.2 · 12 logs"). `book` needs external_id, title,
 // author and cover_url. Used on genre pages and for recommendations.
 // `reason` (optional) is a grey line underneath, like "Because you like Fantasy".
-function makeBookTile(book, note, reason) {
+// `badge` (optional) is a small label on the cover, like "Film 2026".
+function makeBookTile(book, note, reason, badge) {
   const tile = el("a", "book-tile");
   tile.href = bookLink(book.external_id);
-  tile.appendChild(makeCover(book, "cover-medium"));
+  if (badge) {
+    const coverBox = el("span", "book-tile-cover");
+    coverBox.append(makeCover(book, "cover-medium"), el("span", "screen-badge", badge));
+    tile.appendChild(coverBox);
+  } else {
+    tile.appendChild(makeCover(book, "cover-medium"));
+  }
   tile.appendChild(el("span", "book-tile-title", book.title));
   if (book.author) tile.appendChild(el("span", "book-tile-author", book.author));
   if (note) tile.appendChild(el("span", "book-tile-note", note));
