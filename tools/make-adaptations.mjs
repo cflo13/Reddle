@@ -63,6 +63,38 @@ const FILM_TYPES = {
   Q11424: "film", Q202866: "film", Q24869: "film", Q20650540: "film", Q506240: "film",
   Q5398426: "tv", Q581714: "tv", Q1259759: "tv", Q63952888: "tv", Q526877: "tv",
 };
+// What kind of work the source is (its "instance of"), checked on real
+// data in October 2026. Manga and comics put a release in that universe
+// (even when Open Library has no subjects for the book).
+const MANGA_TYPES = new Set([
+  "Q21198342", // manga series
+  "Q8274", // manga
+  "Q21202185", // one-shot manga
+  "Q865484", // yonkoma
+  "Q74262765", // manhwa series
+  "Q562214", // manhwa
+  "Q137637896", // manhua series
+  "Q754669", // manhua
+  "Q7978994", // webtoon
+]);
+const COMICS_TYPES = new Set([
+  "Q14406742", // comic book series
+  "Q1004", // comics
+  "Q725377", // graphic novel
+  "Q1760610", // comic book
+  "Q838795", // comic strip
+  "Q213369", // webcomic
+  "Q121841060", // webcomic strip series
+  "Q1114461", // comics character (Marvel and DC films are based on these)
+]);
+// Sources that aren't written works: left out unless they're also one of
+// the kinds above or a book (a work with any other kind stays).
+const NOT_WRITTEN = new Set([
+  "Q11424", "Q5398426", "Q117467246", "Q15416", "Q63952888", "Q526877", "Q581714", "Q117467240", // films, TV, web series
+  "Q130371093", "Q196600", "Q141546978", "Q7889", "Q734698", "Q17558136", "Q1407219", "Q274079", // franchises, games, channels, formats
+  "Q15773317", "Q15773347", "Q15711870", "Q10876391", // TV, film and animated characters, Wikipedia editions
+]);
+
 // Each query runs twice, once for films and once for series (half the
 // work each, so they stay under Wikidata's 60 second limit).
 const TYPE_GROUPS = ["film", "tv"].map((kind) =>
@@ -90,6 +122,7 @@ const QUERIES = {
   workLabels: `SELECT DISTINCT ?work ?label ?lang WHERE { ${BASED_ON} ?work rdfs:label ?label .
     BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
   workIds: `SELECT DISTINCT ?work ?ol WHERE { ${BASED_ON} ?work wdt:P648 ?ol . }`,
+  workTypes: `SELECT DISTINCT ?work ?kind WHERE { ${BASED_ON} ?work wdt:P31 ?kind . }`,
   authors: `SELECT DISTINCT ?work ?label ?lang WHERE { ${BASED_ON}
     ?work wdt:P50|wdt:P170 ?author . ?author rdfs:label ?label . BIND(LANG(?label) AS ?lang) FILTER(?lang IN ("en", "mul")) }`,
 };
@@ -295,6 +328,24 @@ async function main() {
     if (!workIds.has(id)) workIds.set(id, new Set());
     workIds.get(id).add(row.ol);
   }
+  const workKinds = new Map(); // work -> its "instance of" ids
+  for (const row of answers.workTypes) {
+    const id = qid(row.work);
+    if (!workKinds.has(id)) workKinds.set(id, []);
+    workKinds.get(id).push(qid(row.kind));
+  }
+  // "manga", "comics" or null, from Wikidata's own kinds.
+  function wikidataUniverse(workId) {
+    const kinds = workKinds.get(workId) || [];
+    if (kinds.some((kind) => MANGA_TYPES.has(kind))) return "manga";
+    if (kinds.some((kind) => COMICS_TYPES.has(kind))) return "comics";
+    return null;
+  }
+  function notWritten(workId) {
+    const kinds = workKinds.get(workId) || [];
+    return kinds.length > 0 && kinds.every((kind) => NOT_WRITTEN.has(kind));
+  }
+
   const workAuthors = new Map();
   for (const row of answers.authors) {
     const id = qid(row.work);
@@ -308,6 +359,7 @@ async function main() {
   for (const row of answers.links) {
     const workId = qid(row.work);
     if (!workAuthors.has(workId) && !(workIds.get(workId) || new Set()).size) continue; // not a written work
+    if (notWritten(workId)) continue; // a TV series, a film, a game...
     const id = qid(row.film);
     const title = filmLabels.get(id);
     if (!title) continue; // no English name: we couldn't show it
@@ -394,6 +446,15 @@ async function main() {
   const needed = new Map();
   for (const film of [...upcoming, ...announcedOnly, ...recent]) needed.set(film.works[0], work(film.works[0]));
   const sources = await lookUpSources([...needed.values()], oldUpcoming.sources || {});
+
+  // Wikidata's kind decides comics or manga; Open Library's subjects
+  // give the other genres (fantasy, romance...).
+  for (const [workId, source] of Object.entries(sources)) {
+    const universe = wikidataUniverse(workId);
+    if (!universe) continue;
+    const others = (source.genres || []).filter((genre) => genre !== "comics" && genre !== "manga");
+    source.genres = [universe, ...others].slice(0, 5);
+  }
 
   function entry(film) {
     const source = sources[film.works[0]];
