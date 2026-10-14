@@ -37,6 +37,7 @@ const TEST_SERVER = process.env.NEWS_FEEDS || ""; // stand-in feeds for testing
 const TEST_IMAGES = (process.env.NEWS_IMAGES || "").split(",").filter(Boolean);
 
 // The sources. `universes`: which universes its items may go to.
+// `novelsOnly`: only novels count as Books (see NOVEL_WORDS).
 // `topic`:
 //   "always": everything they publish is about this universe's world
 //             (keywords may still move an item to another universe);
@@ -54,13 +55,16 @@ const SOURCES = [
   { id: "beat", name: "The Beat", site: "https://www.comicsbeat.com", feed: "https://www.comicsbeat.com/feed/", universe: "comics", universes: ["manga", "comics"], topic: "keywords", images: false },
   { id: "tcj", name: "The Comics Journal", site: "https://www.tcj.com", feed: "https://www.tcj.com/feed/", universe: "comics", universes: ["manga", "comics"], topic: "always", images: false },
   // Manga
-  { id: "ann", name: "Anime News Network", site: "https://www.animenewsnetwork.com", feed: "https://www.animenewsnetwork.com/news/rss.xml", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", images: false },
-  { id: "animecorner", name: "Anime Corner", site: "https://animecorner.me", feed: "https://animecorner.me/feed/", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", images: false },
-  { id: "otakuusa", name: "Otaku USA", site: "https://otakuusamagazine.com", feed: "https://otakuusamagazine.com/feed/", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", images: false },
+  { id: "ann", name: "Anime News Network", site: "https://www.animenewsnetwork.com", feed: "https://www.animenewsnetwork.com/news/rss.xml", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", novelsOnly: true, images: false },
+  { id: "animecorner", name: "Anime Corner", site: "https://animecorner.me", feed: "https://animecorner.me/feed/", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", novelsOnly: true, images: false },
+  { id: "otakuusa", name: "Otaku USA", site: "https://otakuusamagazine.com", feed: "https://otakuusamagazine.com/feed/", universe: "manga", universes: ["manga", "comics", "books"], topic: "keywords", novelsOnly: true, images: false },
 ];
 
-// Keywords (whole words, headline and the feed's categories).
-const MANGA_WORDS = /\b(manga|mangaka|manhwa|manhua|webtoons?|shonen|sh[oō]nen|shojo|sh[oō]jo|seinen|josei|(?:tv |anime )?anime (?:adaptation|film|series|season)|gets (?:tv )?anime|anime (?:announced|green-lit|greenlit)|tv anime)\b/i;
+// Keywords (whole words, headline and the feed's categories). On the
+// anime and manga sites (`novelsOnly`) only novels count as Books: their
+// "writer" and "author" stories are usually about games or anime.
+const NOVEL_WORDS = /\b(light novels?|novels?|novelists?)\b/i;
+const MANGA_WORDS = /\b(manga|mangaka|japanese comics|korean comics|manhwa|manhua|webtoons?|shonen|sh[oō]nen|shojo|sh[oō]jo|seinen|josei|(?:tv |anime )?anime (?:adaptation|film|series|season)|gets (?:tv )?anime|anime (?:announced|green-lit|greenlit)|tv anime)\b/i;
 const COMICS_WORDS = /\b(comics?|comic books?|graphic novels?|cartoonists?|webcomics?|superheroes|superhero|bandes? dessin[ée]es?)\b|#\d+\b/i; // "#1" = a comic issue
 const BOOK_WORDS = /\b(books?|novels?|novella|novelists?|authors?|writers?|poets?|poetry|poems?|literary|literature|publish(?:er|ers|ing|ed)?|memoirs?|librar(?:y|ies|ians?)|bookstores?|bookshops?|bestsell(?:er|ers|ing)|fiction|nonfiction|light novels?|booker|pulitzer|nobel|banned books?|book bans?|adapted from)\b/i;
 
@@ -204,7 +208,7 @@ function parseFeed(xml) {
 // the source covers; then the source's own universe for "always" sites.
 function universeOf(item, source) {
   const text = [item.title].concat(item.categories).join(" \u00b7 ");
-  const words = { manga: MANGA_WORDS, comics: COMICS_WORDS, books: BOOK_WORDS };
+  const words = { manga: MANGA_WORDS, comics: COMICS_WORDS, books: source.novelsOnly ? NOVEL_WORDS : BOOK_WORDS };
   for (const universe of ["manga", "comics", "books"]) {
     if (source.universes.includes(universe) && words[universe].test(text)) return universe;
   }
@@ -287,8 +291,16 @@ async function main() {
     }
     // This source's earlier items stay until they're 30 days old (a feed
     // only shows its latest few). A failed feed keeps them all.
+    // Old items are checked again with today's rules (only the headline
+    // was kept, so it decides; without a match an item can only stay in
+    // the source's own universe).
     for (const item of oldItems) {
-      if (item.s === source.id && new Date(item.d) >= oldest) fresh.push(Object.assign({}, item, { i: source.images || TEST_IMAGES.includes(source.id) ? item.i : null }));
+      if (item.s !== source.id || !(new Date(item.d) >= oldest) || looksAdult([item.t])) continue;
+      // The headline decides again when it can; otherwise only the
+      // source's own universe stays.
+      const universe = universeOf({ title: item.t, categories: [] }, source) || (item.v === source.universe ? item.v : null);
+      if (!universe) continue;
+      fresh.push(Object.assign({}, item, { v: universe, i: source.images || TEST_IMAGES.includes(source.id) ? item.i : null }));
     }
   }
 
