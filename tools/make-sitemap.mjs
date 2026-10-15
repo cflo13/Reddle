@@ -61,6 +61,7 @@ const pages = [
   ["about.html", "monthly", "0.3"],
   ["privacy.html", "yearly", "0.2"],
   ["terms.html", "yearly", "0.2"],
+  ["deleteaccount.html", "yearly", "0.2"],
 ];
 
 const xml =

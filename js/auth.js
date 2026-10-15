@@ -1668,6 +1668,7 @@ function openPhoneMenu(profile) {
   link("About", "about.html");
   link("Privacy", "privacy.html");
   link("Terms", "terms.html");
+  link("Delete account", "deleteaccount.html");
   link("Contact", "about.html#contact");
   if (profile || phoneMenuLoggedIn) {
     divider();

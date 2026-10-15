@@ -8,7 +8,8 @@
 // What it NEVER keeps: anything from another website. That means no
 // Supabase (logins, the database, profile pictures), no Open Library,
 // no Google Books. Those always go straight to the internet. Login
-// pages are never kept either.
+// pages are never kept either, and nor is anything in .well-known/
+// (assetlinks.json, which Android reads to trust the Play Store app).
 //
 // Pages: internet first (so they're always fresh), saved copy if offline.
 // Styles, scripts, pictures: saved copy first (fast), refreshed in the
@@ -16,7 +17,7 @@
 // new link and old copies are thrown away.
 // ------------------------------------------------------------
 
-const CACHE = "reddle-v12"; // change this to throw everything away
+const CACHE = "reddle-v13"; // change this to throw everything away
 const OFFLINE_PAGE = "offline.html";
 
 // Kept straight away when the service worker is installed.
@@ -49,6 +50,7 @@ function canSave(request) {
   if (request.method !== "GET") return false;
   if (url.origin !== self.location.origin) return false; // other websites: never
   if (!url.pathname.startsWith(new URL("./", self.location).pathname)) return false;
+  if (url.pathname.includes("/.well-known/")) return false; // app links: always fresh
   const fileName = url.pathname.split("/").pop();
   if (NEVER_SAVE_PAGES.includes(fileName)) return false;
   if (/token|code=|error=/.test(url.search)) return false; // login links

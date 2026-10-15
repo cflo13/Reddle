@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=67";
+        preload.href = "seeds-resolved.json?v=68";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=67">
+  <link rel="stylesheet" href="css/style.css?v=68">
 </head>
 <body>
   <header class="site-header">
@@ -154,6 +154,7 @@
       <a href="news.html">Reading news</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
+      <a href="deleteaccount.html">Delete account</a>
       <a href="about.html#contact">Contact</a>
     </nav>
     <p class="footer-universe">
@@ -167,28 +168,28 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=67"></script>
+  <script src="js/config.js?v=68"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=67"></script>
+  <script src="js/supabase-client.js?v=68"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=67"></script>
+  <script src="js/auth.js?v=68"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=67"></script>
+  <script src="js/sources.js?v=68"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=67"></script>
+  <script src="js/search-suggest.js?v=68"></script>
   <!-- 5b. Curated comics and manga lists (fill lists while Reddle is small) -->
-  <script src="js/universe-seeds.js?v=67"></script>
+  <script src="js/universe-seeds.js?v=68"></script>
   <!-- 5c. Book to screen: films and series based on books (Wikidata files) -->
-  <script src="js/screen-data.js?v=67"></script>
+  <script src="js/screen-data.js?v=68"></script>
   <!-- 5d. Reading news: headlines from other sites (news-data/news.json) -->
-  <script src="js/news-data.js?v=67"></script>
+  <script src="js/news-data.js?v=68"></script>
   <!-- 6. Book helpers: Open Library, stars, covers, log cards -->
-  <script src="js/books.js?v=67"></script>
+  <script src="js/books.js?v=68"></script>
   <!-- 7. Picture cards to share (reviews, year in review) -->
-  <script src="js/share-card.js?v=67"></script>
+  <script src="js/share-card.js?v=68"></script>
   <!-- 8. Posts, comments and likes on posts -->
-  <script src="js/social.js?v=67"></script>
+  <script src="js/social.js?v=68"></script>
   <!-- This page's own code -->
-  <script src="js/home.js?v=67"></script>
+  <script src="js/home.js?v=68"></script>
 </body>
 </html>

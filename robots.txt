@@ -8,5 +8,6 @@ Disallow: /choose-username.html
 Disallow: /welcome.html
 Disallow: /notifications.html
 Disallow: /unsubscribe.html
+Disallow: /playstore/
 
 Sitemap: https://reddle.org/sitemap.xml

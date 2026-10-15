@@ -48,7 +48,7 @@
         preload.rel = "preload";
         preload.as = "fetch";
         preload.crossOrigin = "anonymous";
-        preload.href = "seeds-resolved.json?v=67";
+        preload.href = "seeds-resolved.json?v=68";
         document.head.appendChild(preload);
       }
       // The phone's status bar matches the header (day, night).
@@ -57,7 +57,7 @@
       if (meta) meta.setAttribute("content", bars[universe][light ? 0 : 1]);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=67">
+  <link rel="stylesheet" href="css/style.css?v=68">
 </head>
 <body>
   <header class="site-header">
@@ -96,8 +96,8 @@
 
   <main class="page prose">
     <h1>Privacy policy</h1>
-    <p class="muted">Last updated 13 October 2026</p>
-    <p class="lead">This page explains, in plain English, what Reddle keeps about you, who can see it, and how to delete it.</p>
+    <p class="muted">Last updated 15 October 2026</p>
+    <p class="lead">This page explains, in plain English, what Reddle keeps about you, who can see it, and how to delete it. It covers the website (reddle.org) and the Reddle app for Android, which shows the same website inside an app.</p>
 
     <h2>What we keep</h2>
     <ul>
@@ -112,7 +112,8 @@
       <li><strong>Email choices:</strong> which notification emails you want (new followers, follow requests, comments) and a list of the emails we sent you, so nobody gets the same email twice or too many in a day.</li>
       -->
       <li><strong>Feedback and bug reports:</strong> if you send one, we keep what you wrote, what kind it is (bug, idea or something else), the screenshot if you add one, who sent it, and a few details sent with it automatically: the page address, your browser and device in a few words (like "Chrome 129 on Android"), your screen width, and whether you're using the installed app. Nothing else is collected. If you aren't logged in, we also keep the email address you type, and only use it to reply to that report. Only the site owner can read reports and see screenshots; deleting a report deletes its screenshot, and deleting your account deletes your reports.</li>
-      <li><strong>Google sign in:</strong> if you use it, Google tells us your email address and name.</li>
+      <li><strong>Google sign in:</strong> if you use it, Google tells us your email address, your name and a link to your Google profile picture. We use the email address to log you in; we don't show your name or Google picture anywhere.</li>
+      <li><strong>Technical logs:</strong> when your browser or the app talks to our database, our provider Supabase keeps short technical logs (the time, what was asked for, and your IP address) for a few days, to keep the service running and safe from abuse. GitHub Pages, which hosts the website, keeps similar logs. We don't use them to follow what you do.</li>
     </ul>
 
     <h2>What's public</h2>
@@ -126,7 +127,7 @@
       <!-- Put back when notification emails are switched on (EMAILS_ON in js/config.js):
       <li>Notification emails are sent through <a href="https://resend.com">Resend</a>, an email delivery service. To send one, it gets your email address and the message, and nothing else. You can turn emails off in Settings or with the link in any email.</li>
       -->
-      <li>The website itself is hosted on <a href="https://pages.github.com">GitHub Pages</a>.</li>
+      <li>The website itself is hosted on <a href="https://pages.github.com">GitHub Pages</a>. Everything between your device, the website and Supabase travels over an encrypted connection (HTTPS).</li>
       <li>Book details and covers are loaded from <a href="https://openlibrary.org">Open Library</a> and <a href="https://books.google.com">Google Books</a> (Google Books mostly for comics and manga). Your browser contacts them directly when it shows or searches for a book, so they can see your IP address and what you searched for, like any website you visit. When someone logs a book, we keep its title, author, cover link, ISBN and genres; for Google Books books we don't keep the description (it's loaded from Google each time).</li>
       <li>Film and TV information (the "On screen" lists and the Book to screen page) comes from <a href="https://www.wikidata.org">Wikidata</a>. We copy it to our own site once a day, so your browser never contacts Wikidata. Its titles link to Wikipedia, which only sees you if you open one.</li>
       <li>Reading news shows headlines from other sites (their names are on each headline). Once a day we copy only the headline, the site's name, the date and the link to our own site; we don't keep their articles. Opening a headline takes you to that site, which then sees your visit like any other. Where a site allows us to show its own small picture next to a headline, your browser loads that picture straight from the site (without telling it which Reddle page you were on), so it can see your IP address.</li>
@@ -135,14 +136,15 @@
     <h2>What we don't do</h2>
     <ul>
       <li>We don't show ads.</li>
-      <li>We don't sell or rent your information to anyone.</li>
-      <li>We don't use tracking or advertising cookies. Your browser stores a few small things on your device: a login token so you stay logged in, your day or night mode choice, which universe you're in (Books, Comics or Manga), which feed tab you last used, the genres you hid, when you last opened your notifications (for the number on the bell), the page to return to after logging in, and saved copies of Reddle's own pages so the app works offline. None of it is sent to anyone else.</li>
+      <li>We don't sell or rent your information to anyone, and we don't share it with anyone except the services above that run Reddle for us.</li>
+      <li>We don't use analytics or tracking tools, in the website or the app.</li>
+      <li>We don't use tracking or advertising cookies. Your browser stores a few small things on your device: a login token so you stay logged in, your day or night mode choice, which universe you're in (Books, Comics or Manga), which feed tab you last used, the genres you hid, when you last opened your notifications (for the number on the bell), the page to return to after logging in, whether you closed the "Reddle on your home screen" card, and saved copies of Reddle's own pages so the app works offline. None of it is sent to anyone else.</li>
     </ul>
 
     <h2>Your choices</h2>
     <ul>
       <li>You can change your username, email and password, edit your bio and picture, and edit or delete any log, at any time.</li>
-      <li>You can delete your account in <a href="settings.html">Settings</a>. This deletes your profile, picture, logs, reviews, posts, comments, likes, shelves and follows straight away. Books stay on Reddle because they're shared, but nothing on them is linked to you any more.</li>
+      <li>You can delete your account in <a href="settings.html">Settings</a>. This deletes your profile, picture, logs, reviews, posts and their pictures, comments, likes, shelves, follows, and the reports and feedback you sent, straight away. Books stay on Reddle because they're shared, but nothing on them is linked to you any more. If you can't log in, email us and we'll delete it for you. <a href="deleteaccount.html">How to delete your account</a> explains every step.</li>
     </ul>
 
     <h2>Children</h2>
@@ -152,7 +154,7 @@
     <p>If this policy changes in a way that matters, we'll update the date at the top and mention it on the site.</p>
 
     <h2>Questions</h2>
-    <p>See the <a href="about.html#contact">contact details on the About page</a>.</p>
+    <p>Email <a data-contact-email="" href="mailto:hello@reddle.org">hello@reddle.org</a>, or see the <a href="about.html#contact">contact details on the About page</a>.</p>
   </main>
 
   <footer class="site-footer">
@@ -163,6 +165,7 @@
       <a href="news.html">Reading news</a>
       <a href="privacy.html">Privacy</a>
       <a href="terms.html">Terms</a>
+      <a href="deleteaccount.html">Delete account</a>
       <a href="about.html#contact">Contact</a>
     </nav>
     <p class="footer-universe">
@@ -176,16 +179,16 @@
   <!-- 1. Supabase library from a CDN (nothing to install) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <!-- 2. Our project URL and key -->
-  <script src="js/config.js?v=67"></script>
+  <script src="js/config.js?v=68"></script>
   <!-- 3. Shared connection, available as `db` -->
-  <script src="js/supabase-client.js?v=67"></script>
+  <script src="js/supabase-client.js?v=68"></script>
   <!-- 4. Login helpers, the header menu and shared helpers -->
-  <script src="js/auth.js?v=67"></script>
+  <script src="js/auth.js?v=68"></script>
   <!-- 4b. Genres, universes (Books, Comics, Manga), Open Library and Google Books -->
-  <script src="js/sources.js?v=67"></script>
+  <script src="js/sources.js?v=68"></script>
   <!-- 5. Live suggestions under the header search box -->
-  <script src="js/search-suggest.js?v=67"></script>
+  <script src="js/search-suggest.js?v=68"></script>
   <!-- This page's own code -->
-  <script src="js/static-page.js?v=67"></script>
+  <script src="js/static-page.js?v=68"></script>
 </body>
 </html>
