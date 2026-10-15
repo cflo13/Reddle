@@ -15,18 +15,19 @@ linked from the site (robots.txt keeps search engines out of it).
 The screenshots show made-up readers, books and covers (no real users, no
 real books or brands).
 
-## The fingerprint (do this once Play Console gives it to you)
+## Fingerprints
+
+`.well-known/assetlinks.json` (live at https://reddle.org/.well-known/assetlinks.json)
+already has the first fingerprint (`E0:F9:8F:...:3B:51`). After your first upload,
+Google Play shows a second one:
 
 1. Play Console → your app → Test and release → **App integrity** → App signing.
 2. Copy the **SHA-256 certificate fingerprint** under "App signing key certificate"
-   (it looks like `AB:CD:12:...`, 32 pairs).
-3. Open `.well-known/assetlinks.json` in this repository and replace
-   `REPLACE_WITH_SHA256_FINGERPRINT_FROM_PLAY_CONSOLE` (line 7) with it,
-   keeping the quotes. If PWABuilder also gave you its own signing key's
-   fingerprint, add it as a second item in the same list:
-   `["AA:BB:...", "CC:DD:..."]`.
-4. Save, and the site updates in about a minute. Until this is done the app
-   still works, but Android shows a browser bar at the top.
+   (32 pairs like `AB:CD:12:...`).
+3. Send it to Claude, or add it to the list yourself: put a comma after the first
+   fingerprint's closing quote, then the new one in quotes on the next line.
+4. The site updates in about a minute. Until both are there, the app from Play
+   may show a browser bar at the top.
 
 ## Account deletion link
 

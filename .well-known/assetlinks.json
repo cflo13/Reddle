@@ -4,7 +4,9 @@
     "target": {
       "namespace": "android_app",
       "package_name": "org.reddle.app",
-      "sha256_cert_fingerprints": ["REPLACE_WITH_SHA256_FINGERPRINT_FROM_PLAY_CONSOLE"]
+      "sha256_cert_fingerprints": [
+        "E0:F9:8F:69:54:B4:49:FB:95:68:B6:A9:70:49:06:C5:4C:20:03:FE:68:35:9B:7F:92:44:AF:AF:49:B5:3B:51"
+      ]
     }
   }
 ]
