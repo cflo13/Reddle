@@ -11,6 +11,8 @@ linked from the site (robots.txt keeps search engines out of it).
 | `feature-graphic.png` | 1024 x 500 banner with "Letterboxd for books" | Store listing → Feature graphic |
 | `feature-graphic-alternative.png` | the same banner with "Your reading life, beautifully kept" instead (safer: no other company's name) | use this one if Google objects to the first |
 | `phone-1-home.png` ... `phone-6-comics.png` | six 1080 x 1920 phone screenshots: home, a book, a profile, search, the diary, the Comics universe | Store listing → Phone screenshots |
+| `tablet7-1-home.png` ... `tablet7-6-comics.png` | the same six pages at 1200 x 1920 (a 7-inch tablet, 600 points wide: the site's one-column layout with the bottom bar) | Store listing → 7-inch tablet screenshots |
+| `tablet10-1-home.png` ... `tablet10-6-comics.png` | the same six pages at 1600 x 2560 (a 10-inch tablet, 800 points wide: the two-column home page with the feed on the right) | Store listing → 10-inch tablet screenshots |
 
 The screenshots show made-up readers, books and covers (no real users, no
 real books or brands).
