@@ -1,5 +1,5 @@
 {
- "made": "2026-10-14",
+ "made": "2026-10-19",
  "comics": [
   {
    "external_id": "OL2897798W",
@@ -724,8 +724,8 @@
    "author": "Kazu Kibuishi",
    "cover_url": "https://covers.openlibrary.org/b/id/2420582-M.jpg?default=false",
    "isbns": [
-    "9781643102559",
-    "6055678012"
+    "1443145394",
+    "8498674387"
    ],
    "genres": [
     "comics",
@@ -1738,22 +1738,6 @@
     "adventure"
    ],
    "seed": "Rurouni Kenshin"
-  },
-  {
-   "external_id": "OL8211756W",
-   "title": "Inuyasha Ani-Manga, Volume 1",
-   "author": "高橋留美子",
-   "cover_url": "https://covers.openlibrary.org/b/id/863174-M.jpg?default=false",
-   "isbns": [
-    "9781591162025",
-    "1591162025"
-   ],
-   "genres": [
-    "manga",
-    "fantasy",
-    "romance"
-   ],
-   "seed": "Inuyasha"
   },
   {
    "external_id": "OL8211975W",
