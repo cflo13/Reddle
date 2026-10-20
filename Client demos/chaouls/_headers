@@ -1,0 +1,3 @@
+# Cloudflare Pages: keep the demo out of search engines
+/*
+  X-Robots-Tag: noindex, nofollow
