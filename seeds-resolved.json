@@ -1,5 +1,5 @@
 {
- "made": "2026-10-19",
+ "made": "2026-10-26",
  "comics": [
   {
    "external_id": "OL2897798W",
@@ -110,8 +110,8 @@
    "author": "Frank Miller",
    "cover_url": "https://covers.openlibrary.org/b/id/798170-M.jpg?default=false",
    "isbns": [
-    "9781563893421",
-    "3741605956"
+    "9781417776351",
+    "9781563899294"
    ],
    "genres": [
     "comics",
@@ -536,8 +536,8 @@
    "author": "Brian K. Vaughan",
    "cover_url": "https://covers.openlibrary.org/b/id/10456615-M.jpg?default=false",
    "isbns": [
-    "9788416767489",
-    "9781632156747"
+    "0606389156",
+    "1632156741"
    ],
    "genres": [
     "comics",
@@ -724,8 +724,8 @@
    "author": "Kazu Kibuishi",
    "cover_url": "https://covers.openlibrary.org/b/id/2420582-M.jpg?default=false",
    "isbns": [
-    "1443145394",
-    "8498674387"
+    "9788498674385",
+    "1407179136"
    ],
    "genres": [
     "comics",
@@ -1611,6 +1611,22 @@
     "adventure"
    ],
    "seed": "Bleach"
+  },
+  {
+   "external_id": "OL5854143W",
+   "title": "Fairy Tail 1",
+   "author": "Hiro Mashima",
+   "cover_url": "https://covers.openlibrary.org/b/id/2405586-M.jpg?default=false",
+   "isbns": [
+    "9861197451",
+    "9783551796110"
+   ],
+   "genres": [
+    "manga",
+    "fantasy",
+    "adventure"
+   ],
+   "seed": "Fairy Tail"
   },
   {
    "external_id": "OL37814176W",
