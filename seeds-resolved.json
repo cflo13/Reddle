@@ -1,5 +1,5 @@
 {
- "made": "2026-11-02",
+ "made": "2026-11-09",
  "comics": [
   {
    "external_id": "OL2897798W",
@@ -7,8 +7,8 @@
    "author": "Alan Moore",
    "cover_url": "https://covers.openlibrary.org/b/id/7774899-M.jpg?default=false",
    "isbns": [
-    "9788467473278",
-    "6525933358"
+    "9788573515497",
+    "8467473266"
    ],
    "genres": [
     "comics",
@@ -55,18 +55,20 @@
    "seed": "Persepolis"
   },
   {
-   "external_id": "OL17596671W",
+   "external_id": "OL37844209W",
    "title": "Saga",
    "author": "Brian K. Vaughan",
-   "cover_url": "https://covers.openlibrary.org/b/id/12648948-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/15272465-M.jpg?default=false",
    "isbns": [
-    "0606367276",
-    "9788468478906"
+    "9781534315631",
+    "1534304045"
    ],
    "genres": [
     "comics",
     "science_fiction",
-    "fantasy"
+    "fantasy",
+    "romance",
+    "adventure"
    ],
    "seed": "Saga"
   },
@@ -315,8 +317,8 @@
    "author": "Jerry Craft",
    "cover_url": "https://covers.openlibrary.org/b/id/12355597-M.jpg?default=false",
    "isbns": [
-    "1982609044",
-    "0062691198"
+    "0062691198",
+    "1982609044"
    ],
    "genres": [
     "comics",
@@ -363,8 +365,8 @@
    "author": "Gene Luen Yang",
    "cover_url": "https://covers.openlibrary.org/b/id/10134498-M.jpg?default=false",
    "isbns": [
-    "9781596432086",
-    "9780312384487"
+    "9781417754496",
+    "9781596432086"
    ],
    "genres": [
     "comics",
@@ -617,8 +619,8 @@
    "author": "Alice Oseman",
    "cover_url": "https://covers.openlibrary.org/b/id/9020805-M.jpg?default=false",
    "isbns": [
-    "838266007X",
-    "9781444968934"
+    "9781338617450",
+    "1444968939"
    ],
    "genres": [
     "comics",
@@ -872,7 +874,7 @@
    "author": "Mariko Tamaki",
    "cover_url": "https://covers.openlibrary.org/b/id/12293430-M.jpg?default=false",
    "isbns": [
-    "9781250312846",
+    "1626722595",
     "1773063634"
    ],
    "genres": [
@@ -1033,6 +1035,22 @@
     "horror"
    ],
    "seed": "Saga of the Swamp Thing"
+  },
+  {
+   "external_id": "OL16535679W",
+   "title": "Superman: Red Son",
+   "author": "Mark Millar",
+   "cover_url": "https://covers.openlibrary.org/b/id/15272201-M.jpg?default=false",
+   "isbns": [
+    "1401224253",
+    "9781401224257"
+   ],
+   "genres": [
+    "comics",
+    "fantasy",
+    "science_fiction"
+   ],
+   "seed": "Superman: Red Son"
   },
   {
    "external_id": "OL21008180W",
@@ -1446,13 +1464,13 @@
    "seed": "Fruits Basket"
   },
   {
-   "external_id": "OL13668603W",
-   "title": "Nana",
-   "author": "Yazawa Aï",
-   "cover_url": "https://covers.openlibrary.org/b/id/11461735-M.jpg?default=false",
+   "external_id": "OL5854055W",
+   "title": "Nana 3",
+   "author": "矢沢あい",
+   "cover_url": "https://covers.openlibrary.org/b/id/989850-M.jpg?default=false",
    "isbns": [
-    "9782840559641",
-    "2756000191"
+    "9788491460107",
+    "9782847890259"
    ],
    "genres": [
     "manga",
