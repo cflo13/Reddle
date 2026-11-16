@@ -1,5 +1,5 @@
 {
- "made": "2026-11-09",
+ "made": "2026-11-16",
  "comics": [
   {
    "external_id": "OL2897798W",
@@ -7,8 +7,8 @@
    "author": "Alan Moore",
    "cover_url": "https://covers.openlibrary.org/b/id/7774899-M.jpg?default=false",
    "isbns": [
-    "9788573515497",
-    "8467473266"
+    "0606357424",
+    "9788484311393"
    ],
    "genres": [
     "comics",
@@ -25,8 +25,8 @@
    "author": "Art Spiegelman",
    "cover_url": "https://covers.openlibrary.org/b/id/10210168-M.jpg?default=false",
    "isbns": [
-    "607312581X",
-    "9780329144531"
+    "9788535906288",
+    "9783499224614"
    ],
    "genres": [
     "comics",
@@ -131,8 +131,8 @@
    "author": "Jeff Smith",
    "cover_url": "https://covers.openlibrary.org/b/id/12648382-M.jpg?default=false",
    "isbns": [
-    "1415528918",
-    "1888963166"
+    "0439706408",
+    "188896300X"
    ],
    "genres": [
     "comics",
@@ -182,8 +182,8 @@
    "author": "Chris Ware",
    "cover_url": "https://covers.openlibrary.org/b/id/873630-M.jpg?default=false",
    "isbns": [
-    "0375714545",
-    "3938511125"
+    "9780375714542",
+    "9783938511121"
    ],
    "genres": [
     "comics",
@@ -298,8 +298,8 @@
    "author": "Raina Telgemeier",
    "cover_url": "https://covers.openlibrary.org/b/id/9147132-M.jpg?default=false",
    "isbns": [
-    "0545132061",
-    "9780545132060"
+    "9780545132060",
+    "9780545132053"
    ],
    "genres": [
     "comics",
@@ -365,8 +365,8 @@
    "author": "Gene Luen Yang",
    "cover_url": "https://covers.openlibrary.org/b/id/10134498-M.jpg?default=false",
    "isbns": [
-    "9781417754496",
-    "9781596432086"
+    "9780312384487",
+    "9781417754496"
    ],
    "genres": [
     "comics",
@@ -423,16 +423,17 @@
    "seed": "Asterios Polyp"
   },
   {
-   "external_id": "OL1646670W",
+   "external_id": "OL20104956W",
    "title": "Kingdom Come",
-   "author": "Mark Waid",
-   "cover_url": "https://covers.openlibrary.org/b/id/798157-M.jpg?default=false",
+   "author": "Elliot S. Maggin",
+   "cover_url": "https://covers.openlibrary.org/b/id/8765730-M.jpg?default=false",
    "isbns": [
-    "1563893304",
-    "1563893177"
+    "1401290965",
+    "9781401220341"
    ],
    "genres": [
     "comics",
+    "fantasy",
     "science_fiction"
    ],
    "seed": "Kingdom Come"
@@ -522,8 +523,8 @@
    "author": "Warren Ellis",
    "cover_url": "https://covers.openlibrary.org/b/id/883146-M.jpg?default=false",
    "isbns": [
-    "9781563895685",
-    "1563895684"
+    "9781563896279",
+    "1563897229"
    ],
    "genres": [
     "comics",
@@ -586,8 +587,8 @@
    "author": "Jeff Lemire",
    "cover_url": "https://covers.openlibrary.org/b/id/3033499-M.jpg?default=false",
    "isbns": [
-    "1891830880",
-    "9781891830884"
+    "9781891830884",
+    "1891830880"
    ],
    "genres": [
     "comics",
@@ -602,8 +603,8 @@
    "author": "Emily Carroll",
    "cover_url": "https://covers.openlibrary.org/b/id/7401054-M.jpg?default=false",
    "isbns": [
-    "9788594541406",
-    "9780571288656"
+    "1442465956",
+    "0571288650"
    ],
    "genres": [
     "comics",
@@ -620,7 +621,7 @@
    "cover_url": "https://covers.openlibrary.org/b/id/9020805-M.jpg?default=false",
    "isbns": [
     "9781338617450",
-    "1444968939"
+    "3743209365"
    ],
    "genres": [
     "comics",
@@ -635,8 +636,8 @@
    "author": "Dav Pilkey",
    "cover_url": "https://covers.openlibrary.org/b/id/7894142-M.jpg?default=false",
    "isbns": [
-    "9781443155014",
-    "0606391150"
+    "8376867563",
+    "9781407199900"
    ],
    "genres": [
     "comics",
@@ -841,8 +842,8 @@
    "author": "Joe Sacco",
    "cover_url": "https://covers.openlibrary.org/b/id/791627-M.jpg?default=false",
    "isbns": [
-    "2908981262",
-    "156097432X"
+    "9895342969",
+    "9789895342969"
    ],
    "genres": [
     "comics",
@@ -1008,8 +1009,8 @@
    "author": "Alan Moore",
    "cover_url": "https://covers.openlibrary.org/b/id/8805707-M.jpg?default=false",
    "isbns": [
-    "140123321X",
-    "9781603094375"
+    "1401201180",
+    "1603094377"
    ],
    "genres": [
     "comics",
@@ -1157,8 +1158,8 @@
    "author": "尾田栄一郎",
    "cover_url": "https://covers.openlibrary.org/b/id/1020563-M.jpg?default=false",
    "isbns": [
-    "9861125795",
-    "9788468480114"
+    "9872462852",
+    "9783551745811"
    ],
    "genres": [
     "manga",
@@ -1174,8 +1175,8 @@
    "author": "Masashi Kishimoto",
    "cover_url": "https://covers.openlibrary.org/b/id/1020779-M.jpg?default=false",
    "isbns": [
-    "9781417651054",
-    "6055686392"
+    "4088728408",
+    "9781569319000"
    ],
    "genres": [
     "manga",
@@ -1241,8 +1242,8 @@
    "author": "Tsugumi Ohba",
    "cover_url": "https://covers.openlibrary.org/b/id/1041608-M.jpg?default=false",
    "isbns": [
-    "1421525771",
-    "4088736214"
+    "9781415661055",
+    "9789872462840"
    ],
    "genres": [
     "manga",
@@ -1253,17 +1254,16 @@
    "seed": "Death Note"
   },
   {
-   "external_id": "OL8756254W",
-   "title": "Fullmetal Alchemist Boxset W/Alphonse Figurine",
+   "external_id": "OL17539446W",
+   "title": "Fullmetal Alchemist #1-27",
    "author": "荒川弘",
-   "cover_url": "https://covers.openlibrary.org/b/id/765321-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/7780529-M.jpg?default=false",
    "isbns": [
-    "1421507455",
-    "9781421507453"
+    "1421541955",
+    "9781421541952"
    ],
    "genres": [
     "manga",
-    "mystery",
     "fantasy",
     "adventure"
    ],
@@ -1337,11 +1337,11 @@
   {
    "external_id": "OL19945304W",
    "title": "Pluto, Vol. 2",
-   "author": "Naoki Urasawa",
+   "author": "浦沢直樹",
    "cover_url": "https://covers.openlibrary.org/b/id/10656309-M.jpg?default=false",
    "isbns": [
     "8542609662",
-    "9788542609660"
+    "9788491460305"
    ],
    "genres": [
     "manga",
@@ -1910,8 +1910,8 @@
    "author": "Tsugumi Ohba",
    "cover_url": "https://covers.openlibrary.org/b/id/6462458-M.jpg?default=false",
    "isbns": [
-    "9788415513384",
-    "4088746228"
+    "4088746228",
+    "9788467903027"
    ],
    "genres": [
     "manga",
