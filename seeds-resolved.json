@@ -1,5 +1,5 @@
 {
- "made": "2026-11-16",
+ "made": "2026-11-23",
  "comics": [
   {
    "external_id": "OL2897798W",
@@ -25,7 +25,7 @@
    "author": "Art Spiegelman",
    "cover_url": "https://covers.openlibrary.org/b/id/10210168-M.jpg?default=false",
    "isbns": [
-    "9788535906288",
+    "9780679406419",
     "9783499224614"
    ],
    "genres": [
@@ -42,8 +42,8 @@
    "author": "Marjane Satrapi",
    "cover_url": "https://covers.openlibrary.org/b/id/12648921-M.jpg?default=false",
    "isbns": [
-    "9788328102873",
-    "1407070754"
+    "9789722531177",
+    "841791014X"
    ],
    "genres": [
     "comics",
@@ -78,8 +78,8 @@
    "author": "Alan Moore",
    "cover_url": "https://covers.openlibrary.org/b/id/12293384-M.jpg?default=false",
    "isbns": [
-    "8417827358",
-    "9781401207922"
+    "751006953X",
+    "9781845762278"
    ],
    "genres": [
     "comics",
@@ -112,8 +112,8 @@
    "author": "Frank Miller",
    "cover_url": "https://covers.openlibrary.org/b/id/798170-M.jpg?default=false",
    "isbns": [
-    "9781417776351",
-    "9781563899294"
+    "9781563893421",
+    "1401263119"
    ],
    "genres": [
     "comics",
@@ -148,8 +148,8 @@
    "author": "Craig Thompson",
    "cover_url": "https://covers.openlibrary.org/b/id/940324-M.jpg?default=false",
    "isbns": [
-    "9780613925952",
-    "0613925955"
+    "1891830430 9781891830433 9781603090964 1603090967",
+    "1891830430"
    ],
    "genres": [
     "comics",
@@ -365,8 +365,8 @@
    "author": "Gene Luen Yang",
    "cover_url": "https://covers.openlibrary.org/b/id/10134498-M.jpg?default=false",
    "isbns": [
-    "9780312384487",
-    "9781417754496"
+    "1596431520",
+    "9781596431522"
    ],
    "genres": [
     "comics",
@@ -722,20 +722,17 @@
    "seed": "The Incal"
   },
   {
-   "external_id": "OL8842598W",
+   "external_id": "OL17425242W",
    "title": "Amulet",
    "author": "Kazu Kibuishi",
-   "cover_url": "https://covers.openlibrary.org/b/id/2420582-M.jpg?default=false",
+   "cover_url": "https://covers.openlibrary.org/b/id/8959585-M.jpg?default=false",
    "isbns": [
-    "9788498674385",
-    "1407179136"
+    "9780606264990",
+    "1643102591"
    ],
    "genres": [
     "comics",
     "fantasy",
-    "science_fiction",
-    "adventure",
-    "mystery",
     "children"
    ],
    "seed": "Amulet"
@@ -746,8 +743,8 @@
    "author": "Cece Bell",
    "cover_url": "https://covers.openlibrary.org/b/id/7337268-M.jpg?default=false",
    "isbns": [
-    "1419712179",
-    "9781419710209"
+    "9781419712173",
+    "9781419748318"
    ],
    "genres": [
     "comics",
@@ -762,8 +759,8 @@
    "author": "Victoria Jamieson",
    "cover_url": "https://covers.openlibrary.org/b/id/11327078-M.jpg?default=false",
    "isbns": [
-    "1984882333",
-    "9791032400876"
+    "0698190610",
+    "9780141378992"
    ],
    "genres": [
     "comics",
@@ -842,8 +839,8 @@
    "author": "Joe Sacco",
    "cover_url": "https://covers.openlibrary.org/b/id/791627-M.jpg?default=false",
    "isbns": [
-    "9895342969",
-    "9789895342969"
+    "9781560974321",
+    "2908981262"
    ],
    "genres": [
     "comics",
@@ -909,8 +906,8 @@
    "author": "Tillie Walden",
    "cover_url": "https://covers.openlibrary.org/b/id/12354379-M.jpg?default=false",
    "isbns": [
-    "9781626727724",
-    "1626727724"
+    "1626729409",
+    "9781626727724"
    ],
    "genres": [
     "comics",
@@ -925,8 +922,8 @@
    "author": "George Takei",
    "cover_url": "https://covers.openlibrary.org/b/id/10552030-M.jpg?default=false",
    "isbns": [
-    "1603094830",
-    "9788575327708"
+    "9788575327708",
+    "9781603094504"
    ],
    "genres": [
     "comics",
@@ -958,8 +955,8 @@
    "author": "Scott McCloud",
    "cover_url": "https://covers.openlibrary.org/b/id/10679940-M.jpg?default=false",
    "isbns": [
-    "9788440654991",
-    "9781627652735"
+    "8440653190",
+    "3551748179"
    ],
    "genres": [
     "comics",
@@ -992,8 +989,8 @@
    "author": "Riad Sattouf",
    "cover_url": "https://covers.openlibrary.org/b/id/9676420-M.jpg?default=false",
    "isbns": [
-    "1627793445",
-    "9781627793445"
+    "9781627793445",
+    "1627793445"
    ],
    "genres": [
     "comics",
@@ -1158,8 +1155,8 @@
    "author": "尾田栄一郎",
    "cover_url": "https://covers.openlibrary.org/b/id/1020563-M.jpg?default=false",
    "isbns": [
-    "9872462852",
-    "9783551745811"
+    "9786055686420",
+    "9163828995"
    ],
    "genres": [
     "manga",
@@ -1172,11 +1169,11 @@
   {
    "external_id": "OL8755980W",
    "title": "Naruto 01",
-   "author": "Masashi Kishimoto",
+   "author": "岸本斉史",
    "cover_url": "https://covers.openlibrary.org/b/id/1020779-M.jpg?default=false",
    "isbns": [
-    "4088728408",
-    "9781569319000"
+    "2871294143",
+    "8484492753"
    ],
    "genres": [
     "manga",
@@ -1242,8 +1239,8 @@
    "author": "Tsugumi Ohba",
    "cover_url": "https://covers.openlibrary.org/b/id/1041608-M.jpg?default=false",
    "isbns": [
-    "9781415661055",
-    "9789872462840"
+    "1415661057",
+    "9781417697892"
    ],
    "genres": [
     "manga",
@@ -1335,18 +1332,18 @@
    "seed": "20th Century Boys"
   },
   {
-   "external_id": "OL19945304W",
-   "title": "Pluto, Vol. 2",
-   "author": "浦沢直樹",
-   "cover_url": "https://covers.openlibrary.org/b/id/10656309-M.jpg?default=false",
+   "external_id": "OL17438123W",
+   "title": "Pluto, Vol. 1",
+   "author": "手塚 治虫",
+   "cover_url": "https://covers.openlibrary.org/b/id/7578556-M.jpg?default=false",
    "isbns": [
-    "8542609662",
-    "9788491460305"
+    "2505002096",
+    "9782505002093"
    ],
    "genres": [
     "manga",
-    "mystery",
-    "science_fiction"
+    "science_fiction",
+    "mystery"
    ],
    "seed": "Pluto"
   },
@@ -1484,8 +1481,8 @@
    "author": "Karuho Shiina",
    "cover_url": "https://covers.openlibrary.org/b/id/10224615-M.jpg?default=false",
    "isbns": [
-    "1421540231",
-    "9781421540238"
+    "9781421540238",
+    "1421540231"
    ],
    "genres": [
     "manga",
@@ -1617,8 +1614,8 @@
    "author": "Tite Kubo",
    "cover_url": "https://covers.openlibrary.org/b/id/2806276-M.jpg?default=false",
    "isbns": [
-    "9788484499763",
-    "9781421525761"
+    "9786055686659",
+    "1591164419"
    ],
    "genres": [
     "manga",
@@ -1684,8 +1681,8 @@
    "author": "Junji Itō",
    "cover_url": "https://covers.openlibrary.org/b/id/11888471-M.jpg?default=false",
    "isbns": [
-    "1421561328",
-    "9788575327302"
+    "8575326902",
+    "8575327305"
    ],
    "genres": [
     "manga",
